@@ -1,0 +1,63 @@
+services:
+  node:
+    image: nestjs
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    environment:
+      PORT: ${PORT:-3000}
+      PG_HOST: ${PG_HOST}
+      PG_PORT: ${PG_PORT:-5432}
+      PG_USER: ${PG_USER}
+      PG_DB: ${PG_DB}
+      PG_PASSWORD_FILE: /run/secrets/app_pg_password
+    secrets: [app_pg_password]
+    ports:
+      - ${PORT:-3000}:${PORT:-3000}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    build:
+      context: .
+      dockerfile: pg.Dockerfile
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin_pg_password
+      POSTGRES_DB: rental
+    secrets: [admin_pg_password, app_pg_password]
+    ports:
+      - ${PG_PORT:-5432}:${PG_PORT:-5432}
+    volumes:
+      - data_sql:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d rental']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  rotator:
+    build:
+      context: .
+      dockerfile: rotator.Dockerfile
+    environment:
+      PGHOST: db
+      PGUSER: admin
+      PGDATABASE: rental
+      ROTATE_INTERVAL: ${ROTATE_INTERVAL:-86400}
+    secrets: [admin_pg_password]
+    volumes:
+      - ./secrets:/secrets
+    depends_on:
+      db:
+        condition: service_healthy
+
+secrets:
+  admin_pg_password:
+    file: ./secrets/admin_pg_password
+  app_pg_password:
+    file: ./secrets/app_pg_password
+
+volumes:
+  data_sql:

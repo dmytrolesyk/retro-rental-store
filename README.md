@@ -25,6 +25,58 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Configuration
+
+All environment variables are validated at startup by a single zod schema
+([src/config/env.schema.ts](src/config/env.schema.ts)) via `validate` in
+`ConfigModule.forRoot` — a broken or missing variable stops the process with
+exit code ≠ 0 and the list of every invalid variable. The rest of the code
+only reads config through the typed `ConfigService<Env, true>`.
+
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `PORT` | yes | — | HTTP port the API listens on |
+| `PG_HOST` | yes | — | Postgres host (`db` inside compose, `127.0.0.1` for local runs) |
+| `PG_PORT` | no | `5432` | Postgres port |
+| `PG_USER` | yes | — | Application DB role (least-privilege, not the admin) |
+| `PG_DB` | yes | — | Database name |
+| `PG_PASSWORD_FILE` | yes | — | Path to the file holding the app user's password |
+| `LOG_LEVEL` | no | `info` | `debug` \| `info` \| `warn` \| `error` |
+| `TIMEOUT_MS` | no | `5000` | Generic operation timeout, ms |
+
+`.env.example` is the contract kept in git; the real `.env` is gitignored and
+excluded from the docker image. `pnpm check:env` verifies `.env.example`
+against the schema (missing or invalid variables → exit 1).
+
+### Running
+
+```bash
+pnpm compose:up   # generates secret files (scripts/bootstrap.sh), builds and starts db + api + rotator
+pnpm compose:down # stops the stack
+```
+
+Secrets live in the gitignored `secrets/` directory and reach containers as
+docker compose secrets (`/run/secrets/...`), never as env vars. The Postgres
+init script creates the app role reading its password from the same secret
+file, so the file and the database can't diverge — even after
+`docker compose down -v`.
+
+### Password rotation (no restart)
+
+The app reads the DB password from `PG_PASSWORD_FILE` inside the `pg.Pool`
+`password` async function, i.e. the secret is re-read on every new
+connection. Rotation is therefore just: `ALTER ROLE` → update the secret
+file → terminate old connections; the service keeps answering and its
+`/health` uptime keeps growing.
+
+```bash
+./scripts/rotate.sh   # one-shot manual rotation from the host
+```
+
+A `rotator` compose service also rotates the password automatically every
+`ROTATE_INTERVAL` seconds (default: 86400). For a quick demo:
+`ROTATE_INTERVAL=60 docker compose up -d`.
+
 ## Project setup
 
 ```bash

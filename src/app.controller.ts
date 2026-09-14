@@ -1,12 +1,27 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, HttpCode, Inject } from '@nestjs/common';
+import { DB_CONNECTION } from './database/constants';
+import { Pool } from 'pg';
 
-@Controller()
+const started = Date.now();
+
+@Controller('/')
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(@Inject(DB_CONNECTION) private readonly db: Pool) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('health')
+  @HttpCode(200)
+  health() {
+    return { uptime: (Date.now() - started) / 1000 };
+  }
+  @Get('db')
+  async checkDb() {
+    const queryResult = await this.db.query<{
+      current_user: string;
+      now: string;
+    }>('SELECT current_user, now()::text AS now');
+    return {
+      dbQuery: queryResult.rows[0],
+      uptime: (Date.now() - started) / 1000,
+    };
   }
 }
