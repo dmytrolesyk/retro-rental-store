@@ -1,0 +1,99 @@
+Project RetroGamesRental {
+  database_type: 'PostgreSQL'
+  Note: 'Database schema for a retro games rental shop'
+}
+
+enum game_condition {
+  as_new
+  good
+  poor
+}
+
+enum physical_format {
+  cartridge
+  optical_disc
+  floppy_disc
+  tape
+}
+
+Table games {
+  game_id uuid [pk]
+  game_cover_url text
+  name varchar(120) [not null]
+  release_date date [not null]
+  description text
+}
+
+Table platforms {
+  platform_id uuid [pk]
+  name varchar(120) [not null]
+  description text
+  release_date date [not null]
+}
+
+
+Table game_copies {
+  copy_id uuid [pk]
+  game_id uuid [not null, ref: > games.game_id]
+  platform_id uuid [not null, ref: > platforms.platform_id]
+  photo_url text
+  condition game_condition [not null]
+  format physical_format [not null]
+  price_per_day_cents int [not null]
+
+  checks {
+    `price_per_day_cents >= 0` [name: 'non_negative_price']
+  }
+}
+
+Table genres {
+  genre_id uuid [pk]
+  name varchar(120) [not null, unique]
+  description text
+}
+
+Table game_genres {
+  game_id uuid [not null, ref: > games.game_id]
+  genre_id uuid [not null, ref: > genres.genre_id]
+
+  indexes {
+    (game_id, genre_id) [pk]
+  }
+}
+
+Table renters {
+  renter_id uuid [pk]
+  name varchar(80) [not null]
+  email varchar [not null, unique]
+  phone_number varchar [not null, unique]
+}
+
+Table rentals {
+  rental_id uuid [pk]
+  renter_id uuid [not null, ref: > renters.renter_id]
+  rented_at timestamp [not null]
+}
+
+Table rental_items {
+  rental_id uuid [not null, ref: > rentals.rental_id]
+  game_copy_id uuid [not null, ref: > game_copies.copy_id, note: '''
+    need to ensure that there is only one rented out copy of the game
+
+    CREATE UNIQUE INDEX one_active_rental_per_copy
+    ON rental_items (game_copy_id)
+    WHERE returned_at IS NULL;
+
+    ''']
+  returned_at timestamp [note: '''
+    add a db trigger to on rental_items update or insert to ensure that returned_at >= rented_at
+  ''']
+  cost_per_day_cents int [not null]
+
+    checks {
+    `cost_per_day_cents >= 0` [name: 'non_negative_cost']
+  }
+
+  indexes {
+    (rental_id, game_copy_id) [pk]
+  }
+}
