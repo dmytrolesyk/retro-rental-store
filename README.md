@@ -33,16 +33,16 @@ All environment variables are validated at startup by a single zod schema
 exit code ≠ 0 and the list of every invalid variable. The rest of the code
 only reads config through the typed `ConfigService<Env, true>`.
 
-| Variable | Required | Default | Description |
-| --- | --- | --- | --- |
-| `PORT` | yes | — | HTTP port the API listens on |
-| `PG_HOST` | yes | — | Postgres host (`db` inside compose, `127.0.0.1` for local runs) |
-| `PG_PORT` | no | `5432` | Postgres port |
-| `PG_USER` | yes | — | Application DB role (least-privilege, not the admin) |
-| `PG_DB` | yes | — | Database name |
-| `PG_PASSWORD_FILE` | yes | — | Path to the file holding the app user's password |
-| `LOG_LEVEL` | no | `info` | `debug` \| `info` \| `warn` \| `error` |
-| `TIMEOUT_MS` | no | `5000` | Generic operation timeout, ms |
+| Variable           | Required | Default | Description                                                     |
+| ------------------ | -------- | ------- | --------------------------------------------------------------- |
+| `PORT`             | yes      | —       | HTTP port the API listens on                                    |
+| `PG_HOST`          | yes      | —       | Postgres host (`db` inside compose, `127.0.0.1` for local runs) |
+| `PG_PORT`          | no       | `5432`  | Postgres port                                                   |
+| `PG_USER`          | yes      | —       | Application DB role (least-privilege, not the admin)            |
+| `PG_DB`            | yes      | —       | Database name                                                   |
+| `PG_PASSWORD_FILE` | yes      | —       | Path to the file holding the app user's password                |
+| `LOG_LEVEL`        | no       | `info`  | `debug` \| `info` \| `warn` \| `error`                          |
+| `TIMEOUT_MS`       | no       | `5000`  | Generic operation timeout, ms                                   |
 
 `.env.example` is the contract kept in git; the real `.env` is gitignored and
 excluded from the docker image. `pnpm check:env` verifies `.env.example`
@@ -51,6 +51,7 @@ against the schema (missing or invalid variables → exit 1).
 ### Running
 
 ```bash
+cp .env.example .env;
 pnpm compose:up   # generates secret files (scripts/bootstrap.sh), builds and starts db + api + rotator
 pnpm compose:down # stops the stack
 ```

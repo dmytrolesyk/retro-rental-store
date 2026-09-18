@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const envSchema = z.object({
-  PORT: z.coerce.number().int().min(1).max(3000),
+  PORT: z.coerce.number().int().min(1).max(65535),
   PG_HOST: z.string(),
   PG_PORT: z.coerce.number().default(5432),
   PG_USER: z.string().min(1),
