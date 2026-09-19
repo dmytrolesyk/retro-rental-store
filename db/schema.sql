@@ -5,8 +5,8 @@ CREATE TYPE game_data_source AS ENUM ('retronian', 'synthetic', 'manual');
 CREATE TABLE IF NOT EXISTS games (
   game_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   game_cover_url text,
-  name varchar(120) NOT NULL,
-  name_uk varchar(120) NOT NULL,
+  name text NOT NULL,
+  name_uk text NOT NULL,
   description text NOT NULL,
   description_uk text NOT NULL,
   release_date date,

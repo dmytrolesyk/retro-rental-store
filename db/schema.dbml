@@ -25,8 +25,8 @@ enum game_data_source {
 Table games {
   game_id uuid [pk, default: `gen_random_uuid()`]
   game_cover_url text
-  name varchar(120) [not null]
-  name_uk varchar(120) [not null]
+  name text [not null]
+  name_uk text [not null]
   description text [not null]
   description_uk text [not null]
   release_date date
