@@ -17,37 +17,44 @@ enum physical_format {
 }
 
 Table games {
-  game_id uuid [pk]
+  game_id uuid [pk, default: `gen_random_uuid()`]
   game_cover_url text
-  name varchar(120) [not null, unique]
-  release_date date [not null]
-  description text
+  name varchar(120) [not null]
+  name_uk varchar(120) [not null]
+  description text [not null]
+  description_uk text [not null]
+  release_date date
+  search_vector tsvector [not null, note: '''
+    Stored generated column:
+    setweight(to_tsvector('simple', name_uk), 'A') ||
+    setweight(to_tsvector('simple', description_uk), 'B')
+  ''']
 }
 
 Table platforms {
-  platform_id uuid [pk]
+  platform_id uuid [pk, default: `gen_random_uuid()`]
   name varchar(120) [not null, unique]
-  description text
+  description text [not null]
+  description_uk text [not null]
   release_date date [not null]
 }
 
-
 Table game_copies {
-  game_copy_id uuid [pk]
+  game_copy_id uuid [pk, default: `gen_random_uuid()`]
   game_id uuid [not null, ref: > games.game_id]
   platform_id uuid [not null, ref: > platforms.platform_id]
   photo_url text
   condition game_condition [not null]
   format physical_format [not null]
-  price_per_day_cents int [not null]
+  price_per_day numeric(10,2) [not null]
 
   checks {
-    `price_per_day_cents >= 0` [name: 'non_negative_price']
+    `price_per_day >= 0` [name: 'non_negative_price']
   }
 }
 
 Table genres {
-  genre_id uuid [pk]
+  genre_id uuid [pk, default: `gen_random_uuid()`]
   name varchar(120) [not null, unique]
   description text
 }
@@ -62,14 +69,14 @@ Table game_genres {
 }
 
 Table renters {
-  renter_id uuid [pk]
+  renter_id uuid [pk, default: `gen_random_uuid()`]
   name varchar(80) [not null]
   email varchar(120) [not null, unique]
   phone_number varchar [not null, unique]
 }
 
 Table rentals {
-  rental_id uuid [pk]
+  rental_id uuid [pk, default: `gen_random_uuid()`]
   renter_id uuid [not null, ref: > renters.renter_id]
   rented_at timestamptz [not null]
 }
@@ -77,20 +84,16 @@ Table rentals {
 Table rental_items {
   rental_id uuid [not null, ref: > rentals.rental_id]
   game_copy_id uuid [not null, ref: > game_copies.game_copy_id, note: '''
-    need to ensure that there is only one rented out copy of the game
-
-    CREATE UNIQUE INDEX one_active_rental_per_copy
-    ON rental_items (game_copy_id)
-    WHERE returned_at IS NULL;
-
+    The partial unique index one_active_rental_per_copy is defined in
+    db/indexes.sql so a physical copy can have at most one active rental.
     ''']
   returned_at timestamptz [note: '''
-    add a db trigger to on rental_items update or insert to ensure that returned_at >= rented_at
+    A trigger in db/schema.sql ensures returned_at is not earlier than rented_at.
   ''']
-  cost_per_day_cents int [not null]
+  cost_per_day numeric(10,2) [not null]
 
-    checks {
-    `cost_per_day_cents >= 0` [name: 'non_negative_cost']
+  checks {
+    `cost_per_day >= 0` [name: 'non_negative_cost']
   }
 
   indexes {
