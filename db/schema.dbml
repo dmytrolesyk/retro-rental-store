@@ -16,6 +16,12 @@ enum physical_format {
   tape
 }
 
+enum game_data_source {
+  retronian
+  synthetic
+  manual
+}
+
 Table games {
   game_id uuid [pk, default: `gen_random_uuid()`]
   game_cover_url text
@@ -24,6 +30,7 @@ Table games {
   description text [not null]
   description_uk text [not null]
   release_date date
+  data_source game_data_source [not null, default: 'manual']
   search_vector tsvector [not null, note: '''
     Stored generated column:
     setweight(to_tsvector('simple', name_uk), 'A') ||
@@ -37,6 +44,15 @@ Table platforms {
   description text [not null]
   description_uk text [not null]
   release_date date [not null]
+}
+
+Table game_platforms {
+  game_id uuid [not null, ref: > games.game_id]
+  platform_id uuid [not null, ref: > platforms.platform_id]
+
+  indexes {
+    (game_id, platform_id) [pk]
+  }
 }
 
 Table game_copies {

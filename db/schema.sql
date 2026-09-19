@@ -1,5 +1,6 @@
 CREATE TYPE game_condition AS ENUM ('as_new', 'good', 'poor');
 CREATE TYPE physical_format AS ENUM ('cartridge', 'optical_disc', 'floppy_disc', 'tape');
+CREATE TYPE game_data_source AS ENUM ('retronian', 'synthetic', 'manual');
 
 CREATE TABLE IF NOT EXISTS games (
   game_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -9,6 +10,7 @@ CREATE TABLE IF NOT EXISTS games (
   description text NOT NULL,
   description_uk text NOT NULL,
   release_date date,
+  data_source game_data_source NOT NULL DEFAULT 'manual',
   search_vector tsvector GENERATED ALWAYS AS (
     setweight(to_tsvector('simple', name_uk), 'A') ||
     setweight(to_tsvector('simple', description_uk), 'B')
@@ -21,6 +23,13 @@ CREATE TABLE IF NOT EXISTS platforms (
   description text NOT NULL,
   description_uk text NOT NULL,
   release_date date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS game_platforms (
+  game_id uuid NOT NULL REFERENCES games(game_id),
+  platform_id uuid NOT NULL REFERENCES platforms(platform_id),
+
+  PRIMARY KEY (game_id, platform_id)
 );
 
 CREATE TABLE IF NOT EXISTS game_copies (
