@@ -1,0 +1,48 @@
+{
+  "formatVersion": 1,
+  "source": {
+    "repository": "https://github.com/retronian/retronian-gamedb",
+    "commit": "d568c16b1d29be7335ecccee482a3f90e1e70441"
+  },
+  "files": {
+    "game_genres.tsv": {
+      "rows": 154,
+      "sha256": "5ae020d2f0f3b9bab4ac1206354a1eb5fc4e12f52d78e9133a95621a18e90061"
+    },
+    "game_platforms.tsv": {
+      "rows": 21441,
+      "sha256": "58685ac1c15d04929d2e3941f9d7025b62b0d9e767038af679dc658f10d3e0e3"
+    },
+    "games.tsv": {
+      "rows": 19896,
+      "sha256": "649e508f083f7a02d9d56e60e7fe3c8b3a10d13e68e2e3221fb36043b1f85de0"
+    },
+    "genres.tsv": {
+      "rows": 16,
+      "sha256": "49fca42e63d0099d4c12ac865f3dd1580bac58c40256c0ae8008728aa29989e2"
+    },
+    "platform_formats.tsv": {
+      "rows": 19,
+      "sha256": "3669d2639b6615a093c925b20b7b3a2065c8321086a0ba12a4abd46c70bca21c"
+    },
+    "platforms.tsv": {
+      "rows": 19,
+      "sha256": "1f74703a039b057efc3188c1d4934d495ecf9a5d0737cb3ca135899e62d3b9c9"
+    }
+  },
+  "warnings": {
+    "total": 583,
+    "byCode": {
+      "AMBIGUOUS_IGDB_ID": 16,
+      "AMBIGUOUS_MOBYGAMES_ID": 18,
+      "INCOMPLETE_DATE": 15,
+      "ORIGINAL_SCRIPT_TITLE": 534
+    }
+  },
+  "benchmarks": {
+    "q3": {
+      "title": "'89 Dennou Kyuusei Uranai",
+      "expectedMatchCount": 1
+    }
+  }
+}
