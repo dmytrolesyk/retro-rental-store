@@ -12,6 +12,13 @@ BEGIN;
 
 \copy public.game_genres (game_id, genre_id) FROM '/fixtures/retronian/game_genres.tsv' WITH (FORMAT csv, DELIMITER E'\t', HEADER true, NULL '\N', QUOTE '"')
 
+CREATE TEMP TABLE seed_platform_formats (
+  platform_id uuid PRIMARY KEY,
+  format physical_format NOT NULL
+) ON COMMIT DROP;
+
+\copy seed_platform_formats (platform_id, format) FROM '/fixtures/retronian/platform_formats.tsv' WITH (FORMAT csv, DELIMITER E'\t', HEADER true, NULL '\N', QUOTE '"')
+
 WITH synthetic_games AS (
   SELECT ordinal
   FROM generate_series(
@@ -49,6 +56,43 @@ SELECT
     + ((ordinal - 1) % (DATE '2026-01-01' - DATE '1980-01-01')),
   'synthetic'
 FROM synthetic_games;
+
+WITH selected_game_platforms AS (
+  SELECT
+    gp.game_id,
+    gp.platform_id,
+    platform_format.format,
+    row_number() OVER (ORDER BY gp.game_id, gp.platform_id) AS ordinal
+  FROM public.game_platforms AS gp
+  JOIN public.games AS game ON game.game_id = gp.game_id
+  JOIN seed_platform_formats AS platform_format
+    ON platform_format.platform_id = gp.platform_id
+  WHERE game.data_source = 'retronian'
+  ORDER BY gp.game_id, gp.platform_id
+  LIMIT 8000
+)
+INSERT INTO public.game_copies (
+  game_copy_id,
+  game_id,
+  platform_id,
+  photo_url,
+  condition,
+  format,
+  price_per_day
+)
+SELECT
+  md5('game-copy:' || ordinal)::uuid,
+  game_id,
+  platform_id,
+  NULL,
+  CASE
+    WHEN (ordinal - 1) % 20 BETWEEN 0 AND 2 THEN 'as_new'
+    WHEN (ordinal - 1) % 20 BETWEEN 3 AND 16 THEN 'good'
+    ELSE 'poor'
+  END::game_condition,
+  format,
+  (50 + ((ordinal - 1) % 151))::numeric(10, 2)
+FROM selected_game_platforms;
 
 COMMIT;
 
