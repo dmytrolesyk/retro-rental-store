@@ -94,6 +94,19 @@ SELECT
   (50 + ((ordinal - 1) % 151))::numeric(10, 2)
 FROM selected_game_platforms;
 
+INSERT INTO public.renters (
+  renter_id,
+  name,
+  email,
+  phone_number
+)
+SELECT
+  md5('renter:' || ordinal)::uuid,
+  'Renter ' || ordinal,
+  'renter' || ordinal || '@example.com',
+  '+38050' || lpad(ordinal::text, 7, '0')
+FROM generate_series(1, 10000) AS generated(ordinal);
+
 COMMIT;
 
 VACUUM (ANALYZE);
