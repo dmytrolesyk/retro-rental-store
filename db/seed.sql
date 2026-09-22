@@ -107,6 +107,43 @@ SELECT
   '+38050' || lpad(ordinal::text, 7, '0')
 FROM generate_series(1, 10000) AS generated(ordinal);
 
+WITH generated_rentals AS (
+  SELECT
+    ordinal,
+    CASE
+      WHEN ordinal <= 50 THEN 1
+      WHEN ordinal <= 40000 THEN 2 + ((ordinal - 51) % 499)
+      ELSE 501 + ((ordinal - 40001) % 9500)
+    END AS renter_ordinal
+  FROM generate_series(1, 100000) AS generated(ordinal)
+)
+INSERT INTO public.rentals (
+  rental_id,
+  renter_id,
+  rented_at
+)
+SELECT
+  md5('rental:' || ordinal)::uuid,
+  md5('renter:' || renter_ordinal)::uuid,
+  CASE
+    WHEN ordinal <= 50 THEN
+      TIMESTAMPTZ '2025-01-01 00:00:00+00'
+        + (ordinal - 1) * INTERVAL '168 hours'
+    WHEN ordinal <= 70000 THEN
+      TIMESTAMPTZ '2021-01-01 00:00:00+00'
+        + (
+          (ordinal - 51)
+          % (DATE '2026-01-01' - DATE '2021-01-01')
+        ) * INTERVAL '24 hours'
+    ELSE
+      TIMESTAMPTZ '2006-01-01 00:00:00+00'
+        + (
+          (ordinal - 70001)
+          % (DATE '2021-01-01' - DATE '2006-01-01')
+        ) * INTERVAL '24 hours'
+  END
+FROM generated_rentals;
+
 COMMIT;
 
 VACUUM (ANALYZE);
