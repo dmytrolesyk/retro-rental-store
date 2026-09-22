@@ -144,6 +144,78 @@ SELECT
   END
 FROM generated_rentals;
 
+WITH ranked_rentals AS (
+  SELECT
+    generated.ordinal AS rental_ordinal,
+    rental.rental_id,
+    rental.rented_at,
+    row_number() OVER (
+      ORDER BY rental.rented_at DESC, rental.rental_id DESC
+    ) AS rental_recency
+  FROM generate_series(1, 100000) AS generated(ordinal)
+  JOIN public.rentals AS rental
+    ON rental.rental_id = md5('rental:' || generated.ordinal)::uuid
+),
+generated_items AS (
+  SELECT
+    ranked_rentals.*,
+    generated.item_position,
+    ranked_rentals.rental_recency <= 500
+      AND generated.item_position = 1 AS is_active
+  FROM ranked_rentals
+  CROSS JOIN LATERAL generate_series(
+    1,
+    CASE
+      WHEN rental_ordinal <= 10000 THEN 3
+      WHEN rental_ordinal <= 40000 THEN 2
+      ELSE 1
+    END
+  ) AS generated(item_position)
+),
+numbered_items AS (
+  SELECT
+    generated_items.*,
+    row_number() OVER (
+      PARTITION BY is_active
+      ORDER BY rental_ordinal, item_position
+    ) AS status_ordinal
+  FROM generated_items
+),
+assigned_items AS (
+  SELECT
+    numbered_items.*,
+    CASE
+      WHEN is_active THEN rental_recency
+      WHEN (status_ordinal - 1) % 5 BETWEEN 0 AND 2
+        THEN 501 + ((status_ordinal - 1) % 1000)
+      ELSE 1501 + ((status_ordinal - 1) % 6500)
+    END AS copy_ordinal
+  FROM numbered_items
+)
+INSERT INTO public.rental_items (
+  rental_id,
+  game_copy_id,
+  returned_at,
+  cost_per_day
+)
+SELECT
+  assigned_items.rental_id,
+  game_copy.game_copy_id,
+  CASE
+    WHEN is_active THEN NULL
+    ELSE LEAST(
+      rented_at
+        + (1 + ((status_ordinal - 1) % 14)) * INTERVAL '24 hours',
+      TIMESTAMPTZ '2025-12-31 23:59:59+00'
+    )
+  END,
+  game_copy.price_per_day
+FROM assigned_items
+JOIN public.game_copies AS game_copy
+  ON game_copy.game_copy_id = md5(
+    'game-copy:' || assigned_items.copy_ordinal
+  )::uuid;
+
 COMMIT;
 
 VACUUM (ANALYZE);
