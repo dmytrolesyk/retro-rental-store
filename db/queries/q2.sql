@@ -1,7 +1,7 @@
 SELECT
   game_copy.game_copy_id,
   game.name_uk AS game_title,
-  platform.name AS platform,
+  game_copy.platform_id,
   game_copy.format,
   rental.rental_id,
   rental.rented_at,
@@ -19,7 +19,5 @@ JOIN public.game_copies AS game_copy
   ON game_copy.game_copy_id = rental_item.game_copy_id
 JOIN public.games AS game
   ON game.game_id = game_copy.game_id
-JOIN public.platforms AS platform
-  ON platform.platform_id = game_copy.platform_id
 WHERE rental_item.game_copy_id = md5('game-copy:1')::uuid
   AND rental_item.returned_at IS NULL
