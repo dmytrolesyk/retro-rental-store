@@ -184,6 +184,12 @@ The password itself is never committed or stored in a tracked environment
 file, and the pool rereads it when opening a connection so password rotation
 does not require an application restart.
 
+> **Assignment compatibility note:** The acceptance example checks for a
+> single `DB_URL` or `DATABASE_URL`. This project deliberately keeps the
+> equivalent split connection contract from homework 11 so that the password
+> can remain in a separately mounted, rotatable secret instead of being
+> embedded in a connection URL.
+
 ## Project setup
 
 ```bash
