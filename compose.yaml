@@ -7,7 +7,7 @@ services:
     environment:
       PORT: ${PORT:-3000}
       PG_HOST: ${PG_HOST}
-      PG_PORT: ${PG_PORT:-5432}
+      PG_PORT: 5432
       PG_USER: ${PG_USER}
       PG_DB: ${PG_DB}
       PG_PASSWORD_FILE: /run/secrets/app_pg_password
@@ -28,7 +28,7 @@ services:
       POSTGRES_DB: rental
     secrets: [admin_pg_password, app_pg_password]
     ports:
-      - ${PG_PORT:-5432}:${PG_PORT:-5432}
+      - ${PG_PORT:-5432}:5432
     volumes:
       - data_sql:/var/lib/postgresql
       - ./db/fixtures/retronian:/fixtures/retronian:ro

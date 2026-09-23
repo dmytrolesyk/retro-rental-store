@@ -33,16 +33,16 @@ All environment variables are validated at startup by a single zod schema
 exit code ≠ 0 and the list of every invalid variable. The rest of the code
 only reads config through the typed `ConfigService<Env, true>`.
 
-| Variable           | Required | Default | Description                                                     |
-| ------------------ | -------- | ------- | --------------------------------------------------------------- |
-| `PORT`             | yes      | —       | HTTP port the API listens on                                    |
-| `PG_HOST`          | yes      | —       | Postgres host (`db` inside compose, `127.0.0.1` for local runs) |
-| `PG_PORT`          | no       | `5432`  | Postgres port                                                   |
-| `PG_USER`          | yes      | —       | Application DB role (least-privilege, not the admin)            |
-| `PG_DB`            | yes      | —       | Database name                                                   |
-| `PG_PASSWORD_FILE` | yes      | —       | Path to the file holding the app user's password                |
-| `LOG_LEVEL`        | no       | `info`  | `debug` \| `info` \| `warn` \| `error`                          |
-| `TIMEOUT_MS`       | no       | `5000`  | Generic operation timeout, ms                                   |
+| Variable           | Required | Default | Source                   | Description                                                     |
+| ------------------ | -------- | ------- | ------------------------ | --------------------------------------------------------------- |
+| `PORT`             | yes      | —       | Environment              | HTTP port the API listens on                                    |
+| `PG_HOST`          | yes      | —       | Environment              | Postgres host (`db` inside compose, `127.0.0.1` for local runs) |
+| `PG_PORT`          | no       | `5432`  | Environment              | Postgres port                                                   |
+| `PG_USER`          | yes      | —       | Environment              | Application DB role (least-privilege, not the admin)            |
+| `PG_DB`            | yes      | —       | Environment              | Database name                                                   |
+| `PG_PASSWORD_FILE` | yes      | —       | Docker/deployment secret | Path to the file holding the app user's password                |
+| `LOG_LEVEL`        | no       | `info`  | Environment              | `debug` \| `info` \| `warn` \| `error`                          |
+| `TIMEOUT_MS`       | no       | `5000`  | Environment              | Generic operation timeout, ms                                   |
 
 `.env.example` is the contract kept in git; the real `.env` is gitignored and
 excluded from the docker image. `pnpm check:env` verifies `.env.example`
@@ -77,6 +77,112 @@ file → terminate old connections; the service keeps answering and its
 A `rotator` compose service also rotates the password automatically every
 `ROTATE_INTERVAL` seconds (default: 86400). For a quick demo:
 `ROTATE_INTERVAL=60 docker compose up -d`.
+
+## PostgreSQL homework workflow
+
+Run every command in this section from the repository root. The main benchmark
+table is `rentals` (100,000 seeded rows), and the Q4 catalog-search table is
+`games` (100,000 seeded rows).
+
+### Start and connect
+
+A fresh clone needs no manually created credential files. This one command
+generates local Docker secrets and starts only PostgreSQL:
+
+```bash
+export PG_PORT=55432 && ./scripts/bootstrap.sh && docker compose up -d --build --wait db
+```
+
+`PG_PORT` selects the host port; PostgreSQL continues to listen on its standard
+port `5432` inside the container.
+
+Connect with `psql` inside the container:
+
+```bash
+docker compose exec db psql -U admin -d rental
+```
+
+For DBeaver, use host `localhost`, port `55432`, database `rental`, user
+`admin`, and the password stored in `secrets/admin_pg_password`.
+
+For a non-interactive connection check, run:
+
+```bash
+docker compose exec -T db psql -U admin -d rental -Atc 'SELECT 1'
+```
+
+### Create and seed the database
+
+Apply the schema to an empty database:
+
+```bash
+docker compose exec -T db \
+  psql -U admin -d rental -v ON_ERROR_STOP=1 \
+  < db/schema.sql
+```
+
+Load the fixture and generated benchmark data:
+
+```bash
+./scripts/seed.sh
+```
+
+The seed finishes with `VACUUM (ANALYZE)`. Verify the two required table sizes:
+
+```bash
+docker compose exec -T db psql -U admin -d rental -c \
+  "SELECT
+     (SELECT count(*) FROM rentals) AS rentals,
+     (SELECT count(*) FROM games) AS games;"
+```
+
+### Compare plans before and after indexes
+
+Before applying `db/indexes.sql`, capture the four baseline plans:
+
+```bash
+for query in db/queries/q{1..4}.sql; do
+  ./scripts/explain.sh "${query}"
+done
+```
+
+Each baseline plan must contain a `Seq Scan`. Then create the optimization
+indexes and refresh planner statistics:
+
+```bash
+docker compose exec -T db \
+  psql -U admin -d rental -v ON_ERROR_STOP=1 \
+  < db/indexes.sql
+docker compose exec -T db psql -U admin -d rental -c 'ANALYZE;'
+```
+
+Run the same loop again. Each optimized plan must name the corresponding index
+from `db/indexes.sql` and must not contain a `Seq Scan`. Run Q4 two more times
+to warm its GIN index and use the final result:
+
+```bash
+for query in db/queries/q{1..4}.sql; do
+  ./scripts/explain.sh "${query}"
+done
+./scripts/explain.sh db/queries/q4.sql
+./scripts/explain.sh db/queries/q4.sql
+```
+
+The captured before/after plans and the Ukrainian morphology experiment are in
+[db/OPTIMIZATIONS.md](db/OPTIMIZATIONS.md).
+
+To repeat the entire experiment, `docker compose down -v` removes the database
+volume; this permanently deletes its local data, so use it only when a clean
+database is intended.
+
+### Application connection configuration
+
+This project retains the connection design from homework 11 instead of using a
+single `DB_URL`. `PG_HOST`, `PG_PORT`, `PG_USER`, and `PG_DB` describe the
+connection, while `PG_PASSWORD_FILE` points to the Docker/deployment secret.
+The password itself is never committed or stored in a tracked environment
+file, and the pool rereads it when opening a connection so password rotation
+does not require an application restart.
 
 ## Project setup
 
