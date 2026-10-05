@@ -25,6 +25,22 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Development setup and build
+
+Use the pnpm version declared in `package.json` and the committed lockfile:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec tsc --noEmit
+pnpm run build
+```
+
+`nest build` uses the TypeScript compiler (`tsc`) and writes the application
+entry point to `dist/main.js`. `experimentalDecorators` and
+`emitDecoratorMetadata` are enabled for Nest and TypeORM decorators.
+TypeORM and `@nestjs/typeorm` are runtime dependencies; `pg` provides the
+PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
+
 ## Configuration
 
 All environment variables are validated at startup by a single zod schema
