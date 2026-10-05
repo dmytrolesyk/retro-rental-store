@@ -3,7 +3,7 @@
 The measurements below were captured on a clean database in this order:
 
 1. Apply `db/schema.sql`.
-2. Apply `db/seed.sql`.
+2. Apply `db/seed-benchmark.sql`.
 3. Run `EXPLAIN (ANALYZE, BUFFERS)` for Q1-Q4.
 4. Apply `db/indexes.sql` and run `ANALYZE`.
 5. Run the same four plans again; Q4 was run three times and the final warm result is shown.
