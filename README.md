@@ -78,6 +78,17 @@ A `rotator` compose service also rotates the password automatically every
 `ROTATE_INTERVAL` seconds (default: 86400). For a quick demo:
 `ROTATE_INTERVAL=60 docker compose up -d`.
 
+## Catalog data
+
+After applying `db/schema.sql` to an empty database, run `./scripts/seed.sh`
+to import only the real Retronian catalog: games, platforms, genres, and their
+relationships. Physical copies, renters, and rental history start empty.
+Apply `db/indexes.sql` to enable the application indexes.
+
+The previous homework dataset is preserved in `db/seed-benchmark.sql`.
+To reproduce its measurements, use the workflow below on an empty database.
+Neither seed is intended to be run twice on an already seeded database.
+
 ## PostgreSQL homework workflow
 
 Run every command in this section from the repository root. The main benchmark
@@ -124,7 +135,7 @@ docker compose exec -T db \
 Load the fixture and generated benchmark data:
 
 ```bash
-./scripts/seed.sh
+./scripts/seed.sh db/seed-benchmark.sql
 ```
 
 The seed finishes with `VACUUM (ANALYZE)`. Verify the two required table sizes:
