@@ -202,30 +202,30 @@ The partial unique index `one_active_rental_per_copy` replaced the 150,000-row s
 ### Before indexes
 
 ```text
-Seq Scan on games  (cost=0.00..8218.00 rows=500 width=417) (actual time=29.985..115.210 rows=1.00 loops=1)
-  Filter: (lower(name) = 'synthetic game 1'::text)
+Seq Scan on games  (cost=0.00..8218.00 rows=500 width=417) (actual time=15.549..66.489 rows=1.00 loops=1)
+  Filter: (lower(name_uk) = 'космічна пригода 1'::text)
   Rows Removed by Filter: 99999
   Buffers: shared hit=6718
 Planning:
   Buffers: shared hit=111
-Planning Time: 0.850 ms
-Execution Time: 115.379 ms
+Planning Time: 0.379 ms
+Execution Time: 66.513 ms
 ```
 
 ### After indexes
 
 ```text
-Index Scan using idx_games_lower_name on games  (cost=0.42..8.44 rows=1 width=417) (actual time=0.158..0.159 rows=1.00 loops=1)
-  Index Cond: (lower(name) = 'synthetic game 1'::text)
+Index Scan using idx_games_lower_name_uk on games  (cost=0.42..8.44 rows=1 width=418) (actual time=0.038..0.038 rows=1.00 loops=1)
+  Index Cond: (lower(name_uk) = 'космічна пригода 1'::text)
   Index Searches: 1
   Buffers: shared hit=1 read=3
 Planning:
-  Buffers: shared hit=153
-Planning Time: 0.557 ms
-Execution Time: 0.184 ms
+  Buffers: shared hit=151 read=1
+Planning Time: 0.511 ms
+Execution Time: 0.061 ms
 ```
 
-The expression index `idx_games_lower_name` made the indexed expression match `lower(name)` in the query, replacing the sequential scan with an index scan and reducing 6718 buffer hits and 115.379 ms to 1 hit plus 3 reads and 0.184 ms.
+The expression index `idx_games_lower_name_uk` made the indexed expression match `lower(name_uk)` in the query, replacing the sequential scan with an index scan and reducing 6718 buffer hits and 66.513 ms to 1 hit plus 3 reads and 0.061 ms.
 
 ## Q4 — Ukrainian full-text catalog search
 

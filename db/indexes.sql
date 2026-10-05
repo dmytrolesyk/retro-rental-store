@@ -5,8 +5,8 @@ CREATE UNIQUE INDEX one_active_rental_per_copy
 ON rental_items (game_copy_id)
 WHERE returned_at IS NULL;
 
-CREATE INDEX idx_games_lower_name
-ON games (lower(name));
+CREATE INDEX idx_games_lower_name_uk
+ON games (lower(name_uk));
 
 CREATE INDEX idx_games_search_vector
 ON games USING GIN (search_vector);

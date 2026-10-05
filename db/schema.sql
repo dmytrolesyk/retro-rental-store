@@ -104,3 +104,29 @@ CREATE TRIGGER rental_items_returned_at_check
 BEFORE INSERT OR UPDATE ON rental_items
 FOR EACH ROW
 EXECUTE FUNCTION check_rental_returned_at();
+
+CREATE OR REPLACE FUNCTION check_rental_rented_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM rental_items
+        WHERE rental_id = NEW.rental_id
+          AND returned_at IS NOT NULL
+          AND returned_at < NEW.rented_at
+    ) THEN
+        RAISE EXCEPTION
+            'rented_at (%) cannot be later than an existing returned_at',
+            NEW.rented_at;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER rentals_rented_at_check
+BEFORE UPDATE OF rented_at ON rentals
+FOR EACH ROW
+EXECUTE FUNCTION check_rental_rented_at();

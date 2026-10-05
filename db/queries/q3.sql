@@ -7,4 +7,4 @@ SELECT
   release_date,
   game_cover_url
 FROM public.games
-WHERE lower(name) = lower('SYNTHETIC GAME 1')
+WHERE lower(name_uk) = lower('КОСМІЧНА ПРИГОДА 1')
