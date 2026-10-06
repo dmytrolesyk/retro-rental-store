@@ -5,8 +5,7 @@ import { envSchema } from '../dist/config/env.schema.js';
 
 async function parseEnvFile() {
   const __dirname = import.meta.dirname;
-  const file = await fs.open(path.join(__dirname, '../.env.example'), 'r');
-  const envExampleFileBuf = await fs.readFile(file);
+  const envExampleFileBuf = await fs.readFile(path.join(__dirname, '../.env.example'));
   const envObject = dotenv.parse(envExampleFileBuf);
   return envObject;
 }
@@ -14,19 +13,18 @@ async function parseEnvFile() {
 async function main() {
   const envObj = await parseEnvFile();
 
+  // The example documents file-based API credentials; DB_PASSWORD is the CLI alternative.
   const missingKeys = Object.keys(envSchema.shape).filter(
-    (key) => !(key in envObj),
+    key => !(key in envObj) && key !== 'DB_PASSWORD',
   );
   if (missingKeys.length > 0) {
-    throw new Error(
-      `.env.example is missing schema variables: ${missingKeys.join(', ')}`,
-    );
+    throw new Error(`.env.example is missing schema variables: ${missingKeys.join(', ')}`);
   }
 
   const parsed = envSchema.safeParse(envObj);
   if (!parsed.success) {
     const lines = parsed.error.issues
-      .map((i) => `  ${i.path.join('.') || '(root)'}: ${i.message}`)
+      .map(i => `  ${i.path.join('.') || '(root)'}: ${i.message}`)
       .join('\n');
     throw new Error(`Invalid .env.example: \n${lines}`);
   }
