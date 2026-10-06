@@ -214,6 +214,7 @@ Then seed twice and verify the counts with the command in the ORM seed section:
 ```bash
 pnpm run seed
 pnpm run seed
+pnpm run demo:nplus1
 ```
 
 ## ORM seed
@@ -280,6 +281,55 @@ An existing database may contain additional rows; repeated seed runs must
 still leave their counts unchanged. The old `db/seed.sql` and
 `db/seed-benchmark.sql` remain homework 12 materials and are not invoked by
 this seed.
+
+## N+1 demonstration
+
+With the CLI environment from `Grading`, build, migrate and seed first, then run:
+
+```bash
+pnpm run demo:nplus1
+```
+
+The script reads rental history with the graph
+`rental → items → gameCopy → game`. It selects the ten latest rental IDs in
+deterministic order, then measures the same five and ten IDs through three
+loaders. DataSource initialization and ID selection are setup outside the
+measurements. The demo performs no seed, migrations or data writes.
+
+`QueryCountLogger` receives real queries from TypeORM with
+`logging: ['query']`, resets before each loader and prints the full SQL and
+parameters. The naive loader selects rentals, then loads items per rental,
+and a copy and game per item. The fix loads the same graph with three explicit
+`leftJoinAndSelect` calls. Deep assertions compare all loaded fields after
+sorting rental/item arrays, including nullable return dates and price snapshots.
+
+Measured on the committed seed (two items per rental), TypeORM 0.3.31 and PostgreSQL 18:
+
+| Rentals (N) | Items | Before: SELECTs in loops | After: LEFT JOIN | After: LEFT JOIN with `take(N)` |
+| ---: | ---: | ---: | ---: | ---: |
+| 5 | 10 | 26 | 1 | 2 |
+| 10 | 20 | 51 | 1 | 2 |
+
+The naive count is `1 + N + 2 × items`, or `1 + 5 × N` for this seed.
+Repeated copies/games still produce repeated SELECTs in the naive loops.
+Both fixed counts stay constant when N doubles. With three relation levels,
+both are below the assignment limit `1 + 2 × 3 = 7`.
+
+The paginated JOIN is measured separately: TypeORM first selects distinct
+rental IDs with a limit, then fetches their complete graph. This avoids
+limiting joined SQL rows and accidentally cutting off a rental's items.
+The ID page has the same ordering and rentals as the other loaders.
+The final output includes:
+
+```text
+N=5: before=26, after=1, afterWithPagination=2; results match (10 items)
+N=10: before=51, after=1, afterWithPagination=2; results match (20 items)
+```
+
+The script verifies growth before the fix, constant counts afterward, and
+equivalent results; it exits nonzero if any assertion fails. These exact
+counts assume the committed seed's two items per rental. Additional rental
+data can change the naive counts while the JOIN strategy remains constant.
 
 ## TypeORM entities and relations
 
