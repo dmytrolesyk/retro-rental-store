@@ -1,29 +1,9 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Retro games rental
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Node.js / NestJS course project: a retro game rental catalog backed by
+PostgreSQL 18 and TypeORM. Homework 13 adds entities, explicit relations,
+migrations, a repeatable offline seed, an N+1 demonstration and a platform
+popularity report.
 
 ## Development setup and build
 
@@ -179,44 +159,73 @@ but an old credentials volume also needs its password file migrated explicitly.
 
 ## Grading
 
-Infisical is optional for this homework as agreed with the teacher. Use pnpm
-and these fixed local development credentials; no vault wrapper or
-`SKIP_VAULT` is needed:
+Prerequisites: Node.js 24, pnpm 10.24.0 (as declared in `package.json`), and
+Docker with Compose v2 supporting `--wait`. Run from the repository root
+against a fresh database. Infisical is optional as agreed with the teacher;
+no vault wrapper or `SKIP_VAULT` is needed. The commands use the fixed public
+local development credentials from `compose.yaml`.
+
+Copy and run the complete sequence:
 
 ```bash
-docker compose up -d --wait
-export DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+export DB_HOST=127.0.0.1 DB_PORT="${DB_PORT:-5432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+unset DB_PASSWORD_FILE
 pnpm install --frozen-lockfile
 pnpm exec tsc --noEmit
+docker compose up -d --wait
 pnpm run build
-```
-
-If port `5432` is already occupied, export an available `DB_PORT` before
-starting Compose and use the same value for the host-side connection.
-Apply and verify the initial schema:
-
-```bash
 pnpm run migrate
 pnpm run migrate:show
-```
-
-`migrate:show` should list `[X] InitialRentalSchema1791301576818`
-(the output also includes its journal ID).
-On a disposable database, check rollback and reapplication:
-
-```bash
 pnpm run migrate:revert
 pnpm run migrate
-```
-
-Then seed twice and verify the counts with the command in the ORM seed section:
-
-```bash
+pnpm run migrate:show
 pnpm run seed
 pnpm run seed
 pnpm run demo:nplus1
 pnpm run report
 ```
+
+`DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
+before this block. To isolate grading from an existing Compose installation,
+also run `export COMPOSE_PROJECT_NAME=retro-hw13-grading` before the block;
+Compose automatically uses that name for every command, including count
+checks. No repository files need editing, and no host credential files need
+creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
+
+Both `migrate:show` calls must mark the initial migration `[X]` (with its
+journal ID). Revert removes the business schema; reapplication recreates it.
+Run this rollback check before seeding, because the initial migration's
+`down()` removes business data. The two TypeORM service tables remain.
+
+Use the count command in [ORM seed](#orm-seed) after each seed run: all nine
+counts must stay unchanged. The fresh-database totals are 19,896 games,
+19 platforms, 16 genres, 21,441 game/platform links, 154 game/genre links,
+10 copies, 10 renters, 10 rentals and 20 items.
+The N+1 summaries must be `26 → 1` for N=5 and `51 → 1` for N=10; the
+paginated JOIN uses two queries for both. The report must match the table in
+[Platform popularity report](#platform-popularity-report).
+
+Static acceptance checks (the first and last commands below should print nothing):
+
+```bash
+rg -n 'synchronize:[[:space:]]*true' src/
+rg -n 'onDelete' src/
+rg -ni '\.(add)?groupBy\(' src/
+rg -n "password:[[:space:]]*['\"]" src/database/data-source-options.ts
+```
+
+The empty-result `rg` checks exit with status 1; this means no prohibited
+match was found. The other checks show both RESTRICT/CASCADE and report
+GROUP BY. If ripgrep is unavailable, use the equivalent `grep -rn` /
+`grep -rniE` checks from the assignment. All connection values come from
+`process.env`; the shared options factory is in
+`src/database/data-source-options.ts`.
+
+This sequence is the pnpm / optional-Infisical variant agreed for this
+project. The assignment's npm/vault wrapper commands are not used.
+Verified on 2026-10-06 from a fresh local clone and a separate empty
+PostgreSQL volume, without `.env` or host credential files.
+Submit the PR URL in the LMS after committing and pushing the homework.
 
 ## ORM seed
 
@@ -227,7 +236,7 @@ DataSource without starting Nest or an HTTP server.
 The entire checked-in Retronian catalog is imported offline from
 `db/fixtures/retronian/*.tsv`: its UUIDs, text, dates and relations are preserved.
 `csv-parse` handles CSV quoting with a tab delimiter; Zod validates the input,
-and PostgreSQL `\\N` fixture markers become `null`. The data attribution and
+and PostgreSQL `\N` fixture markers become `null`. The data attribution and
 license remain in `db/fixtures/retronian/NOTICE.md` and `LICENSE-DATA.md`.
 `platform_formats.tsv` supplies formats for physical copies; it is not a SQL
 table. Generated `search_vector` values are computed by PostgreSQL.
@@ -521,7 +530,7 @@ ORM relation loading and the independence of historical daily prices were
 also checked. `db/schema.sql` and the old SQL seeds remain homework 12
 materials; do not apply them on top of the ORM migration schema.
 
-## Catalog data
+## Homework 12: catalog data
 
 After applying `db/schema.sql` to an empty database, run `./scripts/seed.sh`
 to import only the real Retronian catalog: games, platforms, genres, and their
@@ -532,7 +541,11 @@ The previous homework dataset is preserved in `db/seed-benchmark.sql`.
 To reproduce its measurements, use the workflow below on an empty database.
 Neither seed is intended to be run twice on an already seeded database.
 
-## PostgreSQL homework workflow
+## Homework 12: SQL benchmark workflow
+
+These historical commands target the original numeric-money SQL schema in a
+separate database. Do not apply this schema or its SQL seeds on top of the
+TypeORM schema. For homework 13, use [Grading](#grading).
 
 Run every command in this section from the repository root. The main benchmark
 table is `rentals` (100,000 seeded rows), and the Q4 catalog-search table is
@@ -635,74 +648,10 @@ The API uses `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_NAME`, and
 `DB_PASSWORD_FILE`. CLI commands use the same connection contract with
 `DB_PASSWORD` instead. Password rotation needs no API restart.
 
-## Project setup
+## Tests
 
 ```bash
-$ pnpm install
+pnpm run test --runInBand
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Database behavior is verified through the fresh-database workflow above.
