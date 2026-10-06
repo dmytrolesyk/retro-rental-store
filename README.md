@@ -209,6 +209,78 @@ pnpm run migrate:revert
 pnpm run migrate
 ```
 
+Then seed twice and verify the counts with the command in the ORM seed section:
+
+```bash
+pnpm run seed
+pnpm run seed
+```
+
+## ORM seed
+
+After exporting the CLI credentials from `Grading`, building and applying
+migrations, run `pnpm run seed`. The standalone script uses the shared
+DataSource without starting Nest or an HTTP server.
+
+The entire checked-in Retronian catalog is imported offline from
+`db/fixtures/retronian/*.tsv`: its UUIDs, text, dates and relations are preserved.
+`csv-parse` handles CSV quoting with a tab delimiter; Zod validates the input,
+and PostgreSQL `\\N` fixture markers become `null`. The data attribution and
+license remain in `db/fixtures/retronian/NOTICE.md` and `LICENSE-DATA.md`.
+`platform_formats.tsv` supplies formats for physical copies; it is not a SQL
+table. Generated `search_vector` values are computed by PostgreSQL.
+
+`src/database/fixtures/homework-data.ts` adds ten physical copies of selected
+catalog games, ten fictional renters, ten rentals and twenty rental items.
+Every rental has two items. Nine rentals are returned and the last is active;
+returned copies are reused without overlapping rental periods. Dates and IDs
+are fixed, and all prices are integer kopecks. Each item's historical daily
+price is 500 kopecks below its copy's current price.
+
+The seed inserts batches of at most 500 records in FK dependency order, within
+one transaction. Conflicts on the explicit primary key (including composite
+keys) use `DO NOTHING`: existing rows are preserved rather than overwritten.
+Conflicts on other unique constraints remain errors and roll back the whole
+transaction. The script closes its DataSource and returns a nonzero exit code
+on failure. It creates no tables and does not delete existing data.
+
+Run the seed twice, then use this command after each run. Counts must stay the
+same. On a fresh migrated database the expected counts are:
+
+| Table | Rows |
+| --- | ---: |
+| platforms | 19 |
+| genres | 16 |
+| games | 19,896 |
+| game_platforms | 21,441 |
+| game_genres | 154 |
+| game_copies | 10 |
+| renters | 10 |
+| rentals | 10 |
+| rental_items | 20 |
+
+```bash
+docker compose exec -T -e PGPASSWORD=migration_dev db \
+  psql -h 127.0.0.1 -U db_migrator -d rental <<'SQL'
+SELECT 'platforms' AS table_name, count(*) AS rows FROM platforms
+UNION ALL SELECT 'genres', count(*) FROM genres
+UNION ALL SELECT 'games', count(*) FROM games
+UNION ALL SELECT 'game_platforms', count(*) FROM game_platforms
+UNION ALL SELECT 'game_genres', count(*) FROM game_genres
+UNION ALL SELECT 'game_copies', count(*) FROM game_copies
+UNION ALL SELECT 'renters', count(*) FROM renters
+UNION ALL SELECT 'rentals', count(*) FROM rentals
+UNION ALL SELECT 'rental_items', count(*) FROM rental_items;
+SQL
+```
+
+These are the default Compose development credentials. If you customize them,
+use the corresponding password, role and database in the count command.
+An existing database may contain additional rows; repeated seed runs must
+still leave their counts unchanged. The old `db/seed.sql` and
+`db/seed-benchmark.sql` remain homework 12 materials and are not invoked by
+this seed.
+
 ## TypeORM entities and relations
 
 All nine homework tables are mapped in `src/database/entities` and registered
