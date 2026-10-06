@@ -215,6 +215,7 @@ Then seed twice and verify the counts with the command in the ORM seed section:
 pnpm run seed
 pnpm run seed
 pnpm run demo:nplus1
+pnpm run report
 ```
 
 ## ORM seed
@@ -330,6 +331,52 @@ The script verifies growth before the fix, constant counts afterward, and
 equivalent results; it exits nonzero if any assertion fails. These exact
 counts assume the committed seed's two items per rental. Additional rental
 data can change the naive counts while the JOIN strategy remains constant.
+
+## Platform popularity report
+
+After building, migrating and seeding with the CLI environment from `Grading`, run:
+
+```bash
+pnpm run report
+```
+
+`src/scripts/report.ts` uses `createQueryBuilder()` with LEFT JOINs across
+`platforms → game_copies → rental_items`, GROUP BY and
+`getRawMany<PlatformPopularityRow>()`. It reports popularity over all time,
+including active rentals. Each rental item counts once, even when the same
+physical copy has been rented multiple times. `COUNT(DISTINCT rental_id)`
+counts each rental once per platform, even if it contains multiple copies
+for that platform.
+
+All platforms appear, including those without rentals. Counting the joined
+item's non-null rental ID rather than `COUNT(*)` keeps their counts at zero.
+Rows are ordered by item count descending, then platform name and ID.
+PostgreSQL COUNT returns bigint, so counts stay strings instead of being
+converted to potentially unsafe JavaScript numbers. The script only reads
+data, closes its DataSource, and returns a nonzero exit code on failure.
+
+Expected nonzero rows from the committed seed:
+
+| Platform | Rental items | Distinct rentals |
+| --- | ---: | ---: |
+| Nintendo Entertainment System | 4 | 3 |
+| Super Nintendo Entertainment System | 4 | 4 |
+| Game Boy | 2 | 2 |
+| Game Boy Advance | 2 | 2 |
+| Nintendo DS | 2 | 2 |
+| PlayStation | 2 | 2 |
+| PlayStation Portable | 2 | 2 |
+| Sega Mega Drive | 2 | 2 |
+
+The other eleven platforms have zero counts. Rental 8 has both Mega Man 2
+and Metroid for NES, which illustrates why its four positions belong to
+only three different rentals. Summing distinct rental counts across platforms
+does not give the global number of rentals: one rental can span platforms.
+
+We use Repository `find`/`findOne` when the result is entities with simple
+filters and relations. We use QueryBuilder when we need aggregates, grouping
+or a custom SELECT shape such as these report rows. QueryBuilder can itself
+be created from a Repository; these are complementary APIs.
 
 ## TypeORM entities and relations
 

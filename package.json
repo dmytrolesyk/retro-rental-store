@@ -26,7 +26,8 @@
     "migrate:revert": "typeorm migration:revert -d dist/data-source.js",
     "migration:generate": "typeorm migration:generate -d dist/data-source.js",
     "seed": "node dist/scripts/seed.js",
-    "demo:nplus1": "node dist/scripts/demo-nplus1.js"
+    "demo:nplus1": "node dist/scripts/demo-nplus1.js",
+    "report": "node dist/scripts/report.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",
