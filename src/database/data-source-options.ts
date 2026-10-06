@@ -4,6 +4,7 @@ import pg from 'pg';
 import type { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { validateDatabaseEnv } from '../config/database-env.schema';
 import { RotationPool } from './rotation-pool';
+import { rentalEntities } from './entities';
 
 export function createDataSourceOptions(
   environment: Record<string, unknown> = process.env,
@@ -27,7 +28,10 @@ export function createDataSourceOptions(
     poolSize: 3,
     connectTimeoutMS: 3000,
     extra: { maxLifetimeSeconds: 300, idleTimeoutMillis: 10000 },
-    entities: [],
+    // PostgreSQL 18 provides gen_random_uuid() natively; no extension installation is needed.
+    uuidExtension: 'pgcrypto',
+    installExtensions: false,
+    entities: rentalEntities,
     migrations: [join(__dirname, '..', 'migrations', '*.js')],
     synchronize: false,
     migrationsRun: false,
