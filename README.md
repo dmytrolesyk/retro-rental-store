@@ -56,7 +56,7 @@ only reads config through the typed `ConfigService<Env, true>`.
 | `PG_PORT`          | no       | `5432`  | Environment              | Postgres port                                                   |
 | `PG_USER`          | yes      | —       | Environment              | Application DB role (least-privilege, not the admin)            |
 | `PG_DB`            | yes      | —       | Environment              | Database name                                                   |
-| `PG_PASSWORD_FILE` | yes      | —       | Docker/deployment secret | Path to the file holding the app user's password                |
+| `PG_PASSWORD_FILE` | yes      | —       | Credentials volume       | Path to the file holding the app user's password                |
 | `LOG_LEVEL`        | no       | `info`  | Environment              | `debug` \| `info` \| `warn` \| `error`                          |
 | `TIMEOUT_MS`       | no       | `5000`  | Environment              | Generic operation timeout, ms                                   |
 
@@ -66,33 +66,89 @@ against the schema (missing or invalid variables → exit 1).
 
 ### Running
 
-```bash
-cp .env.example .env;
-pnpm compose:up   # generates secret files (scripts/bootstrap.sh), builds and starts db + api + rotator
-pnpm compose:down # stops the stack
-```
-
-Secrets live in the gitignored `secrets/` directory and reach containers as
-docker compose secrets (`/run/secrets/...`), never as env vars. The Postgres
-init script creates the app role reading its password from the same secret
-file, so the file and the database can't diverge — even after
-`docker compose down -v`.
-
-### Password rotation (no restart)
-
-The app reads the DB password from `PG_PASSWORD_FILE` inside the `pg.Pool`
-`password` async function, i.e. the secret is re-read on every new
-connection. Rotation is therefore just: `ALTER ROLE` → update the secret
-file → terminate old connections; the service keeps answering and its
-`/health` uptime keeps growing.
+Start PostgreSQL and the automatic password rotator:
 
 ```bash
-./scripts/rotate.sh   # one-shot manual rotation from the host
+docker compose up -d --wait
 ```
 
-A `rotator` compose service also rotates the password automatically every
-`ROTATE_INTERVAL` seconds (default: 86400). For a quick demo:
-`ROTATE_INTERVAL=60 docker compose up -d`.
+No `.env` or host-side secret files are required. The one-shot `init-secrets`
+service generates the `app_user` password in the `app_credentials` named
+volume before PostgreSQL starts. Existing passwords are kept on subsequent
+runs. PostgreSQL and the API mount this volume read-only; the init service
+and rotator can write to it.
+
+To also build and start the API, enable the `app` profile:
+
+```bash
+pnpm compose:up   # docker compose --profile app up -d --build --wait
+pnpm compose:down
+```
+
+The API uses `db:5432` inside Compose. Host-side scripts use `127.0.0.1`
+and the published port, selected by `DB_PORT` (default `5432`).
+Compose supplies the API's existing `PG_*` configuration directly.
+
+This homework uses the new `data_typeorm` database volume. The previous
+homework's `data_sql` volume is retained. Keep `data_typeorm` and
+`app_credentials` together: deleting only the credentials volume generates
+a password that no longer matches the existing database role.
+
+### Database roles
+
+| Role | Purpose | Credentials |
+| ---- | ------- | ----------- |
+| `admin` | Local database initialization and password rotation | Dev password `admin_dev` |
+| `migration_user` | Host-side migrations, seed, demos and reports | Dev password `migration_dev` |
+| `app_user` | API queries; no schema creation privileges | Generated password, rotated automatically |
+
+`migration_user` can create objects in `public` and install trusted
+extensions in the development database. Default privileges give `app_user`
+SELECT/INSERT/UPDATE/DELETE on tables and USAGE/SELECT on sequences created
+by `migration_user`. Docker initialization creates roles and grants only;
+application tables will be created by TypeORM migrations.
+
+### Password rotation (no API restart)
+
+The API re-reads `PG_PASSWORD_FILE` whenever its `pg.Pool` creates a new
+connection. The rotator changes the `app_user` password in PostgreSQL,
+atomically replaces the password file, then terminates `app_user`
+connections. Migration and admin passwords are unchanged.
+
+```bash
+./scripts/rotate.sh   # one-shot rotation through the running rotator
+```
+
+Scheduled and manual rotations share a file lock, so they cannot overlap.
+The automatic interval is `ROTATE_INTERVAL` seconds (default `86400`):
+
+```bash
+ROTATE_INTERVAL=60 pnpm compose:up
+```
+
+The API process stays up, but terminating connections can interrupt active
+queries or transactions. This educational mechanism demonstrates reconnecting;
+it does not guarantee uninterrupted requests. Changing the database password
+and publishing the file are separate operations, so a crash between them
+requires recovery.
+
+## Grading
+
+Infisical is optional for this homework as agreed with the teacher. Use pnpm
+and these fixed local development credentials; no vault wrapper or
+`SKIP_VAULT` is needed:
+
+```bash
+docker compose up -d --wait
+export DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=migration_user DB_PASSWORD=migration_dev DB_NAME=rental
+pnpm install --frozen-lockfile
+pnpm exec tsc --noEmit
+pnpm run build
+```
+
+If port `5432` is already occupied, export an available `DB_PORT` before
+starting Compose and use the same value for the host-side connection.
+The TypeORM commands will be documented as they are added in subsequent steps.
 
 ## Catalog data
 
@@ -114,13 +170,13 @@ table is `rentals` (100,000 seeded rows), and the Q4 catalog-search table is
 ### Start and connect
 
 A fresh clone needs no manually created credential files. This one command
-generates local Docker secrets and starts only PostgreSQL:
+initializes the credentials volume and starts PostgreSQL:
 
 ```bash
-export PG_PORT=55432 && ./scripts/bootstrap.sh && docker compose up -d --build --wait db
+export DB_PORT=55432 && docker compose up -d --build --wait db
 ```
 
-`PG_PORT` selects the host port; PostgreSQL continues to listen on its standard
+`DB_PORT` selects the host port; PostgreSQL continues to listen on its standard
 port `5432` inside the container.
 
 Connect with `psql` inside the container:
@@ -130,7 +186,7 @@ docker compose exec db psql -U admin -d rental
 ```
 
 For DBeaver, use host `localhost`, port `55432`, database `rental`, user
-`admin`, and the password stored in `secrets/admin_pg_password`.
+`admin`, and the local dev password `admin_dev`.
 
 For a non-interactive connection check, run:
 
@@ -207,11 +263,11 @@ database is intended.
 This project retains the connection design from homework 11 instead of using a
 single `DB_URL`. `PG_HOST`, `PG_PORT`, `PG_USER`, and `PG_DB` describe the
 connection, while `PG_PASSWORD_FILE` points to the Docker/deployment secret.
-The password itself is never committed or stored in a tracked environment
-file, and the pool rereads it when opening a connection so password rotation
+The generated app_user password is never committed or stored in a tracked
+environment file, and the pool rereads it when opening a connection so rotation
 does not require an application restart.
 
-> **Assignment compatibility note:** The acceptance example checks for a
+> **Previous PostgreSQL homework compatibility note:** Its acceptance example checks for a
 > single `DB_URL` or `DATABASE_URL`. This project deliberately keeps the
 > equivalent split connection contract from homework 11 so that the password
 > can remain in a separately mounted, rotatable secret instead of being
