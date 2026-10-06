@@ -43,26 +43,34 @@ PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
 ## Configuration
 
-All environment variables are validated at startup by a single zod schema
-([src/config/env.schema.ts](src/config/env.schema.ts)) via `validate` in
-`ConfigModule.forRoot` — a broken or missing variable stops the process with
-exit code ≠ 0 and the list of every invalid variable. The rest of the code
-only reads config through the typed `ConfigService<Env, true>`.
+Connection settings are validated by `src/config/database-env.schema.ts`.
+Nest adds HTTP settings via `src/config/env.schema.ts`; the CLI needs only DB
+settings. Both paths read `process.env`, without loading a `.env` file.
+For host-side development, export the variables in your shell.
 
-| Variable           | Required | Default | Source                   | Description                                                     |
-| ------------------ | -------- | ------- | ------------------------ | --------------------------------------------------------------- |
-| `PORT`             | yes      | —       | Environment              | HTTP port the API listens on                                    |
-| `PG_HOST`          | yes      | —       | Environment              | Postgres host (`db` inside compose, `127.0.0.1` for local runs) |
-| `PG_PORT`          | no       | `5432`  | Environment              | Postgres port                                                   |
-| `PG_USER`          | yes      | —       | Environment              | Application DB role (least-privilege, not the admin)            |
-| `PG_DB`            | yes      | —       | Environment              | Database name                                                   |
-| `PG_PASSWORD_FILE` | yes      | —       | Credentials volume       | Path to the file holding the app user's password                |
-| `LOG_LEVEL`        | no       | `info`  | Environment              | `debug` \| `info` \| `warn` \| `error`                          |
-| `TIMEOUT_MS`       | no       | `5000`  | Environment              | Generic operation timeout, ms                                   |
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DB_HOST` | yes | `db` inside Compose, `127.0.0.1` from the host |
+| `DB_PORT` | no, default `5432` | Connection port; also the published host port in Compose |
+| `DB_USER` | yes | User for this process's connection |
+| `DB_NAME` | yes | Database name |
+| `DB_PASSWORD` | one password source | Static password for CLI commands |
+| `DB_PASSWORD_FILE` | one password source | Rotatable password file for the API |
+| `PORT` | API only | HTTP port |
+| `LOG_LEVEL` | no, default `info` | `debug`, `info`, `warn`, `error` |
+| `TIMEOUT_MS` | no, default `5000` | Generic operation timeout in milliseconds |
 
-`.env.example` is the contract kept in git; the real `.env` is gitignored and
-excluded from the docker image. `pnpm check:env` verifies `.env.example`
-against the schema (missing or invalid variables → exit 1).
+Set exactly one of `DB_PASSWORD` and `DB_PASSWORD_FILE`.
+`.env.example` documents the API connection and role-specific Compose settings;
+`pnpm check:env` validates it. It is not loaded by Nest or the TypeORM CLI.
+Compose can read a local `.env` for its own interpolation.
+
+Compose provisioning uses `DB_ADMIN_USER` / `DB_ADMIN_PASSWORD`,
+`DB_MIGRATION_USER` / `DB_MIGRATION_PASSWORD`, and
+`DB_APP_USER` / `DB_APP_PASSWORD_FILE`. These describe each role;
+`DB_USER` and the password source describe the connection of one process.
+The image's `POSTGRES_PASSWORD` and psql's `PGPASSWORD` both receive the admin
+password, under the names required by those tools.
 
 ### Running
 
@@ -73,7 +81,7 @@ docker compose up -d --wait
 ```
 
 No `.env` or host-side secret files are required. The one-shot `init-secrets`
-service generates the `app_user` password in the `app_credentials` named
+service generates the `db_app` password in the `app_credentials` named
 volume before PostgreSQL starts. Existing passwords are kept on subsequent
 runs. PostgreSQL and the API mount this volume read-only; the init service
 and rotator can write to it.
@@ -87,7 +95,7 @@ pnpm compose:down
 
 The API uses `db:5432` inside Compose. Host-side scripts use `127.0.0.1`
 and the published port, selected by `DB_PORT` (default `5432`).
-Compose supplies the API's existing `PG_*` configuration directly.
+Compose supplies the API's `DB_*` configuration directly.
 
 This homework uses the new `data_typeorm` database volume. The previous
 homework's `data_sql` volume is retained. Keep `data_typeorm` and
@@ -98,39 +106,76 @@ a password that no longer matches the existing database role.
 
 | Role | Purpose | Credentials |
 | ---- | ------- | ----------- |
-| `admin` | Local database initialization and password rotation | Dev password `admin_dev` |
-| `migration_user` | Host-side migrations, seed, demos and reports | Dev password `migration_dev` |
-| `app_user` | API queries; no schema creation privileges | Generated password, rotated automatically |
+| `db_admin` | Local database initialization and password rotation | Dev password `admin_dev` |
+| `db_migrator` | Host-side migrations, seed, demos and reports | Dev password `migration_dev` |
+| `db_app` | API queries; no schema creation privileges | Generated password, rotated automatically |
 
-`migration_user` can create objects in `public` and install trusted
-extensions in the development database. Default privileges give `app_user`
+`db_migrator` can create objects in `public` and install trusted
+extensions in the development database. Default privileges give `db_app`
 SELECT/INSERT/UPDATE/DELETE on tables and USAGE/SELECT on sequences created
-by `migration_user`. Docker initialization creates roles and grants only;
+by `db_migrator`. Docker initialization creates roles and grants only;
 application tables will be created by TypeORM migrations.
 
 ### Password rotation (no API restart)
 
-The API re-reads `PG_PASSWORD_FILE` whenever its `pg.Pool` creates a new
-connection. The rotator changes the `app_user` password in PostgreSQL,
-atomically replaces the password file, then terminates `app_user`
-connections. Migration and admin passwords are unchanged.
+The API's TypeORM DataSource uses `pg` underneath and re-reads
+`DB_PASSWORD_FILE` when opening a new connection. The rotator changes the
+`db_app` password and atomically replaces the file. Existing sessions are
+retained, so rotation does not forcibly interrupt their transactions.
+Migration and admin passwords are unchanged.
 
 ```bash
-./scripts/rotate.sh   # one-shot rotation through the running rotator
+./scripts/rotate.sh
 ```
 
-Scheduled and manual rotations share a file lock, so they cannot overlap.
-The automatic interval is `ROTATE_INTERVAL` seconds (default `86400`):
+Scheduled and manual rotations share a file lock. The automatic interval is
+`ROTATE_INTERVAL` seconds (default `86400`):
 
 ```bash
 ROTATE_INTERVAL=60 pnpm compose:up
 ```
 
-The API process stays up, but terminating connections can interrupt active
-queries or transactions. This educational mechanism demonstrates reconnecting;
-it does not guarantee uninterrupted requests. Changing the database password
-and publishing the file are separate operations, so a crash between them
-requires recovery.
+Connections have a maximum lifetime of 300 seconds. A busy connection is
+retired only after the application releases it; idle connections are retired
+without interrupting queries. An open QueryRunner must always be released.
+
+For file-based credentials, `RotationPool` retries only connection acquisition
+on PostgreSQL authentication error `28P01`: four attempts total, with waits
+of 100, 200, and 400 milliseconds. SQL queries and transactions are never
+replayed. This handles a short gap between changing the password and publishing
+the file, but cannot guarantee availability if publication is delayed longer.
+A crash between those operations still requires credential recovery.
+
+### TypeORM CLI
+
+Build first; the CLI loads `dist/data-source.js`, without bootstrapping Nest:
+
+```bash
+pnpm run build
+pnpm run migrate:show
+pnpm run migrate
+pnpm run migrate:revert
+# After entities are added, generate against a database with all existing migrations applied:
+pnpm run migration:generate src/migrations/InitialRentalSchema
+pnpm run build # compile the generated migration before running it
+```
+
+Export the CLI credentials from the Grading block before these commands.
+`synchronize: false` and `migrationsRun: false` prevent schema changes on API
+startup. At this stage there are no entities or migrations yet, so
+`migrate:show` has no migration entries. Only the CLI module exports a
+DataSource instance; both CLI and Nest use the same options factory.
+
+### Existing volumes after the role rename
+
+The new defaults are `db_admin`, `db_migrator`, and `db_app`, with the application
+password in `db_app_password`. Initialization scripts run only on an empty
+PostgreSQL volume. Existing volumes created with the old names are not upgraded
+by changing Compose. Keep them intact; use a separate Compose project for a
+fresh homework database, for example `docker compose -p retro-hw13 up -d --wait`
+(with an available `DB_PORT`). Use the same project name for subsequent commands.
+Old role names can be retained through the role-specific Compose overrides,
+but an old credentials volume also needs its password file migrated explicitly.
 
 ## Grading
 
@@ -140,7 +185,7 @@ and these fixed local development credentials; no vault wrapper or
 
 ```bash
 docker compose up -d --wait
-export DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=migration_user DB_PASSWORD=migration_dev DB_NAME=rental
+export DB_HOST=127.0.0.1 DB_PORT=5432 DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 pnpm install --frozen-lockfile
 pnpm exec tsc --noEmit
 pnpm run build
@@ -148,7 +193,8 @@ pnpm run build
 
 If port `5432` is already occupied, export an available `DB_PORT` before
 starting Compose and use the same value for the host-side connection.
-The TypeORM commands will be documented as they are added in subsequent steps.
+After building, `pnpm run migrate:show` checks the CLI connection.
+Migration files are added in the migration step.
 
 ## Catalog data
 
@@ -182,16 +228,16 @@ port `5432` inside the container.
 Connect with `psql` inside the container:
 
 ```bash
-docker compose exec db psql -U admin -d rental
+docker compose exec db psql -U db_admin -d rental
 ```
 
 For DBeaver, use host `localhost`, port `55432`, database `rental`, user
-`admin`, and the local dev password `admin_dev`.
+`db_admin`, and the local dev password `admin_dev`.
 
 For a non-interactive connection check, run:
 
 ```bash
-docker compose exec -T db psql -U admin -d rental -Atc 'SELECT 1'
+docker compose exec -T db psql -U db_admin -d rental -Atc 'SELECT 1'
 ```
 
 ### Create and seed the database
@@ -200,7 +246,7 @@ Apply the schema to an empty database:
 
 ```bash
 docker compose exec -T db \
-  psql -U admin -d rental -v ON_ERROR_STOP=1 \
+  psql -U db_admin -d rental -v ON_ERROR_STOP=1 \
   < db/schema.sql
 ```
 
@@ -213,7 +259,7 @@ Load the fixture and generated benchmark data:
 The seed finishes with `VACUUM (ANALYZE)`. Verify the two required table sizes:
 
 ```bash
-docker compose exec -T db psql -U admin -d rental -c \
+docker compose exec -T db psql -U db_admin -d rental -c \
   "SELECT
      (SELECT count(*) FROM rentals) AS rentals,
      (SELECT count(*) FROM games) AS games;"
@@ -234,9 +280,9 @@ indexes and refresh planner statistics:
 
 ```bash
 docker compose exec -T db \
-  psql -U admin -d rental -v ON_ERROR_STOP=1 \
+  psql -U db_admin -d rental -v ON_ERROR_STOP=1 \
   < db/indexes.sql
-docker compose exec -T db psql -U admin -d rental -c 'ANALYZE;'
+docker compose exec -T db psql -U db_admin -d rental -c 'ANALYZE;'
 ```
 
 Run the same loop again. Each optimized plan must name the corresponding index
@@ -260,18 +306,9 @@ database is intended.
 
 ### Application connection configuration
 
-This project retains the connection design from homework 11 instead of using a
-single `DB_URL`. `PG_HOST`, `PG_PORT`, `PG_USER`, and `PG_DB` describe the
-connection, while `PG_PASSWORD_FILE` points to the Docker/deployment secret.
-The generated app_user password is never committed or stored in a tracked
-environment file, and the pool rereads it when opening a connection so rotation
-does not require an application restart.
-
-> **Previous PostgreSQL homework compatibility note:** Its acceptance example checks for a
-> single `DB_URL` or `DATABASE_URL`. This project deliberately keeps the
-> equivalent split connection contract from homework 11 so that the password
-> can remain in a separately mounted, rotatable secret instead of being
-> embedded in a connection URL.
+The API uses `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_NAME`, and
+`DB_PASSWORD_FILE`. CLI commands use the same connection contract with
+`DB_PASSWORD` instead. Password rotation needs no API restart.
 
 ## Project setup
 

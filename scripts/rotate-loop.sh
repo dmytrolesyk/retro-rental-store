@@ -9,22 +9,20 @@ rotate() {
   local new_password
   new_password="$(od -An -N32 -tx1 /dev/urandom | tr -d ' \n')"
 
-  psql -v ON_ERROR_STOP=1 --set=new_password="$new_password" <<-'EOSQL' >/dev/null
-    ALTER ROLE app_user WITH PASSWORD :'new_password';
+  psql -v ON_ERROR_STOP=1 --set=app_user="$DB_APP_USER" --set=new_password="$new_password" <<-'EOSQL' >/dev/null
+    ALTER ROLE :"app_user" WITH PASSWORD :'new_password';
 EOSQL
 
   # Rename within the shared directory prevents readers seeing a partial file.
   local temporary_file
-  temporary_file="$(mktemp /run/secrets/.app_pg_password.XXXXXX)"
+  temporary_file="$(mktemp /run/secrets/.db_app_password.XXXXXX)"
   trap 'rm -f "$temporary_file"' EXIT
   printf '%s' "$new_password" > "$temporary_file"
   chmod 644 "$temporary_file"
-  mv "$temporary_file" /run/secrets/app_pg_password
+  mv "$temporary_file" /run/secrets/db_app_password
   trap - EXIT
 
-  psql -v ON_ERROR_STOP=1 -tA \
-    -c "SELECT count(pg_terminate_backend(pid)) FROM pg_stat_activity WHERE usename = 'app_user' AND pid <> pg_backend_pid();" \
-    | xargs -I{} echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') rotated app_user password, terminated {} connection(s)"
+  echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') rotated application password; existing sessions retained"
 
   exec 9>&-
 }

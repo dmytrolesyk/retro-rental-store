@@ -1,19 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { DB_CONNECTION } from './database/constants';
+import { DataSource } from 'typeorm';
 
 describe('AppController', () => {
   let appController: AppController;
   const dbMock = {
-    query: jest
-      .fn()
-      .mockResolvedValue({ rows: [{ current_user: 'app_user', now: 'now' }] }),
+    query: jest.fn().mockResolvedValue([{ current_user: 'db_app', now: 'now' }]),
   };
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [{ provide: DB_CONNECTION, useValue: dbMock }],
+      providers: [{ provide: DataSource, useValue: dbMock }],
     }).compile();
 
     appController = app.get<AppController>(AppController);
@@ -29,7 +27,7 @@ describe('AppController', () => {
     it('should return the query result', async () => {
       const result = await appController.checkDb();
       expect(dbMock.query).toHaveBeenCalled();
-      expect(result.dbQuery.current_user).toBe('app_user');
+      expect(result.dbQuery.current_user).toBe('db_app');
     });
   });
 });

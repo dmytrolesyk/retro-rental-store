@@ -20,7 +20,11 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "check:env": "pnpm run build && node scripts/check-env-example.mjs",
     "compose:up": "docker compose --profile app up -d --build --wait",
-    "compose:down": "docker compose down"
+    "compose:down": "docker compose down",
+    "migrate": "typeorm migration:run -d dist/data-source.js",
+    "migrate:show": "typeorm migration:show -d dist/data-source.js",
+    "migrate:revert": "typeorm migration:revert -d dist/data-source.js",
+    "migration:generate": "typeorm migration:generate -d dist/data-source.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

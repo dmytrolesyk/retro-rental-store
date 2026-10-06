@@ -13,11 +13,11 @@ services:
       dockerfile: node.Dockerfile
     environment:
       PORT: ${PORT:-3000}
-      PG_HOST: db
-      PG_PORT: 5432
-      PG_USER: app_user
-      PG_DB: rental
-      PG_PASSWORD_FILE: /run/secrets/app_pg_password
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_APP_USER:-db_app}
+      DB_NAME: rental
+      DB_PASSWORD_FILE: ${DB_APP_PASSWORD_FILE:-/run/secrets/db_app_password}
     volumes:
       - app_credentials:/run/secrets:ro
     ports:
@@ -31,11 +31,12 @@ services:
       context: .
       dockerfile: pg.Dockerfile
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin_dev
+      POSTGRES_USER: ${DB_ADMIN_USER:-db_admin}
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin_dev}
       POSTGRES_DB: rental
-      MIGRATION_USER: migration_user
-      MIGRATION_PASSWORD: migration_dev
+      DB_MIGRATION_USER: ${DB_MIGRATION_USER:-db_migrator}
+      DB_APP_USER: ${DB_APP_USER:-db_app}
+      DB_MIGRATION_PASSWORD: ${DB_MIGRATION_PASSWORD:-migration_dev}
     ports:
       - ${DB_PORT:-5432}:5432
     volumes:
@@ -43,7 +44,7 @@ services:
       - app_credentials:/run/secrets:ro
       - ./db/fixtures/retronian:/fixtures/retronian:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U admin -d rental']
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 2s
       timeout: 3s
       retries: 15
@@ -57,9 +58,10 @@ services:
       dockerfile: rotator.Dockerfile
     environment:
       PGHOST: db
-      PGUSER: admin
+      PGUSER: ${DB_ADMIN_USER:-db_admin}
       PGDATABASE: rental
-      PGPASSWORD: admin_dev
+      PGPASSWORD: ${DB_ADMIN_PASSWORD:-admin_dev}
+      DB_APP_USER: ${DB_APP_USER:-db_app}
       ROTATE_INTERVAL: ${ROTATE_INTERVAL:-86400}
     volumes:
       - app_credentials:/run/secrets
