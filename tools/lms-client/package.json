@@ -1,0 +1,20 @@
+{
+  "name": "@retro-games-rental/lms-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone CLI for Robot Dreams LMS",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lms": "node dist/cli.js",
+    "test": "pnpm run build && node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.4",
+    "typescript": "5.9.3"
+  }
+}
