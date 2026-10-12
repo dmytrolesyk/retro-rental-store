@@ -16,10 +16,13 @@
   "devDependencies": {
     "@types/node": "24.13.4",
     "@types/proper-lockfile": "4.1.4",
+    "@types/turndown": "5.0.6",
     "typescript": "5.9.3"
   },
   "dependencies": {
     "proper-lockfile": "4.1.2",
-    "tough-cookie": "6.0.2"
+    "tough-cookie": "6.0.2",
+    "turndown": "7.2.4",
+    "turndown-plugin-gfm": "1.0.2"
   }
 }

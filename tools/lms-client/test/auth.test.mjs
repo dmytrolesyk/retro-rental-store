@@ -18,6 +18,7 @@ async function fixture(t) {
     readStatus = 200,
     loginStatus = 200,
     graphqlErrors = false,
+    graphqlBody,
     loginCookies = true,
     expiry = Math.floor(Date.now() / 1000) + 3600;
   const server = createServer(async (req, res) => {
@@ -52,16 +53,17 @@ async function fixture(t) {
       res.statusCode = readStatus;
       res.end(
         JSON.stringify(
-          graphqlErrors || JSON.parse(raw).variables.id !== '/api/courses/5467'
-            ? { errors: [{ message: 'private-server-error' }] }
-            : {
-                data: {
-                  course: {
-                    id: '/api/courses/5467',
-                    translations: { edges: [{ node: { name: 'Node.js PRO' } }] },
+          graphqlBody ??
+            (graphqlErrors || JSON.parse(raw).variables.id !== '/api/courses/5467'
+              ? { errors: [{ message: 'private-server-error' }] }
+              : {
+                  data: {
+                    course: {
+                      id: '/api/courses/5467',
+                      translations: { edges: [{ node: { name: 'Node.js PRO' } }] },
+                    },
                   },
-                },
-              },
+                }),
         ),
       );
     }
@@ -84,6 +86,7 @@ async function fixture(t) {
     setReadStatus: s => (readStatus = s),
     setLoginStatus: s => (loginStatus = s),
     setGraphqlErrors: value => (graphqlErrors = value),
+    setGraphqlBody: value => (graphqlBody = value),
     setLoginCookies: value => (loginCookies = value),
     setExpiry: value => (expiry = value),
   };
@@ -352,4 +355,25 @@ test('JSON from disk is validated before being treated as a Session', async t =>
     await writeFile(join(f.directory, 'session.json'), JSON.stringify(invalid));
     await assert.rejects(f.client.checkSession(), { code: 'SESSION_INVALID' });
   }
+});
+
+test('generic GraphQL reader preserves variables and rejects malformed or partial envelopes', async t => {
+  const f = await fixture(t);
+  const { GraphqlClient } = await import('../dist/graphql.js');
+  const reader = new GraphqlClient(f.client);
+  await f.client.login({ email: 'a@b.test', password: 'p' });
+  const query = 'query Probe($course: String!) { lessons(course: $course) { collection { id } } }';
+  const variables = { course: '/api/courses/999' };
+  f.setGraphqlBody({ data: { lessons: { collection: [] } } });
+  assert.deepEqual(await reader.query(query, variables), { lessons: { collection: [] } });
+  assert.deepEqual(JSON.parse(f.calls.at(-1).body), { query, variables });
+  for (const body of [{}, { data: [] }, { data: {}, errors: 'private-error' }]) {
+    f.setGraphqlBody(body);
+    await assert.rejects(reader.query(query, variables), { code: 'API_RESPONSE_INVALID' });
+  }
+  f.setGraphqlBody({ data: { lessons: null }, errors: [{ message: 'private-error' }] });
+  await assert.rejects(
+    reader.query(query, variables),
+    error => error.code === 'GRAPHQL_ERROR' && !error.message.includes('private-error'),
+  );
 });

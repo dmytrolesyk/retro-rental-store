@@ -2,6 +2,9 @@ import { ArgumentError, helpData, parseCommand } from './config.js';
 import { AuthClient } from './auth.js';
 import { ClientError } from './errors.js';
 import { readCredentials } from './prompt.js';
+import { GraphqlClient } from './graphql.js';
+import { listLessons, selectLesson } from './lessons.js';
+import { getHomework } from './homework.js';
 
 function writeJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -23,6 +26,16 @@ try {
     }
   } else if (config.command === 'logout') {
     writeJson({ ok: true, data: await new AuthClient().logout() });
+  } else if (config.command === 'lessons' || config.command === 'homework') {
+    const client = new GraphqlClient();
+    const result = await listLessons(client, config.course);
+    writeJson({
+      ok: true,
+      data:
+        config.command === 'lessons'
+          ? result
+          : await getHomework(client, config.course, selectLesson(result.lessons, config)),
+    });
   } else {
     const message = 'Дію команди ще не реалізовано: доступні довідка та валідація аргументів.';
     writeJson({ ok: false, error: { code: 'NOT_IMPLEMENTED', message } });

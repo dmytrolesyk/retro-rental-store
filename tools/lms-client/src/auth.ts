@@ -123,6 +123,31 @@ export class AuthClient {
   async readCourse(
     forceRefresh = false,
   ): Promise<{ course: { id: string; name: string }; expiresAt: string }> {
+    const { data, expiresAt } = await this.requestGraphql(
+      'query SessionCourseCheck($id: ID!) { course(id: $id) { id translations(locale: "uk") { edges { node { name } } } } }',
+      { id: `/api/courses/${String(DEFAULT_COURSE)}` },
+      forceRefresh,
+    );
+    const course = isRecord(data.course) ? data.course : undefined;
+    const translations = course?.translations;
+    const edges = isRecord(translations) ? translations.edges : undefined;
+    const first: unknown = Array.isArray(edges) ? edges[0] : undefined;
+    const node = isRecord(first) ? first.node : undefined;
+    if (
+      !course ||
+      typeof course.id !== 'string' ||
+      !isRecord(node) ||
+      typeof node.name !== 'string'
+    )
+      throw new ClientError('API_RESPONSE_INVALID', 'LMS не повернула очікувані дані курсу.', 5);
+    return { course: { id: course.id, name: node.name }, expiresAt };
+  }
+
+  async requestGraphql(
+    query: string,
+    variables: Record<string, unknown>,
+    forceRefresh = false,
+  ): Promise<{ data: Record<string, unknown>; expiresAt: string }> {
     return this.store.transaction(async tx => {
       const stored = await tx.read();
       if (!stored) throw authRequired();
@@ -151,11 +176,7 @@ export class AuthClient {
             'content-type': 'application/json',
             authorization: `Bearer ${session.accessToken}`,
           },
-          body: JSON.stringify({
-            query:
-              'query SessionCourseCheck($id: ID!) { course(id: $id) { id translations(locale: "uk") { edges { node { name } } } } }',
-            variables: { id: `/api/courses/${String(DEFAULT_COURSE)}` },
-          }),
+          body: JSON.stringify({ query, variables }),
         });
       let response = await read();
       if (response.status === 401) {
@@ -173,27 +194,23 @@ export class AuthClient {
       await tx.write(session);
       if (!response.ok) {
         await response.body?.cancel();
-        throw new ClientError('HTTP_ERROR', 'LMS не дозволила прочитати курс.', 5);
+        throw new ClientError('HTTP_ERROR', 'LMS не виконала запит читання.', 5);
       }
       const body = await jsonBody(response);
       if (!isRecord(body))
-        throw new ClientError('API_RESPONSE_INVALID', 'LMS повернула некоректний JSON курсу.', 5);
+        throw new ClientError('API_RESPONSE_INVALID', 'LMS повернула некоректний JSON GraphQL.', 5);
+      if (body.errors !== undefined && !Array.isArray(body.errors))
+        throw new ClientError(
+          'API_RESPONSE_INVALID',
+          'LMS повернула некоректні помилки GraphQL.',
+          5,
+        );
       if (Array.isArray(body.errors) && body.errors.length)
-        throw new ClientError('GRAPHQL_ERROR', 'GraphQL повернув помилку читання курсу.', 5);
-      const course = isRecord(body.data) ? body.data.course : undefined;
-      const translations = isRecord(course) ? course.translations : undefined;
-      const edges = isRecord(translations) ? translations.edges : undefined;
-      const first: unknown = Array.isArray(edges) ? edges[0] : undefined;
-      const node = isRecord(first) ? first.node : undefined;
-      if (
-        !isRecord(course) ||
-        typeof course.id !== 'string' ||
-        !isRecord(node) ||
-        typeof node.name !== 'string'
-      )
-        throw new ClientError('API_RESPONSE_INVALID', 'LMS не повернула очікувані дані курсу.', 5);
+        throw new ClientError('GRAPHQL_ERROR', 'GraphQL повернув помилку читання даних.', 5);
+      if (!isRecord(body.data))
+        throw new ClientError('API_RESPONSE_INVALID', 'LMS не повернула дані GraphQL.', 5);
       return {
-        course: { id: course.id, name: node.name },
+        data: body.data,
         expiresAt: new Date(session.expiresAt).toISOString(),
       };
     });

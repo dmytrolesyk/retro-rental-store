@@ -154,6 +154,7 @@ export function helpData(command: CommandConfig['command']) {
       '6': 'Сесія зайнята іншим процесом',
       '130': 'Вхід скасовано',
     },
-    stage: 'Доступні login, login --check і logout. Інші дії ще не реалізовані.',
+    stage:
+      'Доступні login, login --check, logout, lessons і homework. Матеріали та відео ще не реалізовані.',
   };
 }
