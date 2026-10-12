@@ -6,6 +6,7 @@ import { GraphqlClient } from './graphql.js';
 import { listLessons, selectLesson } from './lessons.js';
 import { getHomework } from './homework.js';
 import { getMaterials } from './materials.js';
+import { getVideo } from './video.js';
 
 function writeJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -30,13 +31,23 @@ try {
   } else if (
     config.command === 'lessons' ||
     config.command === 'homework' ||
-    config.command === 'materials'
+    config.command === 'materials' ||
+    config.command === 'video'
   ) {
     const controller = new AbortController();
     const cancel = () => {
       controller.abort();
     };
-    if (config.download) process.once('SIGINT', cancel);
+    if (config.download || config.command === 'video') process.once('SIGINT', cancel);
+    let lastProgress = -1;
+    const progress = (bytes: number, total: number) => {
+      const percent = Math.floor((bytes * 100) / total);
+      if (percent === lastProgress) return;
+      lastProgress = percent;
+      process.stderr.write(
+        `MP4: ${String(total)} байтів; отримано ${String(bytes)} (${String(percent)}%)\n`,
+      );
+    };
     try {
       const client = new GraphqlClient();
       const result = await listLessons(client, config.course);
@@ -47,14 +58,22 @@ try {
             ? result
             : config.command === 'homework'
               ? await getHomework(client, config.course, selectLesson(result.lessons, config))
-              : await getMaterials(client, config.course, selectLesson(result.lessons, config), {
-                  download: config.download,
-                  root: config.materialsRoot,
-                  signal: controller.signal,
-                }),
+              : config.command === 'video'
+                ? await getVideo(client, config.course, selectLesson(result.lessons, config), {
+                    quality: config.quality,
+                    mediaId: config.mediaId,
+                    root: config.materialsRoot,
+                    signal: controller.signal,
+                    onProgress: progress,
+                  })
+                : await getMaterials(client, config.course, selectLesson(result.lessons, config), {
+                    download: config.download,
+                    root: config.materialsRoot,
+                    signal: controller.signal,
+                  }),
       });
     } finally {
-      if (config.download) process.removeListener('SIGINT', cancel);
+      if (config.download || config.command === 'video') process.removeListener('SIGINT', cancel);
     }
   } else {
     const message = 'Дію команди ще не реалізовано: доступні довідка та валідація аргументів.';
@@ -67,7 +86,10 @@ try {
   const known = error instanceof ClientError;
   const code = invalidArguments ? 'INVALID_ARGUMENTS' : known ? error.code : 'INTERNAL_ERROR';
   const message = invalidArguments || known ? error.message : 'Внутрішня помилка CLI.';
-  writeJson({ ok: false, error: { code, message } });
+  writeJson({
+    ok: false,
+    error: { code, message, ...(known && error.details ? { details: error.details } : {}) },
+  });
   process.stderr.write(`${message}\n`);
   process.exitCode = invalidArguments ? 2 : known ? error.exitCode : 1;
 }

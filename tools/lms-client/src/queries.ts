@@ -49,3 +49,14 @@ export const MATERIAL_SUBTITLES = `query MaterialSubtitles($id: ID!, $after: Str
     edges { node { id subtitle { contentUrl } } } pageInfo { hasNextPage endCursor }
   } }
 }`;
+
+export const VIDEO_MEDIAS = `query ClientVideoMedias($id: ID!, $after: String) {
+  lesson(id: $id) { id medias(first: 30, after: $after) {
+    edges { node { id name } } pageInfo { hasNextPage endCursor }
+  } }
+}`;
+export const VIDEO_RESOLUTIONS = `query ClientVideoResolutions($media: String!, $after: String) {
+  lessonMediaResolutions(lessonMedia: $media, first: 30, after: $after) {
+    edges { node { id type link durationInSeconds } } pageInfo { hasNextPage endCursor }
+  }
+}`;

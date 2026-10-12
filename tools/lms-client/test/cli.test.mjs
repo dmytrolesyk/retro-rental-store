@@ -62,9 +62,7 @@ test('invalid arguments produce JSON and usage exit code', () => {
 test('remaining planned commands explicitly report that their actions are not implemented', () => {
   for (const args of [
     ['sync', '--latest'],
-    ['video', '--latest'],
     ['sync', '--lesson', '13', '--video'],
-    ['video', '--latest', '--quality', '720', '--media-id', '140777'],
   ]) {
     const result = run(args);
     assert.equal(result.status, 3, args.join(' '));
@@ -88,6 +86,7 @@ test('login requires TTY, missing session is explicit, logout is idempotent', ()
       ['lessons'],
       ['homework', '--lesson', '13'],
       ['materials', '--lesson', '13'],
+      ['video', '--lesson', '13'],
     ]) {
       const result = invoke(args);
       assert.equal(result.status, 4);

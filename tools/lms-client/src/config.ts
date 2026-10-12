@@ -158,9 +158,9 @@ export function helpData(command: CommandConfig['command']) {
       '4': 'Вхід/сесія потребує уваги',
       '5': 'Мережа або відповідь LMS',
       '6': 'Сесія зайнята іншим процесом',
-      '130': 'Вхід скасовано',
+      '130': 'Дію скасовано',
     },
     stage:
-      'Доступні login, login --check, logout, lessons, homework і materials. Sync і відео ще не реалізовані.',
+      'Доступні login, login --check, logout, lessons, homework, materials і video. Sync ще не реалізовано.',
   };
 }
