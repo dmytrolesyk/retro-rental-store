@@ -1,0 +1,896 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104318,
+    "iri": "/api/lessons/104318",
+    "number": 12,
+    "name": "PostgreSQL для backend-розробника: індекси, EXPLAIN і MVCC",
+    "translationStatus": "available",
+    "startsAt": "2026-09-01T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104318"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:42:33.042Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:42:15.952Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104318,
+        "iri": "/api/lessons/104318",
+        "number": 12,
+        "name": "PostgreSQL для backend-розробника: індекси, EXPLAIN і MVCC",
+        "translationStatus": "available",
+        "startsAt": "2026-09-01T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104318"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54344,
+          "iri": "/api/lesson_homeworks/54344",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Курсовий проєкт</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: так (ДЗ №3 курсового проєкту)</span></p><p><span class=\\\"ql-color-#7f7f7f ql-bg-transparent\\\">Постановка</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Ти проєктуєш дата-шар свого курсового проєкту (Marketplace API або твій домен) — і одразу доводиш, що він тримає навантаження. Це ДЗ — фундамент: схему, яку ти зафіксуєш зараз, ДЗ #13 переведе в TypeORM-міграції, ДЗ #14 навісить на неї транзакції, а ДЗ #15 — pooling і бекапи. Халтура тут коштуватиме переробок у чотирьох наступних роботах.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Стартова точка — твій compose з Postgres із ДЗ #5 (порт будь-який твій). Версія Postgres значення не має: драбинку лекції прогнано і на 16, і на 17 — вузли планів однакові. Схему проєктуй під user stories свого architecture-decision-record (HW 0); якщо його немає — час надолужити.</span></p><p><span class=\\\"ql-color-#7f7f7f ql-bg-transparent\\\">Що потрібно зробити</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">1. Схема — </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">db/schema.sql</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Мінімум 4 таблиці твого домену (для Marketplace: users, products, orders, order_items), зв'язки через FOREIGN KEY (мінімум 3), розумні типи (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">timestamptz</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">numeric</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> для грошей — не </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">float</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">), NOT NULL/CHECK там, де брехня в даних недопустима. Схема застосовується на чисту базу однією командою без помилок.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">2. Seed — </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">db/seed.sql</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Реалістичний обсяг через </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">generate_series</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">щонайменше 100 000 рядків у головній таблиці</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (orders або аналог у твоєму домені) </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">і щонайменше стільки ж у тій таблиці, по якій шукатиме q4</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (зазвичай </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">products</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">; якщо це одна й та сама таблиця — одного обсягу досить). На таблиці в тисячу рядків EXPLAIN не покаже нічого: планер справедливо вибере Seq Scan за будь-яких індексів. Розподіли значень роби перекошеними, як у житті (статуси не 33/33/33).</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Текстові поля, по яких шукає q4 (назва + опис), наливай українською.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Інакше обов'язкова частина «Українська» з пункту 4 не має на чому виконатись: на латиниці обидві словоформи дадуть по нулю, і ти не побачиш того, заради чого це завдання взагалі є.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Наприкінці — </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">VACUUM (ANALYZE);</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">3. Три повільні запити — </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">db/queries/q1.sql</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">, </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">q2.sql</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">, </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">q3.sql</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Реальні запити твого API: пошук по власнику + період, фільтр по статусу, пошук без урахування регістру тощо. По одному statement на файл, без крапки з комою всередині. На свіжій схемі </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">без додаткових індексів</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> кожен мусить давати Seq Scan.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">4. Четвертий запит — пошук по каталогу (</strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">q4.sql</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">)</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Той самий конвеєр, що й у решти трьох: </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">запит → індекс → EXPLAIN до і після</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Різниця одна — індекс тут не B-tree.</span></p><p><em class=\\\"ql-color-#262626 ql-bg-transparent\\\">Запит.</em><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Покупець вводить два-три слова, ти повертаєш до 20 карток товару. Один statement, без крапки з комою всередині:</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">SELECT id, name, ts_rank(search_vector, plainto_tsquery('simple', 'шкіряні кросівки')) AS rank</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">FROM products</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">WHERE search_vector @@ plainto_tsquery('simple', 'шкіряні кросівки')</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">ORDER BY rank DESC, id</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">LIMIT 20</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Слова підбери такі, щоб збігів було </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">одиниці відсотків</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> каталогу. Якщо запит чіпляє 30% рядків і більше — планер справедливо візьме Seq Scan навіть за живого індексу, і критерій «після індексів немає Seq Scan» завалить тебе за чужу провину.</span></p><p><em class=\\\"ql-color-#262626 ql-bg-transparent\\\">Індекс.</em><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">tsvector</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> + </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">GIN</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Колонку роби генерованою — тоді її не треба підтримувати руками ні на INSERT, ні на UPDATE:</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">-- у db/schema.sql, у визначенні таблиці або окремим ALTER:</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">ALTER TABLE products ADD COLUMN search_vector tsvector</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">&nbsp;&nbsp;GENERATED ALWAYS AS (to_tsvector('simple', name || ' ' || description)) STORED;</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">&nbsp;</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">-- у db/indexes.sql:</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">CREATE INDEX idx_products_search_vector ON products USING GIN (search_vector);</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Колонка живе в </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/schema.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — EXPLAIN «до» мусить її вже бачити, інакше в тебе не буде «до». Індекс — у </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Expression-індекс без збереженої колонки (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">USING GIN (to_tsvector('simple', name || ' ' || description))</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">) приймається так само — тоді запит має повторювати рівно той самий вираз. </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">pg_trgm</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> замість </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">tsvector</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">не приймається</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: він розв'язує іншу задачу (підрядок, а не слово), важчий на диску і будується в рази довше.</span></p><p><em class=\\\"ql-color-#262626 ql-bg-transparent\\\">Українська — обов'язкова частина завдання, а не примітка.</em><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Візьми слово, яке твій пошук знаходить, і повтори пошук тим самим словом в іншому відмінку: «кросівки» → «кросівок», «сумка» → «сумок», «ноутбук» → «ноутбуків». Порахуй збіги обома формами:</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">SELECT count(*) FROM products WHERE search_vector @@ plainto_tsquery('simple', 'кросівки');</span></p><p><span class=\\\"ql-color-#1f1f1f ql-bg-transparent\\\">SELECT count(*) FROM products WHERE search_vector @@ plainto_tsquery('simple', 'кросівок');</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Опиши результат у </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/OPTIMIZATIONS.md</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> секцією </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">## Морфологія</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: дві форми, два числа зі </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">своєї</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> бази, і одне речення — чому так. Куди дивитись за причиною: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">SELECT count(*) FROM pg_ts_config;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> і </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">\\\\dF</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> у psql.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Полагодити це ДЗ </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">не вимагає</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — вимагає побачити й назвати. Це найдорожче, що ти винесеш із завдання: воно пояснює, чому в маркетплейсі не можна просто «додати пошук», і чому підміна </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">simple</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> на </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">russian</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — не фікс, а самообман.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">5. Індекси — </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">db/indexes.sql</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Мінімальний набір, що лікує всі чотири запити. </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Щонайменше один — partial (</strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">… WHERE …</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">) або expression (</strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">… (lower(col))</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">)</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — під запит, який без нього індекс ігнорує. Індекс під q4 — </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">GIN</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> по </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">tsvector</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, він у цей мінімум не зараховується.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">6. Звіт — </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">db/OPTIMIZATIONS.md</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Для кожного запиту — повний вивід </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">EXPLAIN (ANALYZE, BUFFERS)</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">до</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> і </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">після</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, і по одному реченню: </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">який саме індекс став у вузол плану</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (ім'я з </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — воно написане прямо у вузлі: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Index Scan using …</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> / </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Bitmap Index Scan on …</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">), що змінилось у плані й чому (який вузол зник, куди поділись buffers). Плюс окрема секція </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">## Морфологія</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — див. пункт 4. Числа з твоєї машини; орієнтир прискорення — десятки разів, важливий порядок величини, не мілісекунди.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">7. Підключення до БД — зі сховища ДЗ #11, без нових env-файлів</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Сховище вже підняте й працює, тому підключення застосунку до бази цього ДЗ живе там — в оточеннях </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">dev</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> і </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">prod</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Якщо на #11 ти завів </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">DB_URL</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — пункт у тебе вже виконаний: переконайся лише, що значення вказує на базу цього ДЗ і що в git не з'явився новий env-файл із рядком підключення. Якщо називаєш змінну </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">DATABASE_URL</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — додай її у ту саму zod-схему і в </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">.env.example</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (пароль там фейковий), а джерело познач у таблиці «Configuration» README.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Дев-креденшели самого контейнера Postgres лишаються в </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">docker-compose.yml</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> як були: це два різні шляхи — застосунок бере секрет зі сховища, а грейдер піднімає локальний стенд зі свіжого клону.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">8. Що зіпсує тобі вечір, якщо не знати заздалегідь</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Підказки, які економлять години.</strong></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Порядок перевірки в тебе локально = порядок грейдера: чистий volume → </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">schema.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">seed.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → EXPLAIN «до» (Seq Scan) → </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">ANALYZE</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → EXPLAIN «після». Прожени цей цикл сам від </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">docker compose down -v &amp;&amp; docker compose up -d --wait</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> до останнього EXPLAIN.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Закінчуй </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">seed.sql</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\"> не </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">ANALYZE;</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">, а </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">VACUUM (ANALYZE);</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">ANALYZE</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> дає планеру статистику, але visibility map виставляє саме </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">VACUUM</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">; без неї </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Index Only Scan</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> усе одно лізе в таблицю (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Heap Fetches: 12345</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> у плані), і твої buffers «після» будуть у сотні разів гірші, ніж могли б. На лекційній драбинці ця різниця — 12 сторінок проти ~2050 на тому самому запиті.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Перший виклик q4 після </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">CREATE INDEX</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\"> — холодний.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> GIN ще не в кеші, і число буде в десятки разів гірше за справжнє. Прожени запит 2–3 рази й бери останній.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Вимога «≥100 000 рядків» стосується і таблиці пошуку.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> У </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">products</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> типово насівають 200 рядків «щоб було що показати». На каталозі в 100–500 товарів різниці не буде </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">жодної</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: планер візьме Seq Scan і до індексу, і після нього, бо на сотні рядків це чесно дешевше за похід у індекс. Ти зробиш усе правильно й не побачиш ефекту.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Якщо після індексу планер усе одно бере Seq Scan — перечитай крок 6 демо лекції: або selectivity зависока (умова відсікає замало рядків — зміни запит на реалістичніший), або в WHERE стоїть функція, а індекс — по колонці.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Якщо </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">q4</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> після GIN усе одно бере Seq Scan — перевір по черзі три речі: скільки рядків у таблиці пошуку (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">count(*)</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> має бути ≥100 000), скільки збігів дає запит (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">count(*)</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> по тій самій умові — має бути одиниці відсотків), і чи прогнав ти EXPLAIN більше одного разу.</span></p><p><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">random()</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> у seed дає різні дані щоразу — це нормально, критерії від цього не залежать. Головне — перекіс розподілу і обсяг.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Гроші — </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">numeric</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, час — </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">timestamptz</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, «але ж serial простіший» — див. «Don't Do This» зі списку матеріалів.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Не індексуй «про запас»: кожен зайвий індекс — диск + повільніший INSERT. Це окремий критерій («Жоден твій індекс не лишився мертвим»), тож перевіряй себе </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">під час</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> роботи, а не в кінці: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">SELECT indexrelname, idx_scan FROM pg_stat_user_indexes WHERE schemaname='public' AND indexrelid NOT IN (SELECT conindid FROM pg_constraint WHERE conindid &lt;&gt; 0) ORDER BY idx_scan;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Без фільтра по </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">pg_constraint</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> цей запит друкує ще й PK/UNIQUE-індекси з нулем сканів — вони нормальні, і через цей шум легко не помітити свій мертвий індекс.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Збережена </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">tsvector</strong><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">-колонка не безкоштовна.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Вона роздуває таблицю приблизно вдвічі й помітно сповільнює вставку — і це нормальна ціна, яку ти маєш уміти назвати вголос. Заміряй сам: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">pg_total_relation_size('products')</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> до додавання колонки і після.</span></p><p><br></p><p><span class=\\\"ql-color-#7f7f7f ql-bg-transparent\\\">Acceptance criteria</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Грейдер виконує рівно ці команди на чистій базі — свіжий клон, без доступу до твого сховища (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> = будь-який спосіб дістатись твого Postgres; </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">docker compose exec db psql -U app -d shop</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> теж годиться).</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Доступ грейдера — це вже вкусило б після ДЗ #11.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> У ДЗ #11 ти свідомо прибрав </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">.env</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> і </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">secrets/db_password</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> з git. Грейдер цього ДЗ клонує гілку </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">hw-12</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">начисто</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> й піднімає базу командою з твого README — тобто гадати пароль йому нізвідки. Тому:</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">•&nbsp;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">у репозиторії має лежати </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">*.example</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (напр. </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">secrets/db_password.example</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">) або дефолтні </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">дев</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">-креденшели прямо в </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">docker-compose.yml</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">;</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">•&nbsp;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">у README — рівно один рядок «підняти базу» і рівно один рядок «підключитись», які працюють на свіжому клоні без правок файлів.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Перевір це сам, а не «мабуть, працює»: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">git clone --branch hw-12 &lt;твій-репо&gt; /tmp/check &amp;&amp; cd /tmp/check</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → команда підняття з README → </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql … -Atc \\\"SELECT 1\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> має віддати </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">1</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Схема застосовується з нуля.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -f db/schema.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> завершується без ERROR, і </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -Atc \\\"SELECT count(*) FROM information_schema.table_constraints WHERE constraint_type='FOREIGN KEY' AND table_schema='public';\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">3 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Seed наливає обсяг.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -f db/seed.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> завершується без ERROR, </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -Atc \\\"SELECT count(*) FROM &lt;головна таблиця&gt;;\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">100000 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, і те саме для </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">таблиці, по якій іде q4</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (обидві назви вкажи в README; якщо це одна таблиця — одного числа досить).</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">До індексів — Seq Scan.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Для кожного з </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">чотирьох</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> запитів </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -c \\\"EXPLAIN (ANALYZE, BUFFERS) $(cat db/queries/qN.sql)\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (до застосування </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">) містить рядок </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Seq Scan</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Після індексів — індексний план, і в ньому саме твій індекс.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Після </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -f db/indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> і </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -c \\\"ANALYZE;\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> той самий EXPLAIN для кожного з </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">чотирьох</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> запитів </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">не містить</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Seq Scan</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> і містить індексний вузол, у якому </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">названо ім'я індексу з твого </strong><strong class=\\\"ql-bg-transparent ql-color-#2e7d32\\\">db/indexes.sql</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Index Scan using &lt;ім'я&gt;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Index Only Scan using &lt;ім'я&gt;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> або </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">Bitmap Index Scan on &lt;ім'я&gt;</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Самих слів «Index Scan» мало — план міг піти по сусідньому індексу, а твій лишиться мертвим (див. наступний критерій). Для q4 прожени EXPLAIN 2–3 рази й бери останній: перший після </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">CREATE INDEX</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> іде по холодному GIN.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Жоден твій індекс не лишився мертвим.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Після того, як усі чотири EXPLAIN «після» прогнані, </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -Atc \\\"SELECT indexrelname FROM pg_stat_user_indexes WHERE schemaname='public' AND idx_scan = 0 AND indexrelid NOT IN (SELECT conindid FROM pg_constraint WHERE conindid &lt;&gt; 0);\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> дає </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">порожній вивід</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Будь-яке надруковане ім'я — це індекс, який ти створив, а жоден із чотирьох запитів ним не скористався: або він зайвий, або запит під нього не підходить. Підзапит по </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">pg_constraint</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> відсікає індекси під PRIMARY KEY / UNIQUE: вони тримають констрейнт, а не запити, і нуль сканів для них нормальний. Лічильник рухає тільки </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">EXPLAIN (ANALYZE, …)</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — плановий </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">EXPLAIN</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> без </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">ANALYZE</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виконання не робить і лишає </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">idx_scan = 0</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> при живому індексі.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Partial або expression присутній.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Після </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -f db/indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -Atc \\\"SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexdef NOT ILIKE '%USING gin%' AND (indexdef ILIKE '% WHERE %' OR indexdef ~ '\\\\((\\\\w+)\\\\(');\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">1 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Перевірка читає </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">каталог</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, а не текст файлу, тому не має значення, у скільки рядків ти записав </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">CREATE INDEX</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (звичайні й складені індекси, у т.ч. з </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">DESC NULLS LAST</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, сюди не потрапляють). GIN-індекси виключені навмисно: інакше expression-варіант FTS-індексу (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">GIN (to_tsvector(…))</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">) сам собою закривав би цей критерій, і партіал під q1–q3 можна було б не писати взагалі.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Звіт існує і повний.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">grep -c 'Execution Time' db/OPTIMIZATIONS.md</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">8 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (4 пари до/після).</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Пошуковий індекс — це GIN по tsvector.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Після </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -f db/indexes.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -Atc \\\"SELECT count(*) FROM pg_index i JOIN pg_class c ON c.oid=i.indexrelid JOIN pg_am am ON am.oid=c.relam JOIN pg_opclass o ON o.oid=i.indclass[0] WHERE am.amname='gin' AND o.opcintype='tsvector'::regtype;\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">1 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Перевірка читає </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">каталог</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, тому збережена генерована колонка і expression-індекс </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">GIN (to_tsvector(…))</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> проходять однаково, а </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">GIN … gin_trgm_ops</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — ні: у нього вхідний тип </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">text</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Не переписуй цю перевірку через </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">pg_attribute</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: для GIN там лежить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">тип зберігання</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (</span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">text</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">), а не тип колонки, — і вона дасть </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">0</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> при живому й робочому індексі.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Морфологію названо.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">sed -n '/[Мм]орфолог/,/^#/p' db/OPTIMIZATIONS.md | grep -oE '[0-9]+' | wc -l</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">2 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — тобто секція «Морфологія» існує і в ній є щонайменше два числа (збіги базовою формою і збіги іншим відмінком, зняті на твоїй базі). Змістовну частину грейдер читає очима: дві форми, два числа, одне речення про причину.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Свіжий клон піднімається.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> У порожній теці </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">git clone --branch hw-12 &lt;репо&gt; .</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → команда підняття бази з README → </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">psql -Atc \\\"SELECT 1\\\"</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> виводить </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">1</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Жодних правок файлів руками.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">☐&nbsp;</span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Підключення застосунку — у сховищі, а не в новому env-файлі.</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> Жоден трекнутий env-файл, окрім </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">.env.example</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, не містить змінної підключення — </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">for f in $(git ls-files | grep -E '\\\\.env($|\\\\.)' | grep -vE '\\\\.example$'); do grep -lE '^(DATABASE_URL|DB_URL)=' \\\"$f\\\"; done</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">порожній вивід</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (будь-який надрукований шлях = провал). При цьому сама змінна присутня в контракті: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">grep -cE '^(DATABASE_URL|DB_URL)=' .env.example</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> → </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">1 або більше</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> (пароль фейковий), а в таблиці «Configuration» README навпроти неї стоїть джерело — сховище. Назву змінної бери свою з README: </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">DB_URL</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> з ДЗ #11 годиться так само, як </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">DATABASE_URL</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">. Перевірка дивиться на env-файли, а не на </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">docker-compose.yml</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">: дев-креденшели стенда під неї не підпадають — вони не секрет і потрібні грейдеру для свіжого клону.</span></p><p><span class=\\\"ql-color-#7f7f7f ql-bg-transparent\\\">Формат здачі</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Репозиторій: той самий репозиторій курсового проєкту, Pull Request з гілки </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">hw-12</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">.</span></p><table><tbody><tr><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Файл</strong></td><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/schema.sql</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">таблиці, констрейнти, генерована </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">tsvector</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">-колонка</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/seed.sql</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">генерація даних (≥100 000 рядків) + </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">VACUUM (ANALYZE)</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/queries/q1.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">q2.sql</span><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">q3.sql</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">реальні запити API — по одному statement на файл</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/queries/q4.sql</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">повнотекстовий пошук по каталогу</span></td></tr><tr><td data-row=\\\"6\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/indexes.sql</span></td><td data-row=\\\"6\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">усі індекси оптимізації, включно з GIN під q4</span></td></tr><tr><td data-row=\\\"7\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">db/OPTIMIZATIONS.md</span></td><td data-row=\\\"7\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">4 пари EXPLAIN до/після + пояснення + секція </span><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">## Морфологія</span></td></tr><tr><td data-row=\\\"8\\\"><span class=\\\"ql-color-#2e7d32 ql-bg-transparent\\\">README.md</span></td><td data-row=\\\"8\\\"><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">як підняти Postgres, як прогнати всі кроки, назва головної таблиці </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">і</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> назва таблиці пошуку; джерело змінної підключення в таблиці «Configuration»</span></td></tr></tbody></table><p><br></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Грейдер має відтворити все на чистому volume </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">без правок файлів</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">У LMS здаєш </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">посилання на PR</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">, не на головну гілку.</span></p><p><span class=\\\"ql-color-#7f7f7f ql-bg-transparent\\\">Зв'язок з курсовим проєктом</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">ДЗ №3</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> проєктної лінії: воно додає у твій Marketplace API (або обраний домен) </span><strong class=\\\"ql-bg-transparent ql-color-#262626\\\">фундамент дата-шару</strong><span class=\\\"ql-color-#262626 ql-bg-transparent\\\"> — схему, констрейнти, seed, докази швидкості під обсягом і робочий пошук по каталогу. Пошук тут закривається наполовину — Postgres-half; де закінчується Postgres і навіщо люди беруть окремий пошуковий рушій, розберемо на лекції #15.</span></p><p><span class=\\\"ql-color-#262626 ql-bg-transparent\\\">Наступні кроки спираються саме на неї: ДЗ #13 (ORM) бере цю саму схему в TypeORM-entities та міграції, ДЗ #14 будує на ній транзакційну бізнес-логіку, ДЗ #15 — pooling/бекапи, ДЗ #16 — integration-тести проти реального Postgres.</span></p>\"}]",
+          "html": "<p><strong class=\"ql-bg-transparent ql-color-#262626\">Курсовий проєкт</strong><span class=\"ql-color-#262626 ql-bg-transparent\">: так (ДЗ №3 курсового проєкту)</span></p><p><span class=\"ql-color-#7f7f7f ql-bg-transparent\">Постановка</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Ти проєктуєш дата-шар свого курсового проєкту (Marketplace API або твій домен) — і одразу доводиш, що він тримає навантаження. Це ДЗ — фундамент: схему, яку ти зафіксуєш зараз, ДЗ #13 переведе в TypeORM-міграції, ДЗ #14 навісить на неї транзакції, а ДЗ #15 — pooling і бекапи. Халтура тут коштуватиме переробок у чотирьох наступних роботах.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Стартова точка — твій compose з Postgres із ДЗ #5 (порт будь-який твій). Версія Postgres значення не має: драбинку лекції прогнано і на 16, і на 17 — вузли планів однакові. Схему проєктуй під user stories свого architecture-decision-record (HW 0); якщо його немає — час надолужити.</span></p><p><span class=\"ql-color-#7f7f7f ql-bg-transparent\">Що потрібно зробити</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">1. Схема — </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">db/schema.sql</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Мінімум 4 таблиці твого домену (для Marketplace: users, products, orders, order_items), зв'язки через FOREIGN KEY (мінімум 3), розумні типи (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">timestamptz</span><span class=\"ql-color-#262626 ql-bg-transparent\">, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">numeric</span><span class=\"ql-color-#262626 ql-bg-transparent\"> для грошей — не </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">float</span><span class=\"ql-color-#262626 ql-bg-transparent\">), NOT NULL/CHECK там, де брехня в даних недопустима. Схема застосовується на чисту базу однією командою без помилок.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">2. Seed — </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">db/seed.sql</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Реалістичний обсяг через </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">generate_series</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — </span><strong class=\"ql-bg-transparent ql-color-#262626\">щонайменше 100 000 рядків у головній таблиці</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (orders або аналог у твоєму домені) </span><strong class=\"ql-bg-transparent ql-color-#262626\">і щонайменше стільки ж у тій таблиці, по якій шукатиме q4</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (зазвичай </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">products</span><span class=\"ql-color-#262626 ql-bg-transparent\">; якщо це одна й та сама таблиця — одного обсягу досить). На таблиці в тисячу рядків EXPLAIN не покаже нічого: планер справедливо вибере Seq Scan за будь-яких індексів. Розподіли значень роби перекошеними, як у житті (статуси не 33/33/33).</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Текстові поля, по яких шукає q4 (назва + опис), наливай українською.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Інакше обов'язкова частина «Українська» з пункту 4 не має на чому виконатись: на латиниці обидві словоформи дадуть по нулю, і ти не побачиш того, заради чого це завдання взагалі є.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Наприкінці — </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">VACUUM (ANALYZE);</span><span class=\"ql-color-#262626 ql-bg-transparent\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">3. Три повільні запити — </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">db/queries/q1.sql</strong><strong class=\"ql-bg-transparent ql-color-#262626\">, </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">q2.sql</strong><strong class=\"ql-bg-transparent ql-color-#262626\">, </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">q3.sql</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Реальні запити твого API: пошук по власнику + період, фільтр по статусу, пошук без урахування регістру тощо. По одному statement на файл, без крапки з комою всередині. На свіжій схемі </span><strong class=\"ql-bg-transparent ql-color-#262626\">без додаткових індексів</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> кожен мусить давати Seq Scan.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">4. Четвертий запит — пошук по каталогу (</strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">q4.sql</strong><strong class=\"ql-bg-transparent ql-color-#262626\">)</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Той самий конвеєр, що й у решти трьох: </span><strong class=\"ql-bg-transparent ql-color-#262626\">запит → індекс → EXPLAIN до і після</strong><span class=\"ql-color-#262626 ql-bg-transparent\">. Різниця одна — індекс тут не B-tree.</span></p><p><em class=\"ql-color-#262626 ql-bg-transparent\">Запит.</em><span class=\"ql-color-#262626 ql-bg-transparent\"> Покупець вводить два-три слова, ти повертаєш до 20 карток товару. Один statement, без крапки з комою всередині:</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">SELECT id, name, ts_rank(search_vector, plainto_tsquery('simple', 'шкіряні кросівки')) AS rank</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">FROM products</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">WHERE search_vector @@ plainto_tsquery('simple', 'шкіряні кросівки')</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">ORDER BY rank DESC, id</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">LIMIT 20</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Слова підбери такі, щоб збігів було </span><strong class=\"ql-bg-transparent ql-color-#262626\">одиниці відсотків</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> каталогу. Якщо запит чіпляє 30% рядків і більше — планер справедливо візьме Seq Scan навіть за живого індексу, і критерій «після індексів немає Seq Scan» завалить тебе за чужу провину.</span></p><p><em class=\"ql-color-#262626 ql-bg-transparent\">Індекс.</em><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">tsvector</span><span class=\"ql-color-#262626 ql-bg-transparent\"> + </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">GIN</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Колонку роби генерованою — тоді її не треба підтримувати руками ні на INSERT, ні на UPDATE:</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">-- у db/schema.sql, у визначенні таблиці або окремим ALTER:</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">ALTER TABLE products ADD COLUMN search_vector tsvector</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">&nbsp;&nbsp;GENERATED ALWAYS AS (to_tsvector('simple', name || ' ' || description)) STORED;</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">&nbsp;</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">-- у db/indexes.sql:</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">CREATE INDEX idx_products_search_vector ON products USING GIN (search_vector);</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Колонка живе в </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/schema.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — EXPLAIN «до» мусить її вже бачити, інакше в тебе не буде «до». Індекс — у </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Expression-індекс без збереженої колонки (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">USING GIN (to_tsvector('simple', name || ' ' || description))</span><span class=\"ql-color-#262626 ql-bg-transparent\">) приймається так само — тоді запит має повторювати рівно той самий вираз. </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">pg_trgm</span><span class=\"ql-color-#262626 ql-bg-transparent\"> замість </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">tsvector</span><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><strong class=\"ql-bg-transparent ql-color-#262626\">не приймається</strong><span class=\"ql-color-#262626 ql-bg-transparent\">: він розв'язує іншу задачу (підрядок, а не слово), важчий на диску і будується в рази довше.</span></p><p><em class=\"ql-color-#262626 ql-bg-transparent\">Українська — обов'язкова частина завдання, а не примітка.</em><span class=\"ql-color-#262626 ql-bg-transparent\"> Візьми слово, яке твій пошук знаходить, і повтори пошук тим самим словом в іншому відмінку: «кросівки» → «кросівок», «сумка» → «сумок», «ноутбук» → «ноутбуків». Порахуй збіги обома формами:</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">SELECT count(*) FROM products WHERE search_vector @@ plainto_tsquery('simple', 'кросівки');</span></p><p><span class=\"ql-color-#1f1f1f ql-bg-transparent\">SELECT count(*) FROM products WHERE search_vector @@ plainto_tsquery('simple', 'кросівок');</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Опиши результат у </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/OPTIMIZATIONS.md</span><span class=\"ql-color-#262626 ql-bg-transparent\"> секцією </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">## Морфологія</span><span class=\"ql-color-#262626 ql-bg-transparent\">: дві форми, два числа зі </span><strong class=\"ql-bg-transparent ql-color-#262626\">своєї</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> бази, і одне речення — чому так. Куди дивитись за причиною: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">SELECT count(*) FROM pg_ts_config;</span><span class=\"ql-color-#262626 ql-bg-transparent\"> і </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">\\dF</span><span class=\"ql-color-#262626 ql-bg-transparent\"> у psql.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Полагодити це ДЗ </span><strong class=\"ql-bg-transparent ql-color-#262626\">не вимагає</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> — вимагає побачити й назвати. Це найдорожче, що ти винесеш із завдання: воно пояснює, чому в маркетплейсі не можна просто «додати пошук», і чому підміна </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">simple</span><span class=\"ql-color-#262626 ql-bg-transparent\"> на </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">russian</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — не фікс, а самообман.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">5. Індекси — </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">db/indexes.sql</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Мінімальний набір, що лікує всі чотири запити. </span><strong class=\"ql-bg-transparent ql-color-#262626\">Щонайменше один — partial (</strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">… WHERE …</strong><strong class=\"ql-bg-transparent ql-color-#262626\">) або expression (</strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">… (lower(col))</strong><strong class=\"ql-bg-transparent ql-color-#262626\">)</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> — під запит, який без нього індекс ігнорує. Індекс під q4 — </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">GIN</span><span class=\"ql-color-#262626 ql-bg-transparent\"> по </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">tsvector</span><span class=\"ql-color-#262626 ql-bg-transparent\">, він у цей мінімум не зараховується.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">6. Звіт — </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">db/OPTIMIZATIONS.md</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Для кожного запиту — повний вивід </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">EXPLAIN (ANALYZE, BUFFERS)</span><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><strong class=\"ql-bg-transparent ql-color-#262626\">до</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> і </span><strong class=\"ql-bg-transparent ql-color-#262626\">після</strong><span class=\"ql-color-#262626 ql-bg-transparent\">, і по одному реченню: </span><strong class=\"ql-bg-transparent ql-color-#262626\">який саме індекс став у вузол плану</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (ім'я з </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — воно написане прямо у вузлі: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Index Scan using …</span><span class=\"ql-color-#262626 ql-bg-transparent\"> / </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Bitmap Index Scan on …</span><span class=\"ql-color-#262626 ql-bg-transparent\">), що змінилось у плані й чому (який вузол зник, куди поділись buffers). Плюс окрема секція </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">## Морфологія</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — див. пункт 4. Числа з твоєї машини; орієнтир прискорення — десятки разів, важливий порядок величини, не мілісекунди.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">7. Підключення до БД — зі сховища ДЗ #11, без нових env-файлів</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Сховище вже підняте й працює, тому підключення застосунку до бази цього ДЗ живе там — в оточеннях </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">dev</span><span class=\"ql-color-#262626 ql-bg-transparent\"> і </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">prod</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Якщо на #11 ти завів </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">DB_URL</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — пункт у тебе вже виконаний: переконайся лише, що значення вказує на базу цього ДЗ і що в git не з'явився новий env-файл із рядком підключення. Якщо називаєш змінну </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">DATABASE_URL</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — додай її у ту саму zod-схему і в </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">.env.example</span><span class=\"ql-color-#262626 ql-bg-transparent\"> (пароль там фейковий), а джерело познач у таблиці «Configuration» README.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Дев-креденшели самого контейнера Postgres лишаються в </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">docker-compose.yml</span><span class=\"ql-color-#262626 ql-bg-transparent\"> як були: це два різні шляхи — застосунок бере секрет зі сховища, а грейдер піднімає локальний стенд зі свіжого клону.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">8. Що зіпсує тобі вечір, якщо не знати заздалегідь</strong></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Підказки, які економлять години.</strong></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Порядок перевірки в тебе локально = порядок грейдера: чистий volume → </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">schema.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">seed.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → EXPLAIN «до» (Seq Scan) → </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">ANALYZE</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → EXPLAIN «після». Прожени цей цикл сам від </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">docker compose down -v &amp;&amp; docker compose up -d --wait</span><span class=\"ql-color-#262626 ql-bg-transparent\"> до останнього EXPLAIN.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Закінчуй </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">seed.sql</strong><strong class=\"ql-bg-transparent ql-color-#262626\"> не </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">ANALYZE;</strong><strong class=\"ql-bg-transparent ql-color-#262626\">, а </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">VACUUM (ANALYZE);</strong><strong class=\"ql-bg-transparent ql-color-#262626\">.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">ANALYZE</span><span class=\"ql-color-#262626 ql-bg-transparent\"> дає планеру статистику, але visibility map виставляє саме </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">VACUUM</span><span class=\"ql-color-#262626 ql-bg-transparent\">; без неї </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Index Only Scan</span><span class=\"ql-color-#262626 ql-bg-transparent\"> усе одно лізе в таблицю (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Heap Fetches: 12345</span><span class=\"ql-color-#262626 ql-bg-transparent\"> у плані), і твої buffers «після» будуть у сотні разів гірші, ніж могли б. На лекційній драбинці ця різниця — 12 сторінок проти ~2050 на тому самому запиті.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Перший виклик q4 після </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">CREATE INDEX</strong><strong class=\"ql-bg-transparent ql-color-#262626\"> — холодний.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> GIN ще не в кеші, і число буде в десятки разів гірше за справжнє. Прожени запит 2–3 рази й бери останній.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Вимога «≥100 000 рядків» стосується і таблиці пошуку.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> У </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">products</span><span class=\"ql-color-#262626 ql-bg-transparent\"> типово насівають 200 рядків «щоб було що показати». На каталозі в 100–500 товарів різниці не буде </span><strong class=\"ql-bg-transparent ql-color-#262626\">жодної</strong><span class=\"ql-color-#262626 ql-bg-transparent\">: планер візьме Seq Scan і до індексу, і після нього, бо на сотні рядків це чесно дешевше за похід у індекс. Ти зробиш усе правильно й не побачиш ефекту.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Якщо після індексу планер усе одно бере Seq Scan — перечитай крок 6 демо лекції: або selectivity зависока (умова відсікає замало рядків — зміни запит на реалістичніший), або в WHERE стоїть функція, а індекс — по колонці.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Якщо </span><strong class=\"ql-bg-transparent ql-color-#262626\">q4</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> після GIN усе одно бере Seq Scan — перевір по черзі три речі: скільки рядків у таблиці пошуку (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">count(*)</span><span class=\"ql-color-#262626 ql-bg-transparent\"> має бути ≥100 000), скільки збігів дає запит (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">count(*)</span><span class=\"ql-color-#262626 ql-bg-transparent\"> по тій самій умові — має бути одиниці відсотків), і чи прогнав ти EXPLAIN більше одного разу.</span></p><p><span class=\"ql-color-#2e7d32 ql-bg-transparent\">random()</span><span class=\"ql-color-#262626 ql-bg-transparent\"> у seed дає різні дані щоразу — це нормально, критерії від цього не залежать. Головне — перекіс розподілу і обсяг.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Гроші — </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">numeric</span><span class=\"ql-color-#262626 ql-bg-transparent\">, час — </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">timestamptz</span><span class=\"ql-color-#262626 ql-bg-transparent\">, «але ж serial простіший» — див. «Don't Do This» зі списку матеріалів.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Не індексуй «про запас»: кожен зайвий індекс — диск + повільніший INSERT. Це окремий критерій («Жоден твій індекс не лишився мертвим»), тож перевіряй себе </span><strong class=\"ql-bg-transparent ql-color-#262626\">під час</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> роботи, а не в кінці: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">SELECT indexrelname, idx_scan FROM pg_stat_user_indexes WHERE schemaname='public' AND indexrelid NOT IN (SELECT conindid FROM pg_constraint WHERE conindid &lt;&gt; 0) ORDER BY idx_scan;</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Без фільтра по </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">pg_constraint</span><span class=\"ql-color-#262626 ql-bg-transparent\"> цей запит друкує ще й PK/UNIQUE-індекси з нулем сканів — вони нормальні, і через цей шум легко не помітити свій мертвий індекс.</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Збережена </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">tsvector</strong><strong class=\"ql-bg-transparent ql-color-#262626\">-колонка не безкоштовна.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Вона роздуває таблицю приблизно вдвічі й помітно сповільнює вставку — і це нормальна ціна, яку ти маєш уміти назвати вголос. Заміряй сам: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">pg_total_relation_size('products')</span><span class=\"ql-color-#262626 ql-bg-transparent\"> до додавання колонки і після.</span></p><p><br></p><p><span class=\"ql-color-#7f7f7f ql-bg-transparent\">Acceptance criteria</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Грейдер виконує рівно ці команди на чистій базі — свіжий клон, без доступу до твого сховища (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> = будь-який спосіб дістатись твого Postgres; </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">docker compose exec db psql -U app -d shop</span><span class=\"ql-color-#262626 ql-bg-transparent\"> теж годиться).</span></p><p><strong class=\"ql-bg-transparent ql-color-#262626\">Доступ грейдера — це вже вкусило б після ДЗ #11.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> У ДЗ #11 ти свідомо прибрав </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">.env</span><span class=\"ql-color-#262626 ql-bg-transparent\"> і </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">secrets/db_password</span><span class=\"ql-color-#262626 ql-bg-transparent\"> з git. Грейдер цього ДЗ клонує гілку </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">hw-12</span><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><strong class=\"ql-bg-transparent ql-color-#262626\">начисто</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> й піднімає базу командою з твого README — тобто гадати пароль йому нізвідки. Тому:</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">•&nbsp;</span><span class=\"ql-color-#262626 ql-bg-transparent\">у репозиторії має лежати </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">*.example</span><span class=\"ql-color-#262626 ql-bg-transparent\"> (напр. </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">secrets/db_password.example</span><span class=\"ql-color-#262626 ql-bg-transparent\">) або дефолтні </span><strong class=\"ql-bg-transparent ql-color-#262626\">дев</strong><span class=\"ql-color-#262626 ql-bg-transparent\">-креденшели прямо в </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">docker-compose.yml</span><span class=\"ql-color-#262626 ql-bg-transparent\">;</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">•&nbsp;</span><span class=\"ql-color-#262626 ql-bg-transparent\">у README — рівно один рядок «підняти базу» і рівно один рядок «підключитись», які працюють на свіжому клоні без правок файлів.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Перевір це сам, а не «мабуть, працює»: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">git clone --branch hw-12 &lt;твій-репо&gt; /tmp/check &amp;&amp; cd /tmp/check</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → команда підняття з README → </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql … -Atc \"SELECT 1\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> має віддати </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">1</span><span class=\"ql-color-#262626 ql-bg-transparent\">.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Схема застосовується з нуля.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -f db/schema.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> завершується без ERROR, і </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -Atc \"SELECT count(*) FROM information_schema.table_constraints WHERE constraint_type='FOREIGN KEY' AND table_schema='public';\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">3 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\">.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Seed наливає обсяг.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -f db/seed.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> завершується без ERROR, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -Atc \"SELECT count(*) FROM &lt;головна таблиця&gt;;\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">100000 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\">, і те саме для </span><strong class=\"ql-bg-transparent ql-color-#262626\">таблиці, по якій іде q4</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (обидві назви вкажи в README; якщо це одна таблиця — одного числа досить).</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">До індексів — Seq Scan.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Для кожного з </span><strong class=\"ql-bg-transparent ql-color-#262626\">чотирьох</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> запитів </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -c \"EXPLAIN (ANALYZE, BUFFERS) $(cat db/queries/qN.sql)\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> (до застосування </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\">) містить рядок </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Seq Scan</span><span class=\"ql-color-#262626 ql-bg-transparent\">.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Після індексів — індексний план, і в ньому саме твій індекс.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Після </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -f db/indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> і </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -c \"ANALYZE;\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> той самий EXPLAIN для кожного з </span><strong class=\"ql-bg-transparent ql-color-#262626\">чотирьох</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> запитів </span><strong class=\"ql-bg-transparent ql-color-#262626\">не містить</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Seq Scan</span><span class=\"ql-color-#262626 ql-bg-transparent\"> і містить індексний вузол, у якому </span><strong class=\"ql-bg-transparent ql-color-#262626\">названо ім'я індексу з твого </strong><strong class=\"ql-bg-transparent ql-color-#2e7d32\">db/indexes.sql</strong><span class=\"ql-color-#262626 ql-bg-transparent\">: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Index Scan using &lt;ім'я&gt;</span><span class=\"ql-color-#262626 ql-bg-transparent\">, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Index Only Scan using &lt;ім'я&gt;</span><span class=\"ql-color-#262626 ql-bg-transparent\"> або </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">Bitmap Index Scan on &lt;ім'я&gt;</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Самих слів «Index Scan» мало — план міг піти по сусідньому індексу, а твій лишиться мертвим (див. наступний критерій). Для q4 прожени EXPLAIN 2–3 рази й бери останній: перший після </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">CREATE INDEX</span><span class=\"ql-color-#262626 ql-bg-transparent\"> іде по холодному GIN.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Жоден твій індекс не лишився мертвим.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Після того, як усі чотири EXPLAIN «після» прогнані, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -Atc \"SELECT indexrelname FROM pg_stat_user_indexes WHERE schemaname='public' AND idx_scan = 0 AND indexrelid NOT IN (SELECT conindid FROM pg_constraint WHERE conindid &lt;&gt; 0);\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> дає </span><strong class=\"ql-bg-transparent ql-color-#262626\">порожній вивід</strong><span class=\"ql-color-#262626 ql-bg-transparent\">. Будь-яке надруковане ім'я — це індекс, який ти створив, а жоден із чотирьох запитів ним не скористався: або він зайвий, або запит під нього не підходить. Підзапит по </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">pg_constraint</span><span class=\"ql-color-#262626 ql-bg-transparent\"> відсікає індекси під PRIMARY KEY / UNIQUE: вони тримають констрейнт, а не запити, і нуль сканів для них нормальний. Лічильник рухає тільки </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">EXPLAIN (ANALYZE, …)</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — плановий </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">EXPLAIN</span><span class=\"ql-color-#262626 ql-bg-transparent\"> без </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">ANALYZE</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виконання не робить і лишає </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">idx_scan = 0</span><span class=\"ql-color-#262626 ql-bg-transparent\"> при живому індексі.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Partial або expression присутній.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Після </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -f db/indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -Atc \"SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexdef NOT ILIKE '%USING gin%' AND (indexdef ILIKE '% WHERE %' OR indexdef ~ '\\((\\w+)\\(');\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">1 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\">. Перевірка читає </span><strong class=\"ql-bg-transparent ql-color-#262626\">каталог</strong><span class=\"ql-color-#262626 ql-bg-transparent\">, а не текст файлу, тому не має значення, у скільки рядків ти записав </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">CREATE INDEX</span><span class=\"ql-color-#262626 ql-bg-transparent\"> (звичайні й складені індекси, у т.ч. з </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">DESC NULLS LAST</span><span class=\"ql-color-#262626 ql-bg-transparent\">, сюди не потрапляють). GIN-індекси виключені навмисно: інакше expression-варіант FTS-індексу (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">GIN (to_tsvector(…))</span><span class=\"ql-color-#262626 ql-bg-transparent\">) сам собою закривав би цей критерій, і партіал під q1–q3 можна було б не писати взагалі.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Звіт існує і повний.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">grep -c 'Execution Time' db/OPTIMIZATIONS.md</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">8 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (4 пари до/після).</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Пошуковий індекс — це GIN по tsvector.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Після </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -f db/indexes.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -Atc \"SELECT count(*) FROM pg_index i JOIN pg_class c ON c.oid=i.indexrelid JOIN pg_am am ON am.oid=c.relam JOIN pg_opclass o ON o.oid=i.indclass[0] WHERE am.amname='gin' AND o.opcintype='tsvector'::regtype;\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">1 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\">. Перевірка читає </span><strong class=\"ql-bg-transparent ql-color-#262626\">каталог</strong><span class=\"ql-color-#262626 ql-bg-transparent\">, тому збережена генерована колонка і expression-індекс </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">GIN (to_tsvector(…))</span><span class=\"ql-color-#262626 ql-bg-transparent\"> проходять однаково, а </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">GIN … gin_trgm_ops</span><span class=\"ql-color-#262626 ql-bg-transparent\"> — ні: у нього вхідний тип </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">text</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Не переписуй цю перевірку через </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">pg_attribute</span><span class=\"ql-color-#262626 ql-bg-transparent\">: для GIN там лежить </span><strong class=\"ql-bg-transparent ql-color-#262626\">тип зберігання</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (</span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">text</span><span class=\"ql-color-#262626 ql-bg-transparent\">), а не тип колонки, — і вона дасть </span><strong class=\"ql-bg-transparent ql-color-#262626\">0</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> при живому й робочому індексі.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Морфологію названо.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">sed -n '/[Мм]орфолог/,/^#/p' db/OPTIMIZATIONS.md | grep -oE '[0-9]+' | wc -l</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">2 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> — тобто секція «Морфологія» існує і в ній є щонайменше два числа (збіги базовою формою і збіги іншим відмінком, зняті на твоїй базі). Змістовну частину грейдер читає очима: дві форми, два числа, одне речення про причину.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Свіжий клон піднімається.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> У порожній теці </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">git clone --branch hw-12 &lt;репо&gt; .</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → команда підняття бази з README → </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">psql -Atc \"SELECT 1\"</span><span class=\"ql-color-#262626 ql-bg-transparent\"> виводить </span><strong class=\"ql-bg-transparent ql-color-#262626\">1</strong><span class=\"ql-color-#262626 ql-bg-transparent\">. Жодних правок файлів руками.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">☐&nbsp;</span><strong class=\"ql-bg-transparent ql-color-#262626\">Підключення застосунку — у сховищі, а не в новому env-файлі.</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> Жоден трекнутий env-файл, окрім </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">.env.example</span><span class=\"ql-color-#262626 ql-bg-transparent\">, не містить змінної підключення — </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">for f in $(git ls-files | grep -E '\\.env($|\\.)' | grep -vE '\\.example$'); do grep -lE '^(DATABASE_URL|DB_URL)=' \"$f\"; done</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → </span><strong class=\"ql-bg-transparent ql-color-#262626\">порожній вивід</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (будь-який надрукований шлях = провал). При цьому сама змінна присутня в контракті: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">grep -cE '^(DATABASE_URL|DB_URL)=' .env.example</span><span class=\"ql-color-#262626 ql-bg-transparent\"> → </span><strong class=\"ql-bg-transparent ql-color-#262626\">1 або більше</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> (пароль фейковий), а в таблиці «Configuration» README навпроти неї стоїть джерело — сховище. Назву змінної бери свою з README: </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">DB_URL</span><span class=\"ql-color-#262626 ql-bg-transparent\"> з ДЗ #11 годиться так само, як </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">DATABASE_URL</span><span class=\"ql-color-#262626 ql-bg-transparent\">. Перевірка дивиться на env-файли, а не на </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">docker-compose.yml</span><span class=\"ql-color-#262626 ql-bg-transparent\">: дев-креденшели стенда під неї не підпадають — вони не секрет і потрібні грейдеру для свіжого клону.</span></p><p><span class=\"ql-color-#7f7f7f ql-bg-transparent\">Формат здачі</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Репозиторій: той самий репозиторій курсового проєкту, Pull Request з гілки </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">hw-12</span><span class=\"ql-color-#262626 ql-bg-transparent\">.</span></p><table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#262626\">Файл</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#262626\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/schema.sql</span></td><td data-row=\"2\"><span class=\"ql-color-#262626 ql-bg-transparent\">таблиці, констрейнти, генерована </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">tsvector</span><span class=\"ql-color-#262626 ql-bg-transparent\">-колонка</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/seed.sql</span></td><td data-row=\"3\"><span class=\"ql-color-#262626 ql-bg-transparent\">генерація даних (≥100 000 рядків) + </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">VACUUM (ANALYZE)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/queries/q1.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\">, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">q2.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\">, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">q3.sql</span></td><td data-row=\"4\"><span class=\"ql-color-#262626 ql-bg-transparent\">реальні запити API — по одному statement на файл</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/queries/q4.sql</span></td><td data-row=\"5\"><span class=\"ql-color-#262626 ql-bg-transparent\">повнотекстовий пошук по каталогу</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/indexes.sql</span></td><td data-row=\"6\"><span class=\"ql-color-#262626 ql-bg-transparent\">усі індекси оптимізації, включно з GIN під q4</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/OPTIMIZATIONS.md</span></td><td data-row=\"7\"><span class=\"ql-color-#262626 ql-bg-transparent\">4 пари EXPLAIN до/після + пояснення + секція </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">## Морфологія</span></td></tr><tr><td data-row=\"8\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">README.md</span></td><td data-row=\"8\"><span class=\"ql-color-#262626 ql-bg-transparent\">як підняти Postgres, як прогнати всі кроки, назва головної таблиці </span><strong class=\"ql-bg-transparent ql-color-#262626\">і</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> назва таблиці пошуку; джерело змінної підключення в таблиці «Configuration»</span></td></tr></tbody></table><p><br></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Грейдер має відтворити все на чистому volume </span><strong class=\"ql-bg-transparent ql-color-#262626\">без правок файлів</strong><span class=\"ql-color-#262626 ql-bg-transparent\">.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">У LMS здаєш </span><strong class=\"ql-bg-transparent ql-color-#262626\">посилання на PR</strong><span class=\"ql-color-#262626 ql-bg-transparent\">, не на головну гілку.</span></p><p><span class=\"ql-color-#7f7f7f ql-bg-transparent\">Зв'язок з курсовим проєктом</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Це </span><strong class=\"ql-bg-transparent ql-color-#262626\">ДЗ №3</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> проєктної лінії: воно додає у твій Marketplace API (або обраний домен) </span><strong class=\"ql-bg-transparent ql-color-#262626\">фундамент дата-шару</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> — схему, констрейнти, seed, докази швидкості під обсягом і робочий пошук по каталогу. Пошук тут закривається наполовину — Postgres-half; де закінчується Postgres і навіщо люди беруть окремий пошуковий рушій, розберемо на лекції #15.</span></p><p><span class=\"ql-color-#262626 ql-bg-transparent\">Наступні кроки спираються саме на неї: ДЗ #13 (ORM) бере цю саму схему в TypeORM-entities та міграції, ДЗ #14 будує на ній транзакційну бізнес-логіку, ДЗ #15 — pooling/бекапи, ДЗ #16 — integration-тести проти реального Postgres.</span></p>",
+          "markdown": "**Курсовий проєкт**: так (ДЗ №3 курсового проєкту)\n\nПостановка\n\nТи проєктуєш дата-шар свого курсового проєкту (Marketplace API або твій домен) — і одразу доводиш, що він тримає навантаження. Це ДЗ — фундамент: схему, яку ти зафіксуєш зараз, ДЗ #13 переведе в TypeORM-міграції, ДЗ #14 навісить на неї транзакції, а ДЗ #15 — pooling і бекапи. Халтура тут коштуватиме переробок у чотирьох наступних роботах.\n\nСтартова точка — твій compose з Postgres із ДЗ #5 (порт будь-який твій). Версія Postgres значення не має: драбинку лекції прогнано і на 16, і на 17 — вузли планів однакові. Схему проєктуй під user stories свого architecture-decision-record (HW 0); якщо його немає — час надолужити.\n\nЩо потрібно зробити\n\n**1\\. Схема —** **db/schema.sql**\n\nМінімум 4 таблиці твого домену (для Marketplace: users, products, orders, order\\_items), зв'язки через FOREIGN KEY (мінімум 3), розумні типи (timestamptz, numeric для грошей — не float), NOT NULL/CHECK там, де брехня в даних недопустима. Схема застосовується на чисту базу однією командою без помилок.\n\n**2\\. Seed —** **db/seed.sql**\n\nРеалістичний обсяг через generate\\_series — **щонайменше 100 000 рядків у головній таблиці** (orders або аналог у твоєму домені) **і щонайменше стільки ж у тій таблиці, по якій шукатиме q4** (зазвичай products; якщо це одна й та сама таблиця — одного обсягу досить). На таблиці в тисячу рядків EXPLAIN не покаже нічого: планер справедливо вибере Seq Scan за будь-яких індексів. Розподіли значень роби перекошеними, як у житті (статуси не 33/33/33).\n\n**Текстові поля, по яких шукає q4 (назва + опис), наливай українською.** Інакше обов'язкова частина «Українська» з пункту 4 не має на чому виконатись: на латиниці обидві словоформи дадуть по нулю, і ти не побачиш того, заради чого це завдання взагалі є.\n\nНаприкінці — VACUUM (ANALYZE);.\n\n**3\\. Три повільні запити —** **db/queries/q1.sql****,** **q2.sql****,** **q3.sql**\n\nРеальні запити твого API: пошук по власнику + період, фільтр по статусу, пошук без урахування регістру тощо. По одному statement на файл, без крапки з комою всередині. На свіжій схемі **без додаткових індексів** кожен мусить давати Seq Scan.\n\n**4\\. Четвертий запит — пошук по каталогу (****q4.sql****)**\n\nТой самий конвеєр, що й у решти трьох: **запит → індекс → EXPLAIN до і після**. Різниця одна — індекс тут не B-tree.\n\n_Запит._ Покупець вводить два-три слова, ти повертаєш до 20 карток товару. Один statement, без крапки з комою всередині:\n\nSELECT id, name, ts\\_rank(search\\_vector, plainto\\_tsquery('simple', 'шкіряні кросівки')) AS rank\n\nFROM products\n\nWHERE search\\_vector @@ plainto\\_tsquery('simple', 'шкіряні кросівки')\n\nORDER BY rank DESC, id\n\nLIMIT 20\n\nСлова підбери такі, щоб збігів було **одиниці відсотків** каталогу. Якщо запит чіпляє 30% рядків і більше — планер справедливо візьме Seq Scan навіть за живого індексу, і критерій «після індексів немає Seq Scan» завалить тебе за чужу провину.\n\n_Індекс._ tsvector + GIN. Колонку роби генерованою — тоді її не треба підтримувати руками ні на INSERT, ні на UPDATE:\n\n\\-- у db/schema.sql, у визначенні таблиці або окремим ALTER:\n\nALTER TABLE products ADD COLUMN search\\_vector tsvector\n\n  GENERATED ALWAYS AS (to\\_tsvector('simple', name || ' ' || description)) STORED;\n\n\\-- у db/indexes.sql:\n\nCREATE INDEX idx\\_products\\_search\\_vector ON products USING GIN (search\\_vector);\n\nКолонка живе в db/schema.sql — EXPLAIN «до» мусить її вже бачити, інакше в тебе не буде «до». Індекс — у db/indexes.sql. Expression-індекс без збереженої колонки (USING GIN (to\\_tsvector('simple', name || ' ' || description))) приймається так само — тоді запит має повторювати рівно той самий вираз. pg\\_trgm замість tsvector **не приймається**: він розв'язує іншу задачу (підрядок, а не слово), важчий на диску і будується в рази довше.\n\n_Українська — обов'язкова частина завдання, а не примітка._ Візьми слово, яке твій пошук знаходить, і повтори пошук тим самим словом в іншому відмінку: «кросівки» → «кросівок», «сумка» → «сумок», «ноутбук» → «ноутбуків». Порахуй збіги обома формами:\n\nSELECT count(\\*) FROM products WHERE search\\_vector @@ plainto\\_tsquery('simple', 'кросівки');\n\nSELECT count(\\*) FROM products WHERE search\\_vector @@ plainto\\_tsquery('simple', 'кросівок');\n\nОпиши результат у db/OPTIMIZATIONS.md секцією \\## Морфологія: дві форми, два числа зі **своєї** бази, і одне речення — чому так. Куди дивитись за причиною: SELECT count(\\*) FROM pg\\_ts\\_config; і \\\\dF у psql.\n\nПолагодити це ДЗ **не вимагає** — вимагає побачити й назвати. Це найдорожче, що ти винесеш із завдання: воно пояснює, чому в маркетплейсі не можна просто «додати пошук», і чому підміна simple на russian — не фікс, а самообман.\n\n**5\\. Індекси —** **db/indexes.sql**\n\nМінімальний набір, що лікує всі чотири запити. **Щонайменше один — partial (****… WHERE …****) або expression (****… (lower(col))****)** — під запит, який без нього індекс ігнорує. Індекс під q4 — GIN по tsvector, він у цей мінімум не зараховується.\n\n**6\\. Звіт —** **db/OPTIMIZATIONS.md**\n\nДля кожного запиту — повний вивід EXPLAIN (ANALYZE, BUFFERS) **до** і **після**, і по одному реченню: **який саме індекс став у вузол плану** (ім'я з db/indexes.sql — воно написане прямо у вузлі: Index Scan using … / Bitmap Index Scan on …), що змінилось у плані й чому (який вузол зник, куди поділись buffers). Плюс окрема секція \\## Морфологія — див. пункт 4. Числа з твоєї машини; орієнтир прискорення — десятки разів, важливий порядок величини, не мілісекунди.\n\n**7\\. Підключення до БД — зі сховища ДЗ #11, без нових env-файлів**\n\nСховище вже підняте й працює, тому підключення застосунку до бази цього ДЗ живе там — в оточеннях dev і prod. Якщо на #11 ти завів DB\\_URL — пункт у тебе вже виконаний: переконайся лише, що значення вказує на базу цього ДЗ і що в git не з'явився новий env-файл із рядком підключення. Якщо називаєш змінну DATABASE\\_URL — додай її у ту саму zod-схему і в .env.example (пароль там фейковий), а джерело познач у таблиці «Configuration» README.\n\nДев-креденшели самого контейнера Postgres лишаються в docker-compose.yml як були: це два різні шляхи — застосунок бере секрет зі сховища, а грейдер піднімає локальний стенд зі свіжого клону.\n\n**8\\. Що зіпсує тобі вечір, якщо не знати заздалегідь**\n\n**Підказки, які економлять години.**\n\nПорядок перевірки в тебе локально = порядок грейдера: чистий volume → schema.sql → seed.sql → EXPLAIN «до» (Seq Scan) → indexes.sql → ANALYZE → EXPLAIN «після». Прожени цей цикл сам від docker compose down -v && docker compose up -d --wait до останнього EXPLAIN.\n\n**Закінчуй** **seed.sql** **не** **ANALYZE;****, а** **VACUUM (ANALYZE);****.** ANALYZE дає планеру статистику, але visibility map виставляє саме VACUUM; без неї Index Only Scan усе одно лізе в таблицю (Heap Fetches: 12345 у плані), і твої buffers «після» будуть у сотні разів гірші, ніж могли б. На лекційній драбинці ця різниця — 12 сторінок проти ~2050 на тому самому запиті.\n\n**Перший виклик q4 після** **CREATE INDEX** **— холодний.** GIN ще не в кеші, і число буде в десятки разів гірше за справжнє. Прожени запит 2–3 рази й бери останній.\n\n**Вимога «≥100 000 рядків» стосується і таблиці пошуку.** У products типово насівають 200 рядків «щоб було що показати». На каталозі в 100–500 товарів різниці не буде **жодної**: планер візьме Seq Scan і до індексу, і після нього, бо на сотні рядків це чесно дешевше за похід у індекс. Ти зробиш усе правильно й не побачиш ефекту.\n\nЯкщо після індексу планер усе одно бере Seq Scan — перечитай крок 6 демо лекції: або selectivity зависока (умова відсікає замало рядків — зміни запит на реалістичніший), або в WHERE стоїть функція, а індекс — по колонці.\n\nЯкщо **q4** після GIN усе одно бере Seq Scan — перевір по черзі три речі: скільки рядків у таблиці пошуку (count(\\*) має бути ≥100 000), скільки збігів дає запит (count(\\*) по тій самій умові — має бути одиниці відсотків), і чи прогнав ти EXPLAIN більше одного разу.\n\nrandom() у seed дає різні дані щоразу — це нормально, критерії від цього не залежать. Головне — перекіс розподілу і обсяг.\n\nГроші — numeric, час — timestamptz, «але ж serial простіший» — див. «Don't Do This» зі списку матеріалів.\n\nНе індексуй «про запас»: кожен зайвий індекс — диск + повільніший INSERT. Це окремий критерій («Жоден твій індекс не лишився мертвим»), тож перевіряй себе **під час** роботи, а не в кінці: SELECT indexrelname, idx\\_scan FROM pg\\_stat\\_user\\_indexes WHERE schemaname='public' AND indexrelid NOT IN (SELECT conindid FROM pg\\_constraint WHERE conindid <> 0) ORDER BY idx\\_scan;. Без фільтра по pg\\_constraint цей запит друкує ще й PK/UNIQUE-індекси з нулем сканів — вони нормальні, і через цей шум легко не помітити свій мертвий індекс.\n\n**Збережена** **tsvector****\\-колонка не безкоштовна.** Вона роздуває таблицю приблизно вдвічі й помітно сповільнює вставку — і це нормальна ціна, яку ти маєш уміти назвати вголос. Заміряй сам: pg\\_total\\_relation\\_size('products') до додавання колонки і після.\n\n  \n\nAcceptance criteria\n\nГрейдер виконує рівно ці команди на чистій базі — свіжий клон, без доступу до твого сховища (psql = будь-який спосіб дістатись твого Postgres; docker compose exec db psql -U app -d shop теж годиться).\n\n**Доступ грейдера — це вже вкусило б після ДЗ #11.** У ДЗ #11 ти свідомо прибрав .env і secrets/db\\_password з git. Грейдер цього ДЗ клонує гілку hw-12 **начисто** й піднімає базу командою з твого README — тобто гадати пароль йому нізвідки. Тому:\n\n• у репозиторії має лежати \\*.example (напр. secrets/db\\_password.example) або дефолтні **дев**\\-креденшели прямо в docker-compose.yml;\n\n• у README — рівно один рядок «підняти базу» і рівно один рядок «підключитись», які працюють на свіжому клоні без правок файлів.\n\nПеревір це сам, а не «мабуть, працює»: git clone --branch hw-12 <твій-репо> /tmp/check && cd /tmp/check → команда підняття з README → psql … -Atc \"SELECT 1\" має віддати 1.\n\n☐ **Схема застосовується з нуля.** psql -f db/schema.sql завершується без ERROR, і psql -Atc \"SELECT count(\\*) FROM information\\_schema.table\\_constraints WHERE constraint\\_type='FOREIGN KEY' AND table\\_schema='public';\" виводить **3 або більше**.\n\n☐ **Seed наливає обсяг.** psql -f db/seed.sql завершується без ERROR, psql -Atc \"SELECT count(\\*) FROM <головна таблиця>;\" виводить **100000 або більше**, і те саме для **таблиці, по якій іде q4** (обидві назви вкажи в README; якщо це одна таблиця — одного числа досить).\n\n☐ **До індексів — Seq Scan.** Для кожного з **чотирьох** запитів psql -c \"EXPLAIN (ANALYZE, BUFFERS) $(cat db/queries/qN.sql)\" (до застосування db/indexes.sql) містить рядок Seq Scan.\n\n☐ **Після індексів — індексний план, і в ньому саме твій індекс.** Після psql -f db/indexes.sql і psql -c \"ANALYZE;\" той самий EXPLAIN для кожного з **чотирьох** запитів **не містить** Seq Scan і містить індексний вузол, у якому **названо ім'я індексу з твого** **db/indexes.sql**: Index Scan using <ім'я>, Index Only Scan using <ім'я> або Bitmap Index Scan on <ім'я>. Самих слів «Index Scan» мало — план міг піти по сусідньому індексу, а твій лишиться мертвим (див. наступний критерій). Для q4 прожени EXPLAIN 2–3 рази й бери останній: перший після CREATE INDEX іде по холодному GIN.\n\n☐ **Жоден твій індекс не лишився мертвим.** Після того, як усі чотири EXPLAIN «після» прогнані, psql -Atc \"SELECT indexrelname FROM pg\\_stat\\_user\\_indexes WHERE schemaname='public' AND idx\\_scan = 0 AND indexrelid NOT IN (SELECT conindid FROM pg\\_constraint WHERE conindid <> 0);\" дає **порожній вивід**. Будь-яке надруковане ім'я — це індекс, який ти створив, а жоден із чотирьох запитів ним не скористався: або він зайвий, або запит під нього не підходить. Підзапит по pg\\_constraint відсікає індекси під PRIMARY KEY / UNIQUE: вони тримають констрейнт, а не запити, і нуль сканів для них нормальний. Лічильник рухає тільки EXPLAIN (ANALYZE, …) — плановий EXPLAIN без ANALYZE виконання не робить і лишає idx\\_scan = 0 при живому індексі.\n\n☐ **Partial або expression присутній.** Після psql -f db/indexes.sql psql -Atc \"SELECT count(\\*) FROM pg\\_indexes WHERE schemaname='public' AND indexdef NOT ILIKE '%USING gin%' AND (indexdef ILIKE '% WHERE %' OR indexdef ~ '\\\\((\\\\w+)\\\\(');\" виводить **1 або більше**. Перевірка читає **каталог**, а не текст файлу, тому не має значення, у скільки рядків ти записав CREATE INDEX (звичайні й складені індекси, у т.ч. з DESC NULLS LAST, сюди не потрапляють). GIN-індекси виключені навмисно: інакше expression-варіант FTS-індексу (GIN (to\\_tsvector(…))) сам собою закривав би цей критерій, і партіал під q1–q3 можна було б не писати взагалі.\n\n☐ **Звіт існує і повний.** grep -c 'Execution Time' db/OPTIMIZATIONS.md виводить **8 або більше** (4 пари до/після).\n\n☐ **Пошуковий індекс — це GIN по tsvector.** Після psql -f db/indexes.sql psql -Atc \"SELECT count(\\*) FROM pg\\_index i JOIN pg\\_class c ON c.oid=i.indexrelid JOIN pg\\_am am ON am.oid=c.relam JOIN pg\\_opclass o ON o.oid=i.indclass\\[0\\] WHERE am.amname='gin' AND o.opcintype='tsvector'::regtype;\" виводить **1 або більше**. Перевірка читає **каталог**, тому збережена генерована колонка і expression-індекс GIN (to\\_tsvector(…)) проходять однаково, а GIN … gin\\_trgm\\_ops — ні: у нього вхідний тип text. Не переписуй цю перевірку через pg\\_attribute: для GIN там лежить **тип зберігання** (text), а не тип колонки, — і вона дасть **0** при живому й робочому індексі.\n\n☐ **Морфологію названо.** sed -n '/\\[Мм\\]орфолог/,/^#/p' db/OPTIMIZATIONS.md | grep -oE '\\[0-9\\]+' | wc -l виводить **2 або більше** — тобто секція «Морфологія» існує і в ній є щонайменше два числа (збіги базовою формою і збіги іншим відмінком, зняті на твоїй базі). Змістовну частину грейдер читає очима: дві форми, два числа, одне речення про причину.\n\n☐ **Свіжий клон піднімається.** У порожній теці git clone --branch hw-12 <репо> . → команда підняття бази з README → psql -Atc \"SELECT 1\" виводить **1**. Жодних правок файлів руками.\n\n☐ **Підключення застосунку — у сховищі, а не в новому env-файлі.** Жоден трекнутий env-файл, окрім .env.example, не містить змінної підключення — for f in $(git ls-files | grep -E '\\\\.env($|\\\\.)' | grep -vE '\\\\.example$'); do grep -lE '^(DATABASE\\_URL|DB\\_URL)=' \"$f\"; done → **порожній вивід** (будь-який надрукований шлях = провал). При цьому сама змінна присутня в контракті: grep -cE '^(DATABASE\\_URL|DB\\_URL)=' .env.example → **1 або більше** (пароль фейковий), а в таблиці «Configuration» README навпроти неї стоїть джерело — сховище. Назву змінної бери свою з README: DB\\_URL з ДЗ #11 годиться так само, як DATABASE\\_URL. Перевірка дивиться на env-файли, а не на docker-compose.yml: дев-креденшели стенда під неї не підпадають — вони не секрет і потрібні грейдеру для свіжого клону.\n\nФормат здачі\n\nРепозиторій: той самий репозиторій курсового проєкту, Pull Request з гілки hw-12.\n\n<table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#262626\">Файл</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#262626\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/schema.sql</span></td><td data-row=\"2\"><span class=\"ql-color-#262626 ql-bg-transparent\">таблиці, констрейнти, генерована </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">tsvector</span><span class=\"ql-color-#262626 ql-bg-transparent\">-колонка</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/seed.sql</span></td><td data-row=\"3\"><span class=\"ql-color-#262626 ql-bg-transparent\">генерація даних (≥100 000 рядків) + </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">VACUUM (ANALYZE)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/queries/q1.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\">, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">q2.sql</span><span class=\"ql-color-#262626 ql-bg-transparent\">, </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">q3.sql</span></td><td data-row=\"4\"><span class=\"ql-color-#262626 ql-bg-transparent\">реальні запити API — по одному statement на файл</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/queries/q4.sql</span></td><td data-row=\"5\"><span class=\"ql-color-#262626 ql-bg-transparent\">повнотекстовий пошук по каталогу</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/indexes.sql</span></td><td data-row=\"6\"><span class=\"ql-color-#262626 ql-bg-transparent\">усі індекси оптимізації, включно з GIN під q4</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">db/OPTIMIZATIONS.md</span></td><td data-row=\"7\"><span class=\"ql-color-#262626 ql-bg-transparent\">4 пари EXPLAIN до/після + пояснення + секція </span><span class=\"ql-color-#2e7d32 ql-bg-transparent\">## Морфологія</span></td></tr><tr><td data-row=\"8\"><span class=\"ql-color-#2e7d32 ql-bg-transparent\">README.md</span></td><td data-row=\"8\"><span class=\"ql-color-#262626 ql-bg-transparent\">як підняти Postgres, як прогнати всі кроки, назва головної таблиці </span><strong class=\"ql-bg-transparent ql-color-#262626\">і</strong><span class=\"ql-color-#262626 ql-bg-transparent\"> назва таблиці пошуку; джерело змінної підключення в таблиці «Configuration»</span></td></tr></tbody></table>\n\n  \n\nГрейдер має відтворити все на чистому volume **без правок файлів**.\n\nУ LMS здаєш **посилання на PR**, не на головну гілку.\n\nЗв'язок з курсовим проєктом\n\nЦе **ДЗ №3** проєктної лінії: воно додає у твій Marketplace API (або обраний домен) **фундамент дата-шару** — схему, констрейнти, seed, докази швидкості під обсягом і робочий пошук по каталогу. Пошук тут закривається наполовину — Postgres-half; де закінчується Postgres і навіщо люди беруть окремий пошуковий рушій, розберемо на лекції #15.\n\nНаступні кроки спираються саме на неї: ДЗ #13 (ORM) бере цю саму схему в TypeORM-entities та міграції, ДЗ #14 будує на ній транзакційну бізнес-логіку, ДЗ #15 — pooling/бекапи, ДЗ #16 — integration-тести проти реального Postgres.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104318/homework/54344"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:42:15.952Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:42:24.699Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104318,
+        "iri": "/api/lessons/104318",
+        "number": 12,
+        "name": "PostgreSQL для backend-розробника: індекси, EXPLAIN і MVCC",
+        "translationStatus": "available",
+        "startsAt": "2026-09-01T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104318"
+      },
+      "materials": [
+        {
+          "id": 203571,
+          "iri": "/api/lesson_materials/203571",
+          "relationId": "/api/lesson_material_has_lessons/203571-104318",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 12",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1eEdniRKr-4YS9FmF5MGF15iTs3vbOlGqUpR2e13CTpw/edit",
+              "cacheKey": "a51d2d7e627618cc42ca9be0a93b592e2d0cff036813c1e69e4a4a068043e680",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/presentation.pdf",
+              "bytes": 1217584,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "3279485c4da8af028edf93cca274065829a2e5f338af878da524c26958e7863b",
+              "fetchedAt": "2026-10-12T13:42:23.380Z"
+            }
+          ]
+        },
+        {
+          "id": 203633,
+          "iri": "/api/lesson_materials/203633",
+          "relationId": "/api/lesson_material_has_lessons/203633-104318",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "Using EXPLAIN",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Офіційний розбір планів; звідси правило «читаємо знизу вгору»</p>\"}]",
+          "html": "<p>Офіційний розбір планів; звідси правило «читаємо знизу вгору»</p>",
+          "markdown": "Офіційний розбір планів; звідси правило «читаємо знизу вгору»",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/using-explain.html",
+              "cacheKey": "b79df82756e88230a1f0e0a179725ad0fefcb4a2e3ce90e5fbcf1303a0ef50de",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203634,
+          "iri": "/api/lesson_materials/203634",
+          "relationId": "/api/lesson_material_has_lessons/203634-104318",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "EXPLAIN — довідник команди",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі опції: ANALYZE, BUFFERS, FORMAT JSON</p>\"}]",
+          "html": "<p>Усі опції: ANALYZE, BUFFERS, FORMAT JSON</p>",
+          "markdown": "Усі опції: ANALYZE, BUFFERS, FORMAT JSON",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/sql-explain.html",
+              "cacheKey": "e341c705593d824bfc9980983e8788d182c7e620cc665c649d7451e60cca7287",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203635,
+          "iri": "/api/lesson_materials/203635",
+          "relationId": "/api/lesson_material_has_lessons/203635-104318",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "Planner/Optimizer",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як народжується план: шляхи, вартості, арифметика замість магії</p>\"}]",
+          "html": "<p>Як народжується план: шляхи, вартості, арифметика замість магії</p>",
+          "markdown": "Як народжується план: шляхи, вартості, арифметика замість магії",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/planner-optimizer.html",
+              "cacheKey": "797f2aa084b6d7646c8370b18d3b0263e419175ab8f8b9bebfa14b05c6e0d033",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203636,
+          "iri": "/api/lesson_materials/203636",
+          "relationId": "/api/lesson_material_has_lessons/203636-104318",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "Row Estimation Examples",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Звідки беруться rows=…: гістограми, MCV, селективність</p>\"}]",
+          "html": "<p>Звідки беруться rows=…: гістограми, MCV, селективність</p>",
+          "markdown": "Звідки беруться rows=…: гістограми, MCV, селективність",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/row-estimation-examples.html",
+              "cacheKey": "211f738dd0bb0330aa05745d2c464700e5046bee30f3fc4a6bd59eee6d536cb1",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203637,
+          "iri": "/api/lesson_materials/203637",
+          "relationId": "/api/lesson_material_has_lessons/203637-104318",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "Indexes (глава цілком)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>B-tree, GIN, GiST, BRIN, складені, partial, expression</p>\"}]",
+          "html": "<p>B-tree, GIN, GiST, BRIN, складені, partial, expression</p>",
+          "markdown": "B-tree, GIN, GiST, BRIN, складені, partial, expression",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/indexes.html",
+              "cacheKey": "14be647bbe685807629e1004ba5b35fbfce82d84f75264a3ea6f02afe0b806eb",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203639,
+          "iri": "/api/lesson_materials/203639",
+          "relationId": "/api/lesson_material_has_lessons/203639-104318",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "Partial Indexes",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Приклади «коли варто» і, важливіше, «коли не варто»</p>\"}]",
+          "html": "<p>Приклади «коли варто» і, важливіше, «коли не варто»</p>",
+          "markdown": "Приклади «коли варто» і, важливіше, «коли не варто»",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/indexes-partial.html",
+              "cacheKey": "9ad7adf311eb459474554071d521ea8c4e91dd476ca17334f0d614c65c870f07",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203640,
+          "iri": "/api/lesson_materials/203640",
+          "relationId": "/api/lesson_material_has_lessons/203640-104318",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "Indexes on Expressions",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Ціна: вираз обчислюється на кожен INSERT і UPDATE</p>\"}]",
+          "html": "<p>Ціна: вираз обчислюється на кожен INSERT і UPDATE</p>",
+          "markdown": "Ціна: вираз обчислюється на кожен INSERT і UPDATE",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/indexes-expressional.html",
+              "cacheKey": "b88bf4235eddb72320abe95bbc2148adad920ebd49315749f07d4b15dfa77354",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203641,
+          "iri": "/api/lesson_materials/203641",
+          "relationId": "/api/lesson_material_has_lessons/203641-104318",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "Multicolumn Indexes",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому працює «рівність ліворуч, діапазон праворуч»</p>\"}]",
+          "html": "<p>Чому працює «рівність ліворуч, діапазон праворуч»</p>",
+          "markdown": "Чому працює «рівність ліворуч, діапазон праворуч»",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/indexes-multicolumn.html",
+              "cacheKey": "68049f0a8ec2f0ea19795e7fdc250c8ef46ccd651742ec79d185079f28ee4755",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203642,
+          "iri": "/api/lesson_materials/203642",
+          "relationId": "/api/lesson_material_has_lessons/203642-104318",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "Index-Only Scans and Covering Indexes",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Visibility map, Heap Fetches ≠ 0, INCLUDE-колонки</p>\"}]",
+          "html": "<p>Visibility map, Heap Fetches ≠ 0, INCLUDE-колонки</p>",
+          "markdown": "Visibility map, Heap Fetches ≠ 0, INCLUDE-колонки",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/indexes-index-only-scans.html",
+              "cacheKey": "b1a4f50b22ee6a4887a8c1948bd1fd61c17ceb9cd083075586cfd6094d00a3a2",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203643,
+          "iri": "/api/lesson_materials/203643",
+          "relationId": "/api/lesson_material_has_lessons/203643-104318",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "MVCC Intro",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Знімки даних і правила видимості рядків між транзакціями</p>\"}]",
+          "html": "<p>Знімки даних і правила видимості рядків між транзакціями</p>",
+          "markdown": "Знімки даних і правила видимості рядків між транзакціями",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/mvcc-intro.html",
+              "cacheKey": "bf35c2ff930086c23f500702f5c3e69b4ef92c326657054bcc2f291592dd9def",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203645,
+          "iri": "/api/lesson_materials/203645",
+          "relationId": "/api/lesson_material_has_lessons/203645-104318",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "Transaction Isolation",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>READ COMMITTED проти REPEATABLE READ; міст у L#14</p>\"}]",
+          "html": "<p>READ COMMITTED проти REPEATABLE READ; міст у L#14</p>",
+          "markdown": "READ COMMITTED проти REPEATABLE READ; міст у L#14",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/transaction-iso.html",
+              "cacheKey": "275e4e347d50f8ff7852d4a745358e23b4ee6bdb693be3e194027f7b64e381e1",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203646,
+          "iri": "/api/lesson_materials/203646",
+          "relationId": "/api/lesson_material_has_lessons/203646-104318",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "Routine Vacuuming",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Поріг спрацювання, wraparound і чому autovacuum не вимикають</p>\"}]",
+          "html": "<p>Поріг спрацювання, wraparound і чому autovacuum не вимикають</p>",
+          "markdown": "Поріг спрацювання, wraparound і чому autovacuum не вимикають",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/routine-vacuuming.html",
+              "cacheKey": "5bad0d68d008207322c1ac8b1992cc2138b14010ba98bb0642981ca2df73e865",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203647,
+          "iri": "/api/lesson_materials/203647",
+          "relationId": "/api/lesson_material_has_lessons/203647-104318",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "The Statistics Collector",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Довідник усіх pg_stat_* в'юх, з якими працювали</p>\"}]",
+          "html": "<p>Довідник усіх pg_stat_* в'юх, з якими працювали</p>",
+          "markdown": "Довідник усіх pg\\_stat\\_\\* в'юх, з якими працювали",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/monitoring-stats.html",
+              "cacheKey": "ab2e570c1cc490e4bda7f055a964cf4ae0b29640849df0902d0716e334d0c8a5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203648,
+          "iri": "/api/lesson_materials/203648",
+          "relationId": "/api/lesson_material_has_lessons/203648-104318",
+          "position": 14,
+          "type": 0,
+          "typeName": "site",
+          "name": "Use The Index, Luke!",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Найкраща книга про індекси, безплатна; глава «Anatomy» — must</p>\"}]",
+          "html": "<p>Найкраща книга про індекси, безплатна; глава «Anatomy» — must</p>",
+          "markdown": "Найкраща книга про індекси, безплатна; глава «Anatomy» — must",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://use-the-index-luke.com/",
+              "cacheKey": "ece7b691932628376136b185d0c117209455473a3543adc383755b3ef6e00473",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203649,
+          "iri": "/api/lesson_materials/203649",
+          "relationId": "/api/lesson_material_has_lessons/203649-104318",
+          "position": 15,
+          "type": 0,
+          "typeName": "site",
+          "name": "The Internals of PostgreSQL",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Глави 5 і 6: MVCC та VACUUM на байтах</p>\"}]",
+          "html": "<p>Глави 5 і 6: MVCC та VACUUM на байтах</p>",
+          "markdown": "Глави 5 і 6: MVCC та VACUUM на байтах",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.interdb.jp/pg/",
+              "cacheKey": "882d61db13472f2e9ef4f97af4f309a458f18c5d7f66eccf066a2a4b37353e6d",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203651,
+          "iri": "/api/lesson_materials/203651",
+          "relationId": "/api/lesson_material_has_lessons/203651-104318",
+          "position": 16,
+          "type": 0,
+          "typeName": "site",
+          "name": "pgMustard: EXPLAIN Glossary",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Словник кожного поля з EXPLAIN-виводу</p>\"}]",
+          "html": "<p>Словник кожного поля з EXPLAIN-виводу</p>",
+          "markdown": "Словник кожного поля з EXPLAIN-виводу",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.pgmustard.com/docs/explain",
+              "cacheKey": "3dd3b9faf45e5f2af47938985198164f2eff496c0308dcecacdeeb8d58d85162",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203652,
+          "iri": "/api/lesson_materials/203652",
+          "relationId": "/api/lesson_material_has_lessons/203652-104318",
+          "position": 17,
+          "type": 0,
+          "typeName": "site",
+          "name": "explain.dalibo.com",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Візуалізатор планів: JSON на вході, дерево з підсвіткою</p>\"}]",
+          "html": "<p>Візуалізатор планів: JSON на вході, дерево з підсвіткою</p>",
+          "markdown": "Візуалізатор планів: JSON на вході, дерево з підсвіткою",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://explain.dalibo.com/",
+              "cacheKey": "ebe19adfdb36ccf8cf3565c0172efbc1e973018e8fbe0cde506a8da56288a6a8",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203653,
+          "iri": "/api/lesson_materials/203653",
+          "relationId": "/api/lesson_material_has_lessons/203653-104318",
+          "position": 18,
+          "type": 0,
+          "typeName": "site",
+          "name": "PostgreSQL Wiki: Don't Do This",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Список анти-патернів від спільноти PostgreSQL</p>\"}]",
+          "html": "<p>Список анти-патернів від спільноти PostgreSQL</p>",
+          "markdown": "Список анти-патернів від спільноти PostgreSQL",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://wiki.postgresql.org/wiki/Don%27t_Do_This",
+              "cacheKey": "a5446b82c8982d4dba7070070687cefb77eb211bb5cb9b0bb01c1677d6a6ff37",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203654,
+          "iri": "/api/lesson_materials/203654",
+          "relationId": "/api/lesson_material_has_lessons/203654-104318",
+          "position": 19,
+          "type": 0,
+          "typeName": "site",
+          "name": "Full Text Search: вступ",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>tsvector, tsquery, оператор @@ — базові поняття</p>\"}]",
+          "html": "<p>tsvector, tsquery, оператор @@ — базові поняття</p>",
+          "markdown": "tsvector, tsquery, оператор @@ — базові поняття",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-intro.html",
+              "cacheKey": "e160dffda22dcf4c3e7952bf797d41146dc8f44217bc0409da164674e16d4463",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203656,
+          "iri": "/api/lesson_materials/203656",
+          "relationId": "/api/lesson_material_has_lessons/203656-104318",
+          "position": 20,
+          "type": 0,
+          "typeName": "site",
+          "name": "Таблиці та індекси для пошуку",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Пошук по колонці і збережена генерована колонка</p>\"}]",
+          "html": "<p>Пошук по колонці і збережена генерована колонка</p>",
+          "markdown": "Пошук по колонці і збережена генерована колонка",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-tables.html",
+              "cacheKey": "2340c1f07ea6a8ce93d35f3f926f0254d375cc7d8029853c32e176339f33d0d8",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203657,
+          "iri": "/api/lesson_materials/203657",
+          "relationId": "/api/lesson_material_has_lessons/203657-104318",
+          "position": 21,
+          "type": 0,
+          "typeName": "site",
+          "name": "Controlling Text Search",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ts_rank, ts_headline; IDF немає — частий спам перемагає унікальне</p>\"}]",
+          "html": "<p>ts_rank, ts_headline; IDF немає — частий спам перемагає унікальне</p>",
+          "markdown": "ts\\_rank, ts\\_headline; IDF немає — частий спам перемагає унікальне",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-controls.html",
+              "cacheKey": "e7bce163cf209c052addbc2af3190e56bcc13adbbb755564d7d6c31581172d2b",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203659,
+          "iri": "/api/lesson_materials/203659",
+          "relationId": "/api/lesson_material_has_lessons/203659-104318",
+          "position": 22,
+          "type": 0,
+          "typeName": "site",
+          "name": "GIN і GiST для повнотексту",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому ORDER BY rank не покривається індексом</p>\"}]",
+          "html": "<p>Чому ORDER BY rank не покривається індексом</p>",
+          "markdown": "Чому ORDER BY rank не покривається індексом",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-indexes.html",
+              "cacheKey": "737d5cb36d23e873bb1e692a6d4fa73690ae0c6f6b667069c5895b6bf2a46585",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203662,
+          "iri": "/api/lesson_materials/203662",
+          "relationId": "/api/lesson_material_has_lessons/203662-104318",
+          "position": 23,
+          "type": 0,
+          "typeName": "site",
+          "name": "Словники, синоніми, тезаурус",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>synonym і thesaurus; файл словника — на диску сервера</p>\"}]",
+          "html": "<p>synonym і thesaurus; файл словника — на диску сервера</p>",
+          "markdown": "synonym і thesaurus; файл словника — на диску сервера",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-dictionaries.html",
+              "cacheKey": "a29625b111e6927a1cdfc9b7f0557d2584d4ae9022813b9ebbb410fcfc9d7d03",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203665,
+          "iri": "/api/lesson_materials/203665",
+          "relationId": "/api/lesson_material_has_lessons/203665-104318",
+          "position": 24,
+          "type": 0,
+          "typeName": "site",
+          "name": "CREATE TEXT SEARCH DICTIONARY",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Синтаксис створення словника, зокрема TEMPLATE = ispell</p>\"}]",
+          "html": "<p>Синтаксис створення словника, зокрема TEMPLATE = ispell</p>",
+          "markdown": "Синтаксис створення словника, зокрема TEMPLATE = ispell",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/sql-createtsdictionary.html",
+              "cacheKey": "412e1ca5d1e134fa7d5752b04d15632feb7589a860045248db4019f4eda4c41b",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203667,
+          "iri": "/api/lesson_materials/203667",
+          "relationId": "/api/lesson_material_has_lessons/203667-104318",
+          "position": 25,
+          "type": 0,
+          "typeName": "site",
+          "name": "Своя конфігурація пошуку",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Конфігурації ukrainian немає; лікує Hunspell uk_UA, ціна ×13</p>\"}]",
+          "html": "<p>Конфігурації ukrainian немає; лікує Hunspell uk_UA, ціна ×13</p>",
+          "markdown": "Конфігурації ukrainian немає; лікує Hunspell uk\\_UA, ціна ×13",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-configuration.html",
+              "cacheKey": "5c6b94104f6da7a3bd811bcc448591aecf8d203f81772438b434fc71b08aafbe",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203669,
+          "iri": "/api/lesson_materials/203669",
+          "relationId": "/api/lesson_material_has_lessons/203669-104318",
+          "position": 26,
+          "type": 0,
+          "typeName": "site",
+          "name": "\\dF та інші метакоманди psql",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Подивитись наявні конфігурації, словники й парсери зсередини</p>\"}]",
+          "html": "<p>Подивитись наявні конфігурації, словники й парсери зсередини</p>",
+          "markdown": "Подивитись наявні конфігурації, словники й парсери зсередини",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/textsearch-psql.html",
+              "cacheKey": "a290911914b6e5bb163439e9baea1b8e9120c54b7c7ac5556d6bf1d201dd052f",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203670,
+          "iri": "/api/lesson_materials/203670",
+          "relationId": "/api/lesson_material_has_lessons/203670-104318",
+          "position": 27,
+          "type": 0,
+          "typeName": "site",
+          "name": "pg_stat_statements",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Топ найдорожчих запитів у проді; глибше — L#30</p>\"}]",
+          "html": "<p>Топ найдорожчих запитів у проді; глибше — L#30</p>",
+          "markdown": "Топ найдорожчих запитів у проді; глибше — L#30",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/pgstatstatements.html",
+              "cacheKey": "898599ebe567c47d02c121b459696343ab46d209f466bdc3c9e685d169a0d490",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203671,
+          "iri": "/api/lesson_materials/203671",
+          "relationId": "/api/lesson_material_has_lessons/203671-104318",
+          "position": 28,
+          "type": 0,
+          "typeName": "site",
+          "name": "pg_trgm",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Тріграми + GIN для LIKE '%…%'; шукають підрядок, не морфологію</p>\"}]",
+          "html": "<p>Тріграми + GIN для LIKE '%…%'; шукають підрядок, не морфологію</p>",
+          "markdown": "Тріграми + GIN для LIKE '%…%'; шукають підрядок, не морфологію",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.postgresql.org/docs/16/pgtrgm.html",
+              "cacheKey": "9108411cd3d4ae50261c80f34c372ace6a8e8aee01138a2ffbb2a28720b832c5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203672,
+          "iri": "/api/lesson_materials/203672",
+          "relationId": "/api/lesson_material_has_lessons/203672-104318",
+          "position": 29,
+          "type": 0,
+          "typeName": "site",
+          "name": "HypoPG",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Гіпотетичні індекси: перевірити «а якби був», не створюючи</p>\"}]",
+          "html": "<p>Гіпотетичні індекси: перевірити «а якби був», не створюючи</p>",
+          "markdown": "Гіпотетичні індекси: перевірити «а якби був», не створюючи",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/HypoPG/hypopg",
+              "cacheKey": "f9b9a3eeb76ca1cbebbc8ef6b9a371fccb40a28c9844adb0fdfc123350cf8ee7",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203860,
+          "iri": "/api/lesson_materials/203860",
+          "relationId": "/api/lesson_material_has_lessons/203860-104318",
+          "position": 30,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://drive.google.com/file/d/1k0m8RPP_Axcppstg58RbdeT9nvqHcM3X/view\"}}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [
+            "UNSUPPORTED_DESCRIPTION_BLOCK"
+          ],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1k0m8RPP_Axcppstg58RbdeT9nvqHcM3X/view",
+              "cacheKey": "ddc221113a4b1721d5136075beff95d752a8ff596bb96a189a43fda9efcba2c8",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/transcript.md",
+              "bytes": 141282,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Fri, 04 Sep 2026 08:48:57 GMT",
+              "sha256": "c19b8fda82ffdc431a512e7f3e5a26dcfcf53b6c8de93753d226ca384cf4387b",
+              "fetchedAt": "2026-10-12T13:42:24.699Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:42:24.699Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:42:33.042Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104318,
+        "iri": "/api/lessons/104318",
+        "number": 12,
+        "name": "PostgreSQL для backend-розробника: індекси, EXPLAIN і MVCC",
+        "translationStatus": "available",
+        "startsAt": "2026-09-01T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104318"
+      },
+      "recordings": [
+        {
+          "id": 140470,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 140470,
+      "resolutionId": 658984,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/lecture.mp4",
+      "bytes": 379879604,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:42:33.042Z"
+    }
+  }
+}

@@ -18,11 +18,11 @@
   },
   "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування",
   "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/manifest.json",
-  "fetchedAt": "2026-10-12T12:32:19.318Z",
+  "fetchedAt": "2026-10-12T13:39:21.658Z",
   "status": "complete",
   "homework": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T12:32:06.121Z",
+    "fetchedAt": "2026-10-12T13:39:07.236Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/homework.md"
     ],
@@ -42,12 +42,12 @@
       },
       "status": "no_homework",
       "homeworks": [],
-      "fetchedAt": "2026-10-12T12:32:06.121Z"
+      "fetchedAt": "2026-10-12T13:39:07.236Z"
     }
   },
   "materials": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T12:32:17.780Z",
+    "fetchedAt": "2026-10-12T13:39:19.809Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/additional-materials.md",
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/presentation.pdf",
@@ -98,7 +98,7 @@
               "etag": null,
               "lastModified": null,
               "sha256": "23fa3fb02ba1868fc33aa6adc41d5a47ea1495d44d928e58cba77d1d128b309d",
-              "fetchedAt": "2026-10-12T12:32:16.418Z"
+              "fetchedAt": "2026-10-12T13:39:18.158Z"
             }
           ]
         },
@@ -344,7 +344,7 @@
               "etag": null,
               "lastModified": "Thu, 30 Jul 2026 10:52:44 GMT",
               "sha256": "cfe1c45530448c016c8b748028924f86fec1f17457d91acb624e0875c36fd015",
-              "fetchedAt": "2026-10-12T12:32:17.779Z"
+              "fetchedAt": "2026-10-12T13:39:19.808Z"
             }
           ]
         }
@@ -353,12 +353,12 @@
       "transcriptStatus": "available",
       "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування",
       "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/materials-manifest.json",
-      "fetchedAt": "2026-10-12T12:32:17.780Z"
+      "fetchedAt": "2026-10-12T13:39:19.809Z"
     }
   },
   "video": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T12:32:19.318Z",
+    "fetchedAt": "2026-10-12T13:39:21.658Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/lecture.mp4",
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/lecture.mp4.json"
@@ -398,7 +398,7 @@
       "bytes": 274222311,
       "status": "already_downloaded",
       "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/lecture.mp4.json",
-      "fetchedAt": "2026-10-12T12:32:19.318Z"
+      "fetchedAt": "2026-10-12T13:39:21.658Z"
     }
   }
 }

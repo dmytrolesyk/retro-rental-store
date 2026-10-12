@@ -1,0 +1,534 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104313,
+    "iri": "/api/lessons/104313",
+    "number": 7,
+    "name": "Request flow у NestJS: controllers, DTO та pipes",
+    "translationStatus": "available",
+    "startsAt": "2026-08-13T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104313"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:41:05.505Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:48.074Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104313,
+        "iri": "/api/lessons/104313",
+        "number": 7,
+        "name": "Request flow у NestJS: controllers, DTO та pipes",
+        "translationStatus": "available",
+        "startsAt": "2026-08-13T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104313"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54340,
+          "iri": "/api/lesson_homeworks/54340",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Ви продовжуєте </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">свій</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> mini-Nest із ДЗ #6. Тепер контейнер має не просто створювати об'єкти, а </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">обслуговувати HTTP-запити</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: ви будуєте маршрутизацію на декораторах і валідацію вхідних даних.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">частина 2 з 3</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Стартова точка — гілка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">part-1-ioc</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Якщо ДЗ #6 не здане, візьміть еталонну реалізацію з демо Лекції 6 і чесно вкажіть це в README.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що потрібно зробити</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">1. </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Controller(prefix)</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Декоратор класу, що записує базовий шлях у метадані.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">2. </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Get(path)</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> / </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Post(path)</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Декоратори методів, що реєструють маршрут. Повний шлях = префікс контролера + шлях методу.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">3. Параметр-декоратори </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Body()</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">, </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Param(name)</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">, </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Query(name)</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Вони не витягують дані самі — вони </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">записують у метадані</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, який аргумент звідки брати. Дістає значення вже ваш диспетчер під час виклику.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">4. Диспетчер поверх </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">node:http</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Приймає запит, знаходить маршрут, збирає масив аргументів за метаданими параметрів, викликає метод контролера через контейнер із ДЗ #6, серіалізує результат у JSON.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">5. DTO + валідація через простий Pipe</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Клас DTO з правилами — через </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">class-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">або</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> власні декоратори, на ваш вибір, обидва варіанти приймаються.</span></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Тіло запиту</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Результат</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">невалідне</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">400</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з переліком полів і причин</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">валідне</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">у метод приходить </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">екземпляр DTO</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а не сирий об'єкт</span></td></tr></tbody></table><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">6. Тести обов'язкові</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Мінімум: маршрут знаходиться, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Param</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Query</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> підставляються, невалідний DTO дає 400 із деталями, валідний доходить до методу.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Обмеження.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Дозволено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">reflect-metadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">class-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> + </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">class-transformer</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, тест-раннер, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">supertest</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або вбудований </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">fetch</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> для HTTP-тестів. Заборонено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@nestjs/*</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">fastify</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — маршрутизація ваша, поверх </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:http</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Підказки, які економлять години.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Параметр-декоратор отримує </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">(target, propertyKey, parameterIndex)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — індекс і є ключем: зберіть мапу </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">{ [index]: { type: 'body' | 'param' | 'query', name } }</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у метаданих методу, а під час виклику побудуйте масив аргументів за цією мапою. Порядок декораторів: параметр-декоратори виконуються до декоратора методу, а той — до декоратора класу; якщо покладаєтесь на порядок, переконайтеся тестом. </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">class-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> працює з екземплярами, не з plain-об'єктами: спершу </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">plainToInstance(Dto, body)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, тоді </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">validate(instance)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — без першого кроку валідатор мовчки нічого не перевірить. Тіло </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">POST</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:http</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не парситься саме: зберіть чанки з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">req.on('data')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і зробіть </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">JSON.parse</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">req.on('end')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — це той самий код, що й на Лекції 3. Помилку валідації віддавайте списком </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">[{ field, constraints }]</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а не першим полем.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Acceptance criteria</strong></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Фреймворків немає.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -RE \\\"@nestjs|express|fastify\\\" package.json src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не дає збігів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Маршрути з декораторів, не з масиву.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -rn \\\"Reflect.getMetadata\\\" src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> показує читання метаданих маршрутів; у коді немає захардкодженого списку шляхів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Префікс склеюється.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Контролер із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Controller('users')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і метод із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Get(':id')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> відповідають на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /users/42</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (тест або </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Param</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> працює.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /users/42</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> повертає тіло, що містить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">42</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і в коді метод приймає його </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">аргументом</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а не читає з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">req</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> вручну.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Query</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> працює.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /users?limit=5</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — значення </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">5</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> доходить до методу окремим аргументом.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Body</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> працює.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">POST /users</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з JSON-тілом — у метод приходить розпарсений об'єкт.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Валідація відхиляє.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">POST /users</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">{\\\"email\\\":\\\"not-an-email\\\"}</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → HTTP </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">400</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і тіло відповіді містить назву поля </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">email</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (відповідь матчить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">/email/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Валідація пропускає.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Коректне тіло → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">201</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">200</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і в обробник приходить </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">екземпляр класу DTO</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (тест перевіряє </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">body instanceof CreateUserDto</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Контейнер із частини 1 задіяно.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Контролер отримує сервіс через конструктор, і сервіс створює саме контейнер (тест на те, що це той самий singleton).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Тести проходять.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — код 0, щонайменше 6 пройдених тестів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Працює в Docker.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose run --rm api npm test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> проходить.</span></li></ol><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Формат здачі</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Репозиторій:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> той самий </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">mini-nest</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, Pull Request із гілки </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">part-2-http</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Структура</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (додається до частини 1):</span></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Файл</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/decorators/controller.ts</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Controller(prefix)</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/decorators/methods.ts</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Get</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> / </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Post</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/decorators/params.ts</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Body</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Param</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Query</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/router.ts</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">збір маршрутів із метаданих</span></td></tr><tr><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/dispatcher.ts</span></td><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">HTTP-шар поверх </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:http</span></td></tr><tr><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/pipes/validation.pipe.ts</span></td><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">валідація DTO</span></td></tr><tr><td data-row=\\\"8\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/dto/create-user.dto.ts</span></td><td data-row=\\\"8\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">DTO з правилами</span></td></tr><tr><td data-row=\\\"9\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">test/</span></td><td data-row=\\\"9\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">тести</span></td></tr><tr><td data-row=\\\"10\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span></td><td data-row=\\\"10\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">доповнити абзацом «як параметр-декоратор знає, куди підставити значення»</span></td></tr></tbody></table><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">У LMS здаєте посилання на PR</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, не на головну гілку.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Зв'язок з курсовим проєктом</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">training-артефакт поза курсовим проєктом</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Але патерн, який ви тут пишете руками, — рівно те, що робить NestJS у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@nestjs/platform-express</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">На Лекції 8 ви додасте у цей же диспетчер повний lifecycle (middleware → guard → interceptor → pipe → handler → filter) і побачите, що всі ці поняття — просто точки у вашому власному циклі, а не окремі сутності фреймворка.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Далі, у Лекції 9 (API design), ці DTO стануть контрактом реального Marketplace API.</span></p><p><br></p>\"}]",
+          "html": "<p><span class=\"ql-bg-transparent ql-color-#000000\">Ви продовжуєте </span><strong class=\"ql-bg-transparent ql-color-#000000\">свій</strong><span class=\"ql-bg-transparent ql-color-#000000\"> mini-Nest із ДЗ #6. Тепер контейнер має не просто створювати об'єкти, а </span><strong class=\"ql-bg-transparent ql-color-#000000\">обслуговувати HTTP-запити</strong><span class=\"ql-bg-transparent ql-color-#000000\">: ви будуєте маршрутизацію на декораторах і валідацію вхідних даних.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це </span><strong class=\"ql-bg-transparent ql-color-#000000\">частина 2 з 3</strong><span class=\"ql-bg-transparent ql-color-#000000\">. Стартова точка — гілка </span><span class=\"ql-bg-transparent ql-color-#188038\">part-1-ioc</span><span class=\"ql-bg-transparent ql-color-#000000\">. Якщо ДЗ #6 не здане, візьміть еталонну реалізацію з демо Лекції 6 і чесно вкажіть це в README.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Що потрібно зробити</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">1. </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Controller(prefix)</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Декоратор класу, що записує базовий шлях у метадані.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">2. </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Get(path)</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> / </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Post(path)</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Декоратори методів, що реєструють маршрут. Повний шлях = префікс контролера + шлях методу.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">3. Параметр-декоратори </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Body()</strong><strong class=\"ql-bg-transparent ql-color-#000000\">, </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Param(name)</strong><strong class=\"ql-bg-transparent ql-color-#000000\">, </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Query(name)</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Вони не витягують дані самі — вони </span><strong class=\"ql-bg-transparent ql-color-#000000\">записують у метадані</strong><span class=\"ql-bg-transparent ql-color-#000000\">, який аргумент звідки брати. Дістає значення вже ваш диспетчер під час виклику.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">4. Диспетчер поверх </strong><strong class=\"ql-bg-transparent ql-color-#188038\">node:http</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Приймає запит, знаходить маршрут, збирає масив аргументів за метаданими параметрів, викликає метод контролера через контейнер із ДЗ #6, серіалізує результат у JSON.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">5. DTO + валідація через простий Pipe</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Клас DTO з правилами — через </span><span class=\"ql-bg-transparent ql-color-#188038\">class-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> </span><strong class=\"ql-bg-transparent ql-color-#000000\">або</strong><span class=\"ql-bg-transparent ql-color-#000000\"> власні декоратори, на ваш вибір, обидва варіанти приймаються.</span></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Тіло запиту</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Результат</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">невалідне</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> з переліком полів і причин</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">валідне</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">у метод приходить </span><strong class=\"ql-bg-transparent ql-color-#000000\">екземпляр DTO</strong><span class=\"ql-bg-transparent ql-color-#000000\">, а не сирий об'єкт</span></td></tr></tbody></table><p><strong class=\"ql-bg-transparent ql-color-#000000\">6. Тести обов'язкові</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Мінімум: маршрут знаходиться, </span><span class=\"ql-bg-transparent ql-color-#188038\">@Param</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">@Query</span><span class=\"ql-bg-transparent ql-color-#000000\"> підставляються, невалідний DTO дає 400 із деталями, валідний доходить до методу.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Обмеження.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Дозволено: </span><span class=\"ql-bg-transparent ql-color-#188038\">reflect-metadata</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">class-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> + </span><span class=\"ql-bg-transparent ql-color-#188038\">class-transformer</span><span class=\"ql-bg-transparent ql-color-#000000\">, тест-раннер, </span><span class=\"ql-bg-transparent ql-color-#188038\">supertest</span><span class=\"ql-bg-transparent ql-color-#000000\"> або вбудований </span><span class=\"ql-bg-transparent ql-color-#188038\">fetch</span><span class=\"ql-bg-transparent ql-color-#000000\"> для HTTP-тестів. Заборонено: </span><span class=\"ql-bg-transparent ql-color-#188038\">@nestjs/*</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">express</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">fastify</span><span class=\"ql-bg-transparent ql-color-#000000\"> — маршрутизація ваша, поверх </span><span class=\"ql-bg-transparent ql-color-#188038\">node:http</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Підказки, які економлять години.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Параметр-декоратор отримує </span><span class=\"ql-bg-transparent ql-color-#188038\">(target, propertyKey, parameterIndex)</span><span class=\"ql-bg-transparent ql-color-#000000\"> — індекс і є ключем: зберіть мапу </span><span class=\"ql-bg-transparent ql-color-#188038\">{ [index]: { type: 'body' | 'param' | 'query', name } }</span><span class=\"ql-bg-transparent ql-color-#000000\"> у метаданих методу, а під час виклику побудуйте масив аргументів за цією мапою. Порядок декораторів: параметр-декоратори виконуються до декоратора методу, а той — до декоратора класу; якщо покладаєтесь на порядок, переконайтеся тестом. </span><span class=\"ql-bg-transparent ql-color-#188038\">class-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> працює з екземплярами, не з plain-об'єктами: спершу </span><span class=\"ql-bg-transparent ql-color-#188038\">plainToInstance(Dto, body)</span><span class=\"ql-bg-transparent ql-color-#000000\">, тоді </span><span class=\"ql-bg-transparent ql-color-#188038\">validate(instance)</span><span class=\"ql-bg-transparent ql-color-#000000\"> — без першого кроку валідатор мовчки нічого не перевірить. Тіло </span><span class=\"ql-bg-transparent ql-color-#188038\">POST</span><span class=\"ql-bg-transparent ql-color-#000000\"> у </span><span class=\"ql-bg-transparent ql-color-#188038\">node:http</span><span class=\"ql-bg-transparent ql-color-#000000\"> не парситься саме: зберіть чанки з </span><span class=\"ql-bg-transparent ql-color-#188038\">req.on('data')</span><span class=\"ql-bg-transparent ql-color-#000000\"> і зробіть </span><span class=\"ql-bg-transparent ql-color-#188038\">JSON.parse</span><span class=\"ql-bg-transparent ql-color-#000000\"> у </span><span class=\"ql-bg-transparent ql-color-#188038\">req.on('end')</span><span class=\"ql-bg-transparent ql-color-#000000\"> — це той самий код, що й на Лекції 3. Помилку валідації віддавайте списком </span><span class=\"ql-bg-transparent ql-color-#188038\">[{ field, constraints }]</span><span class=\"ql-bg-transparent ql-color-#000000\">, а не першим полем.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Acceptance criteria</strong></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Фреймворків немає.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -RE \"@nestjs|express|fastify\" package.json src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> не дає збігів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Маршрути з декораторів, не з масиву.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -rn \"Reflect.getMetadata\" src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> показує читання метаданих маршрутів; у коді немає захардкодженого списку шляхів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Префікс склеюється.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Контролер із </span><span class=\"ql-bg-transparent ql-color-#188038\">@Controller('users')</span><span class=\"ql-bg-transparent ql-color-#000000\"> і метод із </span><span class=\"ql-bg-transparent ql-color-#188038\">@Get(':id')</span><span class=\"ql-bg-transparent ql-color-#000000\"> відповідають на </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /users/42</span><span class=\"ql-bg-transparent ql-color-#000000\"> (тест або </span><span class=\"ql-bg-transparent ql-color-#188038\">curl</span><span class=\"ql-bg-transparent ql-color-#000000\">).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">@Param</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> працює.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /users/42</span><span class=\"ql-bg-transparent ql-color-#000000\"> повертає тіло, що містить </span><span class=\"ql-bg-transparent ql-color-#188038\">42</span><span class=\"ql-bg-transparent ql-color-#000000\">, і в коді метод приймає його </span><strong class=\"ql-bg-transparent ql-color-#000000\">аргументом</strong><span class=\"ql-bg-transparent ql-color-#000000\">, а не читає з </span><span class=\"ql-bg-transparent ql-color-#188038\">req</span><span class=\"ql-bg-transparent ql-color-#000000\"> вручну.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">@Query</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> працює.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /users?limit=5</span><span class=\"ql-bg-transparent ql-color-#000000\"> — значення </span><span class=\"ql-bg-transparent ql-color-#188038\">5</span><span class=\"ql-bg-transparent ql-color-#000000\"> доходить до методу окремим аргументом.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">@Body</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> працює.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">POST /users</span><span class=\"ql-bg-transparent ql-color-#000000\"> з JSON-тілом — у метод приходить розпарсений об'єкт.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Валідація відхиляє.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">POST /users</span><span class=\"ql-bg-transparent ql-color-#000000\"> з </span><span class=\"ql-bg-transparent ql-color-#188038\">{\"email\":\"not-an-email\"}</span><span class=\"ql-bg-transparent ql-color-#000000\"> → HTTP </span><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\">, і тіло відповіді містить назву поля </span><span class=\"ql-bg-transparent ql-color-#188038\">email</span><span class=\"ql-bg-transparent ql-color-#000000\"> (відповідь матчить </span><span class=\"ql-bg-transparent ql-color-#188038\">/email/</span><span class=\"ql-bg-transparent ql-color-#000000\">).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Валідація пропускає.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Коректне тіло → </span><span class=\"ql-bg-transparent ql-color-#188038\">201</span><span class=\"ql-bg-transparent ql-color-#000000\"> або </span><span class=\"ql-bg-transparent ql-color-#188038\">200</span><span class=\"ql-bg-transparent ql-color-#000000\">, і в обробник приходить </span><strong class=\"ql-bg-transparent ql-color-#000000\">екземпляр класу DTO</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (тест перевіряє </span><span class=\"ql-bg-transparent ql-color-#188038\">body instanceof CreateUserDto</span><span class=\"ql-bg-transparent ql-color-#000000\">).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Контейнер із частини 1 задіяно.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Контролер отримує сервіс через конструктор, і сервіс створює саме контейнер (тест на те, що це той самий singleton).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Тести проходять.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">npm test</span><span class=\"ql-bg-transparent ql-color-#000000\"> — код 0, щонайменше 6 пройдених тестів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Працює в Docker.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose run --rm api npm test</span><span class=\"ql-bg-transparent ql-color-#000000\"> проходить.</span></li></ol><p><strong class=\"ql-bg-transparent ql-color-#000000\">Формат здачі</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Репозиторій:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> той самий </span><span class=\"ql-bg-transparent ql-color-#188038\">mini-nest</span><span class=\"ql-bg-transparent ql-color-#000000\">, Pull Request із гілки </span><span class=\"ql-bg-transparent ql-color-#188038\">part-2-http</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Структура</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (додається до частини 1):</span></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/controller.ts</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">@Controller(prefix)</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/methods.ts</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">@Get</span><span class=\"ql-bg-transparent ql-color-#000000\"> / </span><span class=\"ql-bg-transparent ql-color-#188038\">@Post</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/params.ts</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">@Body</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">@Param</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">@Query</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">src/router.ts</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">збір маршрутів із метаданих</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">src/dispatcher.ts</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">HTTP-шар поверх </span><span class=\"ql-bg-transparent ql-color-#188038\">node:http</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">src/pipes/validation.pipe.ts</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">валідація DTO</span></td></tr><tr><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#188038\">src/dto/create-user.dto.ts</span></td><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#000000\">DTO з правилами</span></td></tr><tr><td data-row=\"9\"><span class=\"ql-bg-transparent ql-color-#188038\">test/</span></td><td data-row=\"9\"><span class=\"ql-bg-transparent ql-color-#000000\">тести</span></td></tr><tr><td data-row=\"10\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"10\"><span class=\"ql-bg-transparent ql-color-#000000\">доповнити абзацом «як параметр-декоратор знає, куди підставити значення»</span></td></tr></tbody></table><p><strong class=\"ql-bg-transparent ql-color-#000000\">У LMS здаєте посилання на PR</strong><span class=\"ql-bg-transparent ql-color-#000000\">, не на головну гілку.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Зв'язок з курсовим проєктом</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це </span><strong class=\"ql-bg-transparent ql-color-#000000\">training-артефакт поза курсовим проєктом</strong><span class=\"ql-bg-transparent ql-color-#000000\">. Але патерн, який ви тут пишете руками, — рівно те, що робить NestJS у </span><span class=\"ql-bg-transparent ql-color-#188038\">@nestjs/platform-express</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">На Лекції 8 ви додасте у цей же диспетчер повний lifecycle (middleware → guard → interceptor → pipe → handler → filter) і побачите, що всі ці поняття — просто точки у вашому власному циклі, а не окремі сутності фреймворка.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Далі, у Лекції 9 (API design), ці DTO стануть контрактом реального Marketplace API.</span></p><p><br></p>",
+          "markdown": "Ви продовжуєте **свій** mini-Nest із ДЗ #6. Тепер контейнер має не просто створювати об'єкти, а **обслуговувати HTTP-запити**: ви будуєте маршрутизацію на декораторах і валідацію вхідних даних.\n\nЦе **частина 2 з 3**. Стартова точка — гілка part-1-ioc. Якщо ДЗ #6 не здане, візьміть еталонну реалізацію з демо Лекції 6 і чесно вкажіть це в README.\n\n**Що потрібно зробити**\n\n**1\\.** **@Controller(prefix)**\n\nДекоратор класу, що записує базовий шлях у метадані.\n\n**2\\.** **@Get(path)** **/** **@Post(path)**\n\nДекоратори методів, що реєструють маршрут. Повний шлях = префікс контролера + шлях методу.\n\n**3\\. Параметр-декоратори** **@Body()****,** **@Param(name)****,** **@Query(name)**\n\nВони не витягують дані самі — вони **записують у метадані**, який аргумент звідки брати. Дістає значення вже ваш диспетчер під час виклику.\n\n**4\\. Диспетчер поверх** **node:http**\n\nПриймає запит, знаходить маршрут, збирає масив аргументів за метаданими параметрів, викликає метод контролера через контейнер із ДЗ #6, серіалізує результат у JSON.\n\n**5\\. DTO + валідація через простий Pipe**\n\nКлас DTO з правилами — через class-validator **або** власні декоратори, на ваш вибір, обидва варіанти приймаються.\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Тіло запиту</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Результат</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">невалідне</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> з переліком полів і причин</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">валідне</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">у метод приходить </span><strong class=\"ql-bg-transparent ql-color-#000000\">екземпляр DTO</strong><span class=\"ql-bg-transparent ql-color-#000000\">, а не сирий об'єкт</span></td></tr></tbody></table>\n\n**6\\. Тести обов'язкові**\n\nМінімум: маршрут знаходиться, @Param і @Query підставляються, невалідний DTO дає 400 із деталями, валідний доходить до методу.\n\n**Обмеження.** Дозволено: reflect-metadata, class-validator + class-transformer, тест-раннер, supertest або вбудований fetch для HTTP-тестів. Заборонено: @nestjs/\\*, express, fastify — маршрутизація ваша, поверх node:http.\n\n**Підказки, які економлять години.** Параметр-декоратор отримує (target, propertyKey, parameterIndex) — індекс і є ключем: зберіть мапу { \\[index\\]: { type: 'body' | 'param' | 'query', name } } у метаданих методу, а під час виклику побудуйте масив аргументів за цією мапою. Порядок декораторів: параметр-декоратори виконуються до декоратора методу, а той — до декоратора класу; якщо покладаєтесь на порядок, переконайтеся тестом. class-validator працює з екземплярами, не з plain-об'єктами: спершу plainToInstance(Dto, body), тоді validate(instance) — без першого кроку валідатор мовчки нічого не перевірить. Тіло POST у node:http не парситься саме: зберіть чанки з req.on('data') і зробіть JSON.parse у req.on('end') — це той самий код, що й на Лекції 3. Помилку валідації віддавайте списком \\[{ field, constraints }\\], а не першим полем.\n\n**Acceptance criteria**\n\n1.  \\[ \\] **Фреймворків немає.** grep -RE \"@nestjs|express|fastify\" package.json src/ не дає збігів.\n2.  \\[ \\] **Маршрути з декораторів, не з масиву.** grep -rn \"Reflect.getMetadata\" src/ показує читання метаданих маршрутів; у коді немає захардкодженого списку шляхів.\n3.  \\[ \\] **Префікс склеюється.** Контролер із @Controller('users') і метод із @Get(':id') відповідають на GET /users/42 (тест або curl).\n4.  \\[ \\] **@Param** **працює.** GET /users/42 повертає тіло, що містить 42, і в коді метод приймає його **аргументом**, а не читає з req вручну.\n5.  \\[ \\] **@Query** **працює.** GET /users?limit=5 — значення 5 доходить до методу окремим аргументом.\n6.  \\[ \\] **@Body** **працює.** POST /users з JSON-тілом — у метод приходить розпарсений об'єкт.\n7.  \\[ \\] **Валідація відхиляє.** POST /users з {\"email\":\"not-an-email\"} → HTTP 400, і тіло відповіді містить назву поля email (відповідь матчить /email/).\n8.  \\[ \\] **Валідація пропускає.** Коректне тіло → 201 або 200, і в обробник приходить **екземпляр класу DTO** (тест перевіряє body instanceof CreateUserDto).\n9.  \\[ \\] **Контейнер із частини 1 задіяно.** Контролер отримує сервіс через конструктор, і сервіс створює саме контейнер (тест на те, що це той самий singleton).\n10.  \\[ \\] **Тести проходять.** npm test — код 0, щонайменше 6 пройдених тестів.\n11.  \\[ \\] **Працює в Docker.** docker compose run --rm api npm test проходить.\n\n**Формат здачі**\n\n**Репозиторій:** той самий mini-nest, Pull Request із гілки part-2-http.\n\n**Структура** (додається до частини 1):\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/controller.ts</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">@Controller(prefix)</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/methods.ts</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">@Get</span><span class=\"ql-bg-transparent ql-color-#000000\"> / </span><span class=\"ql-bg-transparent ql-color-#188038\">@Post</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/params.ts</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">@Body</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">@Param</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">@Query</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">src/router.ts</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">збір маршрутів із метаданих</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">src/dispatcher.ts</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">HTTP-шар поверх </span><span class=\"ql-bg-transparent ql-color-#188038\">node:http</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">src/pipes/validation.pipe.ts</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">валідація DTO</span></td></tr><tr><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#188038\">src/dto/create-user.dto.ts</span></td><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#000000\">DTO з правилами</span></td></tr><tr><td data-row=\"9\"><span class=\"ql-bg-transparent ql-color-#188038\">test/</span></td><td data-row=\"9\"><span class=\"ql-bg-transparent ql-color-#000000\">тести</span></td></tr><tr><td data-row=\"10\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"10\"><span class=\"ql-bg-transparent ql-color-#000000\">доповнити абзацом «як параметр-декоратор знає, куди підставити значення»</span></td></tr></tbody></table>\n\n**У LMS здаєте посилання на PR**, не на головну гілку.\n\n**Зв'язок з курсовим проєктом**\n\nЦе **training-артефакт поза курсовим проєктом**. Але патерн, який ви тут пишете руками, — рівно те, що робить NestJS у @nestjs/platform-express.\n\nНа Лекції 8 ви додасте у цей же диспетчер повний lifecycle (middleware → guard → interceptor → pipe → handler → filter) і побачите, що всі ці поняття — просто точки у вашому власному циклі, а не окремі сутності фреймворка.\n\nДалі, у Лекції 9 (API design), ці DTO стануть контрактом реального Marketplace API.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104313/homework/54340"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:40:48.074Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:55.015Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104313,
+        "iri": "/api/lessons/104313",
+        "number": 7,
+        "name": "Request flow у NestJS: controllers, DTO та pipes",
+        "translationStatus": "available",
+        "startsAt": "2026-08-13T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104313"
+      },
+      "materials": [
+        {
+          "id": 202229,
+          "iri": "/api/lesson_materials/202229",
+          "relationId": "/api/lesson_material_has_lessons/202229-104313",
+          "position": 0,
+          "type": 0,
+          "typeName": "site",
+          "name": "Презентація до заняття 7",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1ZyC6m6ZhKLtRNghk61VJptLkZJePDM3ccfZSrQmJqcs/edit",
+              "cacheKey": "bb310beb79d9bf4348c78d999a4699546009f23cf7fd13cdbb5969a0c83e64f4",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/presentation.pdf",
+              "bytes": 1111105,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "fa73fcb05ae46617f0f289722ab151dcee48ffe7bc5771b9828c5fd9dace74be",
+              "fetchedAt": "2026-10-12T13:40:53.612Z"
+            }
+          ]
+        },
+        {
+          "id": 202230,
+          "iri": "/api/lesson_materials/202230",
+          "relationId": "/api/lesson_material_has_lessons/202230-104313",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Controllers",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Декоратори маршрутів і параметрів: @Get, @Body, @Param. Основа ДЗ.</p>\"}]",
+          "html": "<p>Декоратори маршрутів і параметрів: @Get, @Body, @Param. Основа ДЗ.</p>",
+          "markdown": "Декоратори маршрутів і параметрів: @Get, @Body, @Param. Основа ДЗ.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/controllers",
+              "cacheKey": "cc005d15606a591b176b4b7e5fe8e39dfdb4029e486a4171f0f0ac630d12a20c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202231,
+          "iri": "/api/lesson_materials/202231",
+          "relationId": "/api/lesson_material_has_lessons/202231-104313",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Validation",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ValidationPipe, whitelist, transform; типи приводить лише enableImplicitConversion.</p>\"}]",
+          "html": "<p>ValidationPipe, whitelist, transform; типи приводить лише enableImplicitConversion.</p>",
+          "markdown": "ValidationPipe, whitelist, transform; типи приводить лише enableImplicitConversion.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/techniques/validation",
+              "cacheKey": "f307ce26a2199c15d510c3afa4d6470a07414ff521f889f648d4d29dcab30c28",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202232,
+          "iri": "/api/lesson_materials/202232",
+          "relationId": "/api/lesson_material_has_lessons/202232-104313",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Pipes",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Валідує або трансформує конкретний аргумент перед викликом обробника.</p>\"}]",
+          "html": "<p>Валідує або трансформує конкретний аргумент перед викликом обробника.</p>",
+          "markdown": "Валідує або трансформує конкретний аргумент перед викликом обробника.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/pipes",
+              "cacheKey": "fbd80826eb993dc62f73d770a8b72591a7423e6502a93d0e2ff3f076a7a3cac8",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202233,
+          "iri": "/api/lesson_materials/202233",
+          "relationId": "/api/lesson_material_has_lessons/202233-104313",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Interceptors",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Обгортає виклик: бачить вхід і вихід. Логування, мапінг, кешування.</p>\"}]",
+          "html": "<p>Обгортає виклик: бачить вхід і вихід. Логування, мапінг, кешування.</p>",
+          "markdown": "Обгортає виклик: бачить вхід і вихід. Логування, мапінг, кешування.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/interceptors",
+              "cacheKey": "d67f612502ec3516f4525e3e4ce78a28be9681f313d07e778360b7a2b02159db",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202234,
+          "iri": "/api/lesson_materials/202234",
+          "relationId": "/api/lesson_material_has_lessons/202234-104313",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: class-validator",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Каталог декораторів валідації та створення власних.</p>\"}]",
+          "html": "<p>Каталог декораторів валідації та створення власних.</p>",
+          "markdown": "Каталог декораторів валідації та створення власних.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/typestack/class-validator",
+              "cacheKey": "9df5a2b03a5bc8b2fd0f774e0e4fcb817b0e27eca2631883204e25a4172b0d1b",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202235,
+          "iri": "/api/lesson_materials/202235",
+          "relationId": "/api/lesson_material_has_lessons/202235-104313",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: class-transformer",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>plainToInstance, @Expose/@Exclude; без екземпляра валідація мовчки не спрацює.</p>\"}]",
+          "html": "<p>plainToInstance, @Expose/@Exclude; без екземпляра валідація мовчки не спрацює.</p>",
+          "markdown": "plainToInstance, @Expose/@Exclude; без екземпляра валідація мовчки не спрацює.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/typestack/class-transformer",
+              "cacheKey": "3f9ce35c63d04d5f51e42f07b76be59e23ed4f0dd5265316b8d71d27956433d7",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202237,
+          "iri": "/api/lesson_materials/202237",
+          "relationId": "/api/lesson_material_has_lessons/202237-104313",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Custom route decorators",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>createParamDecorator: власний @CurrentUser().</p>\"}]",
+          "html": "<p>createParamDecorator: власний @CurrentUser().</p>",
+          "markdown": "createParamDecorator: власний @CurrentUser().",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/custom-decorators",
+              "cacheKey": "dce919970c7ecaf4d42c705952b6ae53ae7bef69f353925d07092c9da46d72fb",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202238,
+          "iri": "/api/lesson_materials/202238",
+          "relationId": "/api/lesson_material_has_lessons/202238-104313",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "Zod",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Схеми замість декораторів; у Zod 4 — error.issues.</p>\"}]",
+          "html": "<p>Схеми замість декораторів; у Zod 4 — error.issues.</p>",
+          "markdown": "Схеми замість декораторів; у Zod 4 — error.issues.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://zod.dev/",
+              "cacheKey": "baf283f6c60b1e81ffa0c1ab7b0d4e87bda34005388601095ea1c48c80062b36",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202239,
+          "iri": "/api/lesson_materials/202239",
+          "relationId": "/api/lesson_material_has_lessons/202239-104313",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "nestjs-zod",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Міст між Zod і Nest-пайпами замість двох систем валідації.</p>\"}]",
+          "html": "<p>Міст між Zod і Nest-пайпами замість двох систем валідації.</p>",
+          "markdown": "Міст між Zod і Nest-пайпами замість двох систем валідації.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/BenLorantfy/nestjs-zod",
+              "cacheKey": "109b9b9b5a1b6377c666433293d1dba807d0beb2f50783b6bac3ca56e5dd57b5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202240,
+          "iri": "/api/lesson_materials/202240",
+          "relationId": "/api/lesson_material_has_lessons/202240-104313",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Serialization",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ClassSerializerInterceptor і @Exclude приховують passwordHash у відповіді.</p>\"}]",
+          "html": "<p>ClassSerializerInterceptor і @Exclude приховують passwordHash у відповіді.</p>",
+          "markdown": "ClassSerializerInterceptor і @Exclude приховують passwordHash у відповіді.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/techniques/serialization",
+              "cacheKey": "3c8077aeb86076a59a4ae9eb4a02b72ccc8864245b116c19d688413094558983",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202241,
+          "iri": "/api/lesson_materials/202241",
+          "relationId": "/api/lesson_material_has_lessons/202241-104313",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — OpenAPI",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>З DTO генерується Swagger, з нього — типізовані клієнти.</p>\"}]",
+          "html": "<p>З DTO генерується Swagger, з нього — типізовані клієнти.</p>",
+          "markdown": "З DTO генерується Swagger, з нього — типізовані клієнти.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/openapi/introduction",
+              "cacheKey": "5bc9b1aa2bddc8274a88418bd27a6a3e5477ad79f0afad359af66756a593ae7c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202242,
+          "iri": "/api/lesson_materials/202242",
+          "relationId": "/api/lesson_material_has_lessons/202242-104313",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "@nestjs/mapped-types",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>PartialType, PickType — без дублювання DTO для create/update.</p>\"}]",
+          "html": "<p>PartialType, PickType — без дублювання DTO для create/update.</p>",
+          "markdown": "PartialType, PickType — без дублювання DTO для create/update.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/openapi/mapped-types",
+              "cacheKey": "47c501e30222d8936621088e0bd6b7ef6a69548f2b827e2e0cff2f909fb2dd17",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202243,
+          "iri": "/api/lesson_materials/202243",
+          "relationId": "/api/lesson_material_has_lessons/202243-104313",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "Zod 4 — що змінилось",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Продуктивність і jitless: z.object генерує код, class-validator обходить метадані.</p>\"}]",
+          "html": "<p>Продуктивність і jitless: z.object генерує код, class-validator обходить метадані.</p>",
+          "markdown": "Продуктивність і jitless: z.object генерує код, class-validator обходить метадані.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://zod.dev/v4",
+              "cacheKey": "00497ca4f770e27ee327ab0121153961d35c448fd08bfa61767153435d3eeb7f",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202244,
+          "iri": "/api/lesson_materials/202244",
+          "relationId": "/api/lesson_material_has_lessons/202244-104313",
+          "position": 14,
+          "type": 0,
+          "typeName": "site",
+          "name": "Fastify — Lifecycle",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Карта хуків: «до» і «після» — два різні хуки.</p>\"}]",
+          "html": "<p>Карта хуків: «до» і «після» — два різні хуки.</p>",
+          "markdown": "Карта хуків: «до» і «після» — два різні хуки.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://fastify.dev/docs/latest/Reference/Lifecycle/",
+              "cacheKey": "256ef3ac27d9470ec903e8bacb4edc7ab4b0fee9d88869060fb53fe99b8eb358",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202351,
+          "iri": "/api/lesson_materials/202351",
+          "relationId": "/api/lesson_material_has_lessons/202351-104313",
+          "position": 15,
+          "type": 0,
+          "typeName": "site",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/17GPaZo3IZtsrqzLQg6DCausneZtT8Wvm/view",
+              "cacheKey": "a4fd858f94ba22e9d8f23dd8256d321ead708f897487b0f96730d3dcf5e16532",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/transcript.md",
+              "bytes": 121226,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Fri, 14 Aug 2026 13:33:55 GMT",
+              "sha256": "3ccdf71d17c8a0dde78752dda7755b6bd1cd7dc8cb8eafffb16bd7f69bbccc6a",
+              "fetchedAt": "2026-10-12T13:40:55.015Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:40:55.015Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:05.505Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104313,
+        "iri": "/api/lessons/104313",
+        "number": 7,
+        "name": "Request flow у NestJS: controllers, DTO та pipes",
+        "translationStatus": "available",
+        "startsAt": "2026-08-13T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104313"
+      },
+      "recordings": [
+        {
+          "id": 139526,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 139526,
+      "resolutionId": 653490,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/lecture.mp4",
+      "bytes": 391687582,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:41:05.505Z"
+    }
+  }
+}

@@ -1,0 +1,656 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104315,
+    "iri": "/api/lessons/104315",
+    "number": 9,
+    "name": "API design: REST, OpenAPI, idempotency і contract testing",
+    "translationStatus": "available",
+    "startsAt": "2026-08-20T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104315"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:41:39.410Z",
+  "status": "partial",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:23.350Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104315,
+        "iri": "/api/lessons/104315",
+        "number": 9,
+        "name": "API design: REST, OpenAPI, idempotency і contract testing",
+        "translationStatus": "available",
+        "startsAt": "2026-08-20T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104315"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54342,
+          "iri": "/api/lesson_homeworks/54342",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це перше ДЗ курсового проєкту. Перш ніж писати ендпойнти — ви </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">проєктуєте контракт</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: OpenAPI-спеку свого Marketplace API (або обраного домену). Мета — щоб рішення з лекції (cursor-пагінація, Idempotency-Key, problem+json) стали не «знаннями», а задокументованими правилами вашого API, які перевіряє машина.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">ДЗ складається з двох частин, і це не випадково:</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Пункти 1–4: openapi.yaml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;ОБІЦЯНКА</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(сама по собі нічого не примушує)</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Пункт 5:&nbsp;&nbsp;Pact / OpenAPI-валідатор →&nbsp;ТОЙ, ХТО ЗВІРЯЄ</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(відхиляє все, що спеці суперечить)</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Спека сама по собі нічого не примушує — на відміну від схеми відповіді у Fastify з Лекції 4, яка компілювалась у серіалізатор і фізично різала зайве. Пункт 5 — це той, хто звіряє: або консюмер декларує очікування (Pact), або валідатор на кордоні відхиляє все, що спеці суперечить. Спека без пункту 5 — красивий файл, який почне брехати після першого рефакторингу.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Стартова точка — репозиторій курсового проєкту, гілка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">hw-09</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Що потрібно зробити</span></p><p><span class=\\\"ql-bg-transparent ql-color-#434343\\\">1. Спека </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openapi/openapi.yaml</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">OpenAPI 3.0.x, описи УКР або АНГЛ — на ваш вибір. Щонайменше </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">два ресурси</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (наприклад, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">/products</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">/orders</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) і </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">пʼять операцій</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> сумарно. Кожна операція — з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">operationId</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">summary</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і описаними відповідями </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">включно з помилками</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#434343\\\">2. Cursor-пагінація</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">На списковій операції: query-параметри </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">limit</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">cursor</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, відповідь — обʼєкт з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">items</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> та </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">next_cursor</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (nullable; </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">null</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> = сторінок більше немає). Курсор — </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">непрозорий токен</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, у описі параметра так і напишіть.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#434343\\\">3. Idempotency-Key</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">На POST-операції створення: header-параметр, обовʼязково </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">required: true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — так валідатор зможе його вимагати. У </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">description</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — семантика повтору: той самий ключ + те саме тіло → та сама відповідь.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#434343\\\">4. problem+json як контракт помилок</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Кожна 4xx-відповідь у спеці — </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">content: application/problem+json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> зі схемою </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Problem</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">components.schemas</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">:</span></p><p><br></p><table><tbody><tr><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Поле схеми </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">Problem</strong></td><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">type</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">URI типу помилки</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">title</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">коротка назва</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">status</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">HTTP-код</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">detail</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">що саме пішло не так</span></td></tr><tr><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">instance</span></td><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">посилання на конкретний випадок</span></td></tr></tbody></table><p><span class=\\\"ql-bg-transparent ql-color-#434343\\\">5. Contract-частина — ОДИН із двох варіантів</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Обидва рівноцінні, обирайте будь-який:</span></p><p><br></p><table><tbody><tr><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Варіант</strong></td><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що робите</strong></td><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що на виході</strong></td></tr><tr><td data-row=\\\"2\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">А — consumer-driven Pact</strong></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">тест консюмера (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@pact-foundation/pact</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) хоча б на одну взаємодію (наприклад, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /orders/{id}</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">): очікування декларуються, «код фронта» ганяється проти mock-провайдера</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">контракт-файл у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">pacts/</span></td></tr><tr><td data-row=\\\"3\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Б — runtime-валідація на кордоні</strong></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">мінімальний сервер (Express/Nest), де </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express-openapi-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> валідує запити й відповіді проти вашої спеки, а error-handler перекладає його помилки у problem+json; достатньо 2–3 ендпойнтів зі спеки з in-memory даними</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">працюючий застосунок, який відхиляє все, що суперечить спеці</span></td></tr></tbody></table><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Provider verification і broker для варіанта А </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">НЕ</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> потрібні — це Лекція 16.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#434343\\\">6. Перевірки обовʼязкові</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Обмеження.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Усі критерії прогнані на чернетці 07.08.2026 на цих версіях: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@redocly/cli</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> 2.46.0, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> 4.22.2, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express-openapi-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> 5.6.2, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@pact-foundation/pact</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> 17.1.0. Кожен критерій — це команда, яку можна виконати й подивитись на результат.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Підказки, які економлять години.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Гроші — цілі копійки (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">total_cents: integer</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">), не float: рядок-decimal </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">\\\"2600.00\\\"</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — це біль v1 з лекції, не повторюйте його у своїй v1. </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">nullable: true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — це OpenAPI 3.0; якщо пишете 3.1 — там </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">type: [string, \\\"null\\\"]</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, Redocly підкаже, якщо змішаєте. У варіанті Б беріть </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express@4</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — з ним </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express-openapi-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> працює без сюрпризів. Валідатор вимагає header-параметри у lowercase у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">req.headers</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, але в спеці пишіть як заведено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Idempotency-Key</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — саме тому в його </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">detail</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> побачите </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">'idempotency-key'</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з маленької. Якщо в </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">package.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> стоїть </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">\\\"type\\\": \\\"module\\\"</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, приклади з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">require(...)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> впадуть із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">ReferenceError: require is not defined in ES module scope</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: або переводьте застосунок на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">import</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, або називайте файл </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">app.cjs</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Не покладайтесь на те, що сервер «сам не віддасть зайвого» — саме тому в ДЗ і є пункт 5: у варіанті Б цю роль виконує </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">validateResponses: true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (на чернетці варто було перейменувати в хендлері </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">total_cents</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">totalCents</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, як той самий </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /orders/1</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> віддав </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">500</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">detail: \\\"/response must have required property 'total_cents'\\\"</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — це рантайм-аналог того </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">contract/check.mjs</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, який на лекції ловив </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">DRIFT=1</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">). І не описуйте у спеці те, чого не будете робити: пʼять чесних операцій кращі за двадцять вигаданих — наступні ДЗ будуватимуться саме по цій спеці.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Додатковий виклик (без балів)</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Для варіанта Б — повна семантика ключа, як на лекції: повтор того самого ключа + тіла → той самий </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">201</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> + заголовок </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Idempotency-Replay: true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">; той самий ключ з іншим тілом → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">422</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> problem+json.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Acceptance criteria</span></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Спека валідна.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npx @redocly/cli lint openapi/openapi.yaml</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> завершується з exit code 0 (warnings дозволені, errors — ні). Підказка: redocly-правило </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">security-defined</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> закривається явним </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">security: []</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> на корені — авторизації в API поки свідомо немає. (Перевірено: без цього рядка та сама спека дає exit 1 і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Error was generated by the security-defined rule</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.)</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Обсяг спеки витримано.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Щонайменше </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">2 ресурси</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">5 операцій</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Перевірка двома командами:</span></li></ol><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">npx @redocly/cli bundle openapi/openapi.yaml -o spec.json</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">node -e \\\"const s=require('./spec.json'),M=['get','post','put','patch','delete'];\\\\</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">const ops=Object.entries(s.paths).flatMap(([p,v])=&gt;Object.keys(v).filter(m=&gt;M.includes(m)).map(m=&gt;[p,m]));\\\\</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">const idem=ops.flatMap(([p,m])=&gt;s.paths[p][m].parameters??[]).find(x=&gt;x.in==='header'&amp;&amp;/idempotency-key/i.test(x.name));\\\\</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">console.log('операцій:',ops.length,'· ресурсів:',new Set(Object.keys(s.paths).map(p=&gt;p.split('/')[1])).size);\\\\</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">console.log('Idempotency-Key: required =',idem?.required,'· опис, символів =',(idem?.description??'').trim().length)\\\"</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\"># очікуємо: операцій ≥ 5 · ресурсів ≥ 2 · required = true · опис ≥ 40 символів</span></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Idempotency-Key задекларовано.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -c 'Idempotency-Key' openapi/openapi.yaml</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> ≥ 1, і в POST-операції це header-параметр із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">required: true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Оскільки стандарту на цей заголовок </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">немає</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (IETF-draft expired, див. матеріали), у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">description</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> параметра має бути описана семантика повтору — це і перевіряє «опис ≥ 40 символів» вище.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Cursor-пагінація у контракті.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -c 'next_cursor' openapi/openapi.yaml</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> ≥ 1; спискова операція має query-параметри </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">cursor</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">limit</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, схема відповіді містить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">items</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> + </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">next_cursor</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (nullable).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">problem+json скрізь у помилках.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -c 'application/problem+json' openapi/openapi.yaml</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> ≥ 2; у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">components.schemas</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> є </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Problem</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з обовʼязковими </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">type/title/status/detail/instance</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Contract-частина працює — варіант А.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Команда тестів із README (наприклад, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node --test consumer.pact.test.mjs</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) завершується з exit 0 і створює файл </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">pacts/*.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (перевірка: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">ls pacts/*.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">). На чернетці вийшло </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">marketplace-web-marketplace-api.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з однією взаємодією.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Contract-частина працює — варіант Б.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Після </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm start</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: запит </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">POST /orders</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">без</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Idempotency-Key</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">400</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Content-Type: application/problem+json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (заголовок вимагає спека, а не </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">if</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у коді); запит із невалідним тілом (порожній </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">items</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">400</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із деталлю від валідатора; валідний запит → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">201</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. На чернетці валідатор дав рівно такі </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">detail</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">:</span></li></ol><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">request/headers must have required property 'idempotency-key'</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">request/body/items must NOT have fewer than 1 items</span></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\\\" alt=\\\"без прапорця\\\" height=\\\"17.599999999999998px\\\" width=\\\"17.599999999999998px\\\"></span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Усе працює після чистої установки.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Усі команди з criteria проходять після </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm install</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — без ручних кроків, не описаних у README.</span></li></ol><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Формат здачі</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Репозиторій курсового проєкту, Pull Request із гілки </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">hw-09</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Структура:</strong></p><p><br></p><table><tbody><tr><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Файл / тека</strong></td><td data-row=\\\"1\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openapi/openapi.yaml</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">спека: 2 ресурси, 5 операцій, cursor-пагінація, Idempotency-Key, problem+json</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">pacts/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> + тест-файл</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">контракт-файл і тест консюмера (</span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">варіант А</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">)</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">app</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із валідатором</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">сервер з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express-openapi-validator</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (</span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">варіант Б</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">)</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">яким варіантом ішли + команди запуску/перевірки</span></td></tr></tbody></table><p><br></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Вимога до README:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> явно вказати обраний варіант (А чи Б) і навести команди запуску та перевірки — усі команди з acceptance criteria мають працювати після </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm install</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">У LMS здаєте </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">посилання на PR</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, не на головну гілку.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Звʼязок з курсовим проєктом</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це ДЗ №1 курсового: спека стає </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">джерелом правди</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> вашого Marketplace API.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">По її ресурсах ви спроєктуєте схему БД (#12) та entities (#13), transactional-логіка оформлення замовлення (#14) реалізує задекларований тут POST з Idempotency-Key, а contract-частина виросте в integration/E2E-suite (#16).</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Що чесніше спроєктуєте зараз — то менше переробок у наступні три місяці.</span></p><p><br></p>\"}]",
+          "html": "<p><span class=\"ql-bg-transparent ql-color-#000000\">Це перше ДЗ курсового проєкту. Перш ніж писати ендпойнти — ви </span><strong class=\"ql-bg-transparent ql-color-#000000\">проєктуєте контракт</strong><span class=\"ql-bg-transparent ql-color-#000000\">: OpenAPI-спеку свого Marketplace API (або обраного домену). Мета — щоб рішення з лекції (cursor-пагінація, Idempotency-Key, problem+json) стали не «знаннями», а задокументованими правилами вашого API, які перевіряє машина.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">ДЗ складається з двох частин, і це не випадково:</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Пункти 1–4: openapi.yaml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→&nbsp;ОБІЦЯНКА</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(сама по собі нічого не примушує)</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Пункт 5:&nbsp;&nbsp;Pact / OpenAPI-валідатор →&nbsp;ТОЙ, ХТО ЗВІРЯЄ</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(відхиляє все, що спеці суперечить)</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Спека сама по собі нічого не примушує — на відміну від схеми відповіді у Fastify з Лекції 4, яка компілювалась у серіалізатор і фізично різала зайве. Пункт 5 — це той, хто звіряє: або консюмер декларує очікування (Pact), або валідатор на кордоні відхиляє все, що спеці суперечить. Спека без пункту 5 — красивий файл, який почне брехати після першого рефакторингу.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Стартова точка — репозиторій курсового проєкту, гілка </span><span class=\"ql-bg-transparent ql-color-#188038\">hw-09</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Що потрібно зробити</span></p><p><span class=\"ql-bg-transparent ql-color-#434343\">1. Спека </span><span class=\"ql-bg-transparent ql-color-#188038\">openapi/openapi.yaml</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">OpenAPI 3.0.x, описи УКР або АНГЛ — на ваш вибір. Щонайменше </span><strong class=\"ql-bg-transparent ql-color-#000000\">два ресурси</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (наприклад, </span><span class=\"ql-bg-transparent ql-color-#188038\">/products</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">/orders</span><span class=\"ql-bg-transparent ql-color-#000000\">) і </span><strong class=\"ql-bg-transparent ql-color-#000000\">пʼять операцій</strong><span class=\"ql-bg-transparent ql-color-#000000\"> сумарно. Кожна операція — з </span><span class=\"ql-bg-transparent ql-color-#188038\">operationId</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">summary</span><span class=\"ql-bg-transparent ql-color-#000000\"> і описаними відповідями </span><strong class=\"ql-bg-transparent ql-color-#000000\">включно з помилками</strong><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><span class=\"ql-bg-transparent ql-color-#434343\">2. Cursor-пагінація</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">На списковій операції: query-параметри </span><span class=\"ql-bg-transparent ql-color-#188038\">limit</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">cursor</span><span class=\"ql-bg-transparent ql-color-#000000\">, відповідь — обʼєкт з </span><span class=\"ql-bg-transparent ql-color-#188038\">items</span><span class=\"ql-bg-transparent ql-color-#000000\"> та </span><span class=\"ql-bg-transparent ql-color-#188038\">next_cursor</span><span class=\"ql-bg-transparent ql-color-#000000\"> (nullable; </span><span class=\"ql-bg-transparent ql-color-#188038\">null</span><span class=\"ql-bg-transparent ql-color-#000000\"> = сторінок більше немає). Курсор — </span><strong class=\"ql-bg-transparent ql-color-#000000\">непрозорий токен</strong><span class=\"ql-bg-transparent ql-color-#000000\">, у описі параметра так і напишіть.</span></p><p><span class=\"ql-bg-transparent ql-color-#434343\">3. Idempotency-Key</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">На POST-операції створення: header-параметр, обовʼязково </span><span class=\"ql-bg-transparent ql-color-#188038\">required: true</span><span class=\"ql-bg-transparent ql-color-#000000\"> — так валідатор зможе його вимагати. У </span><span class=\"ql-bg-transparent ql-color-#188038\">description</span><span class=\"ql-bg-transparent ql-color-#000000\"> — семантика повтору: той самий ключ + те саме тіло → та сама відповідь.</span></p><p><span class=\"ql-bg-transparent ql-color-#434343\">4. problem+json як контракт помилок</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Кожна 4xx-відповідь у спеці — </span><span class=\"ql-bg-transparent ql-color-#188038\">content: application/problem+json</span><span class=\"ql-bg-transparent ql-color-#000000\"> зі схемою </span><span class=\"ql-bg-transparent ql-color-#188038\">Problem</span><span class=\"ql-bg-transparent ql-color-#000000\"> у </span><span class=\"ql-bg-transparent ql-color-#188038\">components.schemas</span><span class=\"ql-bg-transparent ql-color-#000000\">:</span></p><p><br></p><table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Поле схеми </strong><strong class=\"ql-bg-transparent ql-color-#188038\">Problem</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">type</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">URI типу помилки</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">title</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">коротка назва</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">status</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">HTTP-код</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">detail</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">що саме пішло не так</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">instance</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">посилання на конкретний випадок</span></td></tr></tbody></table><p><span class=\"ql-bg-transparent ql-color-#434343\">5. Contract-частина — ОДИН із двох варіантів</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Обидва рівноцінні, обирайте будь-який:</span></p><p><br></p><table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Варіант</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Що робите</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Що на виході</strong></td></tr><tr><td data-row=\"2\"><strong class=\"ql-bg-transparent ql-color-#000000\">А — consumer-driven Pact</strong></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">тест консюмера (</span><span class=\"ql-bg-transparent ql-color-#188038\">@pact-foundation/pact</span><span class=\"ql-bg-transparent ql-color-#000000\">) хоча б на одну взаємодію (наприклад, </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /orders/{id}</span><span class=\"ql-bg-transparent ql-color-#000000\">): очікування декларуються, «код фронта» ганяється проти mock-провайдера</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">контракт-файл у </span><span class=\"ql-bg-transparent ql-color-#188038\">pacts/</span></td></tr><tr><td data-row=\"3\"><strong class=\"ql-bg-transparent ql-color-#000000\">Б — runtime-валідація на кордоні</strong></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">мінімальний сервер (Express/Nest), де </span><span class=\"ql-bg-transparent ql-color-#188038\">express-openapi-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> валідує запити й відповіді проти вашої спеки, а error-handler перекладає його помилки у problem+json; достатньо 2–3 ендпойнтів зі спеки з in-memory даними</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">працюючий застосунок, який відхиляє все, що суперечить спеці</span></td></tr></tbody></table><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Provider verification і broker для варіанта А </span><strong class=\"ql-bg-transparent ql-color-#000000\">НЕ</strong><span class=\"ql-bg-transparent ql-color-#000000\"> потрібні — це Лекція 16.</span></p><p><span class=\"ql-bg-transparent ql-color-#434343\">6. Перевірки обовʼязкові</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Обмеження.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Усі критерії прогнані на чернетці 07.08.2026 на цих версіях: </span><span class=\"ql-bg-transparent ql-color-#188038\">@redocly/cli</span><span class=\"ql-bg-transparent ql-color-#000000\"> 2.46.0, </span><span class=\"ql-bg-transparent ql-color-#188038\">express</span><span class=\"ql-bg-transparent ql-color-#000000\"> 4.22.2, </span><span class=\"ql-bg-transparent ql-color-#188038\">express-openapi-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> 5.6.2, </span><span class=\"ql-bg-transparent ql-color-#188038\">@pact-foundation/pact</span><span class=\"ql-bg-transparent ql-color-#000000\"> 17.1.0. Кожен критерій — це команда, яку можна виконати й подивитись на результат.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Підказки, які економлять години.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Гроші — цілі копійки (</span><span class=\"ql-bg-transparent ql-color-#188038\">total_cents: integer</span><span class=\"ql-bg-transparent ql-color-#000000\">), не float: рядок-decimal </span><span class=\"ql-bg-transparent ql-color-#188038\">\"2600.00\"</span><span class=\"ql-bg-transparent ql-color-#000000\"> — це біль v1 з лекції, не повторюйте його у своїй v1. </span><span class=\"ql-bg-transparent ql-color-#188038\">nullable: true</span><span class=\"ql-bg-transparent ql-color-#000000\"> — це OpenAPI 3.0; якщо пишете 3.1 — там </span><span class=\"ql-bg-transparent ql-color-#188038\">type: [string, \"null\"]</span><span class=\"ql-bg-transparent ql-color-#000000\">, Redocly підкаже, якщо змішаєте. У варіанті Б беріть </span><span class=\"ql-bg-transparent ql-color-#188038\">express@4</span><span class=\"ql-bg-transparent ql-color-#000000\"> — з ним </span><span class=\"ql-bg-transparent ql-color-#188038\">express-openapi-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> працює без сюрпризів. Валідатор вимагає header-параметри у lowercase у </span><span class=\"ql-bg-transparent ql-color-#188038\">req.headers</span><span class=\"ql-bg-transparent ql-color-#000000\">, але в спеці пишіть як заведено: </span><span class=\"ql-bg-transparent ql-color-#188038\">Idempotency-Key</span><span class=\"ql-bg-transparent ql-color-#000000\"> — саме тому в його </span><span class=\"ql-bg-transparent ql-color-#188038\">detail</span><span class=\"ql-bg-transparent ql-color-#000000\"> побачите </span><span class=\"ql-bg-transparent ql-color-#188038\">'idempotency-key'</span><span class=\"ql-bg-transparent ql-color-#000000\"> з маленької. Якщо в </span><span class=\"ql-bg-transparent ql-color-#188038\">package.json</span><span class=\"ql-bg-transparent ql-color-#000000\"> стоїть </span><span class=\"ql-bg-transparent ql-color-#188038\">\"type\": \"module\"</span><span class=\"ql-bg-transparent ql-color-#000000\">, приклади з </span><span class=\"ql-bg-transparent ql-color-#188038\">require(...)</span><span class=\"ql-bg-transparent ql-color-#000000\"> впадуть із </span><span class=\"ql-bg-transparent ql-color-#188038\">ReferenceError: require is not defined in ES module scope</span><span class=\"ql-bg-transparent ql-color-#000000\">: або переводьте застосунок на </span><span class=\"ql-bg-transparent ql-color-#188038\">import</span><span class=\"ql-bg-transparent ql-color-#000000\">, або називайте файл </span><span class=\"ql-bg-transparent ql-color-#188038\">app.cjs</span><span class=\"ql-bg-transparent ql-color-#000000\">. Не покладайтесь на те, що сервер «сам не віддасть зайвого» — саме тому в ДЗ і є пункт 5: у варіанті Б цю роль виконує </span><span class=\"ql-bg-transparent ql-color-#188038\">validateResponses: true</span><span class=\"ql-bg-transparent ql-color-#000000\"> (на чернетці варто було перейменувати в хендлері </span><span class=\"ql-bg-transparent ql-color-#188038\">total_cents</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">totalCents</span><span class=\"ql-bg-transparent ql-color-#000000\">, як той самий </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /orders/1</span><span class=\"ql-bg-transparent ql-color-#000000\"> віддав </span><span class=\"ql-bg-transparent ql-color-#188038\">500</span><span class=\"ql-bg-transparent ql-color-#000000\"> із </span><span class=\"ql-bg-transparent ql-color-#188038\">detail: \"/response must have required property 'total_cents'\"</span><span class=\"ql-bg-transparent ql-color-#000000\"> — це рантайм-аналог того </span><span class=\"ql-bg-transparent ql-color-#188038\">contract/check.mjs</span><span class=\"ql-bg-transparent ql-color-#000000\">, який на лекції ловив </span><span class=\"ql-bg-transparent ql-color-#188038\">DRIFT=1</span><span class=\"ql-bg-transparent ql-color-#000000\">). І не описуйте у спеці те, чого не будете робити: пʼять чесних операцій кращі за двадцять вигаданих — наступні ДЗ будуватимуться саме по цій спеці.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Додатковий виклик (без балів)</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Для варіанта Б — повна семантика ключа, як на лекції: повтор того самого ключа + тіла → той самий </span><span class=\"ql-bg-transparent ql-color-#188038\">201</span><span class=\"ql-bg-transparent ql-color-#000000\"> + заголовок </span><span class=\"ql-bg-transparent ql-color-#188038\">Idempotency-Replay: true</span><span class=\"ql-bg-transparent ql-color-#000000\">; той самий ключ з іншим тілом → </span><span class=\"ql-bg-transparent ql-color-#188038\">422</span><span class=\"ql-bg-transparent ql-color-#000000\"> problem+json.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Acceptance criteria</span></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Спека валідна.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">npx @redocly/cli lint openapi/openapi.yaml</span><span class=\"ql-bg-transparent ql-color-#000000\"> завершується з exit code 0 (warnings дозволені, errors — ні). Підказка: redocly-правило </span><span class=\"ql-bg-transparent ql-color-#188038\">security-defined</span><span class=\"ql-bg-transparent ql-color-#000000\"> закривається явним </span><span class=\"ql-bg-transparent ql-color-#188038\">security: []</span><span class=\"ql-bg-transparent ql-color-#000000\"> на корені — авторизації в API поки свідомо немає. (Перевірено: без цього рядка та сама спека дає exit 1 і </span><span class=\"ql-bg-transparent ql-color-#188038\">Error was generated by the security-defined rule</span><span class=\"ql-bg-transparent ql-color-#000000\">.)</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Обсяг спеки витримано.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Щонайменше </span><strong class=\"ql-bg-transparent ql-color-#000000\">2 ресурси</strong><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><strong class=\"ql-bg-transparent ql-color-#000000\">5 операцій</strong><span class=\"ql-bg-transparent ql-color-#000000\">. Перевірка двома командами:</span></li></ol><p><span class=\"ql-bg-transparent ql-color-#000000\">npx @redocly/cli bundle openapi/openapi.yaml -o spec.json</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">node -e \"const s=require('./spec.json'),M=['get','post','put','patch','delete'];\\</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">const ops=Object.entries(s.paths).flatMap(([p,v])=&gt;Object.keys(v).filter(m=&gt;M.includes(m)).map(m=&gt;[p,m]));\\</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">const idem=ops.flatMap(([p,m])=&gt;s.paths[p][m].parameters??[]).find(x=&gt;x.in==='header'&amp;&amp;/idempotency-key/i.test(x.name));\\</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">console.log('операцій:',ops.length,'· ресурсів:',new Set(Object.keys(s.paths).map(p=&gt;p.split('/')[1])).size);\\</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">console.log('Idempotency-Key: required =',idem?.required,'· опис, символів =',(idem?.description??'').trim().length)\"</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\"># очікуємо: операцій ≥ 5 · ресурсів ≥ 2 · required = true · опис ≥ 40 символів</span></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Idempotency-Key задекларовано.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -c 'Idempotency-Key' openapi/openapi.yaml</span><span class=\"ql-bg-transparent ql-color-#000000\"> ≥ 1, і в POST-операції це header-параметр із </span><span class=\"ql-bg-transparent ql-color-#188038\">required: true</span><span class=\"ql-bg-transparent ql-color-#000000\">. Оскільки стандарту на цей заголовок </span><strong class=\"ql-bg-transparent ql-color-#000000\">немає</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (IETF-draft expired, див. матеріали), у </span><span class=\"ql-bg-transparent ql-color-#188038\">description</span><span class=\"ql-bg-transparent ql-color-#000000\"> параметра має бути описана семантика повтору — це і перевіряє «опис ≥ 40 символів» вище.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Cursor-пагінація у контракті.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -c 'next_cursor' openapi/openapi.yaml</span><span class=\"ql-bg-transparent ql-color-#000000\"> ≥ 1; спискова операція має query-параметри </span><span class=\"ql-bg-transparent ql-color-#188038\">cursor</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">limit</span><span class=\"ql-bg-transparent ql-color-#000000\">, схема відповіді містить </span><span class=\"ql-bg-transparent ql-color-#188038\">items</span><span class=\"ql-bg-transparent ql-color-#000000\"> + </span><span class=\"ql-bg-transparent ql-color-#188038\">next_cursor</span><span class=\"ql-bg-transparent ql-color-#000000\"> (nullable).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">problem+json скрізь у помилках.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -c 'application/problem+json' openapi/openapi.yaml</span><span class=\"ql-bg-transparent ql-color-#000000\"> ≥ 2; у </span><span class=\"ql-bg-transparent ql-color-#188038\">components.schemas</span><span class=\"ql-bg-transparent ql-color-#000000\"> є </span><span class=\"ql-bg-transparent ql-color-#188038\">Problem</span><span class=\"ql-bg-transparent ql-color-#000000\"> з обовʼязковими </span><span class=\"ql-bg-transparent ql-color-#188038\">type/title/status/detail/instance</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Contract-частина працює — варіант А.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Команда тестів із README (наприклад, </span><span class=\"ql-bg-transparent ql-color-#188038\">node --test consumer.pact.test.mjs</span><span class=\"ql-bg-transparent ql-color-#000000\">) завершується з exit 0 і створює файл </span><span class=\"ql-bg-transparent ql-color-#188038\">pacts/*.json</span><span class=\"ql-bg-transparent ql-color-#000000\"> (перевірка: </span><span class=\"ql-bg-transparent ql-color-#188038\">ls pacts/*.json</span><span class=\"ql-bg-transparent ql-color-#000000\">). На чернетці вийшло </span><span class=\"ql-bg-transparent ql-color-#188038\">marketplace-web-marketplace-api.json</span><span class=\"ql-bg-transparent ql-color-#000000\"> з однією взаємодією.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Contract-частина працює — варіант Б.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Після </span><span class=\"ql-bg-transparent ql-color-#188038\">npm start</span><span class=\"ql-bg-transparent ql-color-#000000\">: запит </span><span class=\"ql-bg-transparent ql-color-#188038\">POST /orders</span><span class=\"ql-bg-transparent ql-color-#000000\"> </span><strong class=\"ql-bg-transparent ql-color-#000000\">без</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">Idempotency-Key</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> із </span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Type: application/problem+json</span><span class=\"ql-bg-transparent ql-color-#000000\"> (заголовок вимагає спека, а не </span><span class=\"ql-bg-transparent ql-color-#188038\">if</span><span class=\"ql-bg-transparent ql-color-#000000\"> у коді); запит із невалідним тілом (порожній </span><span class=\"ql-bg-transparent ql-color-#188038\">items</span><span class=\"ql-bg-transparent ql-color-#000000\">) → </span><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> із деталлю від валідатора; валідний запит → </span><span class=\"ql-bg-transparent ql-color-#188038\">201</span><span class=\"ql-bg-transparent ql-color-#000000\">. На чернетці валідатор дав рівно такі </span><span class=\"ql-bg-transparent ql-color-#188038\">detail</span><span class=\"ql-bg-transparent ql-color-#000000\">:</span></li></ol><p><span class=\"ql-bg-transparent ql-color-#000000\">request/headers must have required property 'idempotency-key'</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">request/body/items must NOT have fewer than 1 items</span></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=\" alt=\"без прапорця\" height=\"17.599999999999998px\" width=\"17.599999999999998px\"></span><strong class=\"ql-bg-transparent ql-color-#000000\">Усе працює після чистої установки.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Усі команди з criteria проходять після </span><span class=\"ql-bg-transparent ql-color-#188038\">npm install</span><span class=\"ql-bg-transparent ql-color-#000000\"> — без ручних кроків, не описаних у README.</span></li></ol><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Формат здачі</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Репозиторій курсового проєкту, Pull Request із гілки </span><span class=\"ql-bg-transparent ql-color-#188038\">hw-09</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Структура:</strong></p><p><br></p><table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл / тека</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">openapi/openapi.yaml</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">спека: 2 ресурси, 5 операцій, cursor-пагінація, Idempotency-Key, problem+json</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">pacts/</span><span class=\"ql-bg-transparent ql-color-#000000\"> + тест-файл</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">контракт-файл і тест консюмера (</span><strong class=\"ql-bg-transparent ql-color-#000000\">варіант А</strong><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">app</span><span class=\"ql-bg-transparent ql-color-#000000\"> із валідатором</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">сервер з </span><span class=\"ql-bg-transparent ql-color-#188038\">express-openapi-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><strong class=\"ql-bg-transparent ql-color-#000000\">варіант Б</strong><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">яким варіантом ішли + команди запуску/перевірки</span></td></tr></tbody></table><p><br></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Вимога до README:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> явно вказати обраний варіант (А чи Б) і навести команди запуску та перевірки — усі команди з acceptance criteria мають працювати після </span><span class=\"ql-bg-transparent ql-color-#188038\">npm install</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">У LMS здаєте </span><strong class=\"ql-bg-transparent ql-color-#000000\">посилання на PR</strong><span class=\"ql-bg-transparent ql-color-#000000\">, не на головну гілку.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Звʼязок з курсовим проєктом</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це ДЗ №1 курсового: спека стає </span><strong class=\"ql-bg-transparent ql-color-#000000\">джерелом правди</strong><span class=\"ql-bg-transparent ql-color-#000000\"> вашого Marketplace API.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">По її ресурсах ви спроєктуєте схему БД (#12) та entities (#13), transactional-логіка оформлення замовлення (#14) реалізує задекларований тут POST з Idempotency-Key, а contract-частина виросте в integration/E2E-suite (#16).</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Що чесніше спроєктуєте зараз — то менше переробок у наступні три місяці.</span></p><p><br></p>",
+          "markdown": "Це перше ДЗ курсового проєкту. Перш ніж писати ендпойнти — ви **проєктуєте контракт**: OpenAPI-спеку свого Marketplace API (або обраного домену). Мета — щоб рішення з лекції (cursor-пагінація, Idempotency-Key, problem+json) стали не «знаннями», а задокументованими правилами вашого API, які перевіряє машина.\n\nДЗ складається з двох частин, і це не випадково:\n\nПункти 1–4: openapi.yaml      → ОБІЦЯНКА\n\n                                        (сама по собі нічого не примушує)\n\nПункт 5:  Pact / OpenAPI-валідатор → ТОЙ, ХТО ЗВІРЯЄ\n\n                                        (відхиляє все, що спеці суперечить)\n\nСпека сама по собі нічого не примушує — на відміну від схеми відповіді у Fastify з Лекції 4, яка компілювалась у серіалізатор і фізично різала зайве. Пункт 5 — це той, хто звіряє: або консюмер декларує очікування (Pact), або валідатор на кордоні відхиляє все, що спеці суперечить. Спека без пункту 5 — красивий файл, який почне брехати після першого рефакторингу.\n\nСтартова точка — репозиторій курсового проєкту, гілка hw-09.\n\nЩо потрібно зробити\n\n1\\. Спека openapi/openapi.yaml\n\nOpenAPI 3.0.x, описи УКР або АНГЛ — на ваш вибір. Щонайменше **два ресурси** (наприклад, /products і /orders) і **пʼять операцій** сумарно. Кожна операція — з operationId, summary і описаними відповідями **включно з помилками**.\n\n2\\. Cursor-пагінація\n\nНа списковій операції: query-параметри limit і cursor, відповідь — обʼєкт з items та next\\_cursor (nullable; null = сторінок більше немає). Курсор — **непрозорий токен**, у описі параметра так і напишіть.\n\n3\\. Idempotency-Key\n\nНа POST-операції створення: header-параметр, обовʼязково required: true — так валідатор зможе його вимагати. У description — семантика повтору: той самий ключ + те саме тіло → та сама відповідь.\n\n4\\. problem+json як контракт помилок\n\nКожна 4xx-відповідь у спеці — content: application/problem+json зі схемою Problem у components.schemas:\n\n  \n\n<table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Поле схеми </strong><strong class=\"ql-bg-transparent ql-color-#188038\">Problem</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">type</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">URI типу помилки</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">title</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">коротка назва</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">status</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">HTTP-код</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">detail</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">що саме пішло не так</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">instance</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">посилання на конкретний випадок</span></td></tr></tbody></table>\n\n5\\. Contract-частина — ОДИН із двох варіантів\n\nОбидва рівноцінні, обирайте будь-який:\n\n  \n\n<table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Варіант</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Що робите</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Що на виході</strong></td></tr><tr><td data-row=\"2\"><strong class=\"ql-bg-transparent ql-color-#000000\">А — consumer-driven Pact</strong></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">тест консюмера (</span><span class=\"ql-bg-transparent ql-color-#188038\">@pact-foundation/pact</span><span class=\"ql-bg-transparent ql-color-#000000\">) хоча б на одну взаємодію (наприклад, </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /orders/{id}</span><span class=\"ql-bg-transparent ql-color-#000000\">): очікування декларуються, «код фронта» ганяється проти mock-провайдера</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">контракт-файл у </span><span class=\"ql-bg-transparent ql-color-#188038\">pacts/</span></td></tr><tr><td data-row=\"3\"><strong class=\"ql-bg-transparent ql-color-#000000\">Б — runtime-валідація на кордоні</strong></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">мінімальний сервер (Express/Nest), де </span><span class=\"ql-bg-transparent ql-color-#188038\">express-openapi-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> валідує запити й відповіді проти вашої спеки, а error-handler перекладає його помилки у problem+json; достатньо 2–3 ендпойнтів зі спеки з in-memory даними</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">працюючий застосунок, який відхиляє все, що суперечить спеці</span></td></tr></tbody></table>\n\n  \n\nProvider verification і broker для варіанта А **НЕ** потрібні — це Лекція 16.\n\n6\\. Перевірки обовʼязкові\n\n**Обмеження.** Усі критерії прогнані на чернетці 07.08.2026 на цих версіях: @redocly/cli 2.46.0, express 4.22.2, express-openapi-validator 5.6.2, @pact-foundation/pact 17.1.0. Кожен критерій — це команда, яку можна виконати й подивитись на результат.\n\n**Підказки, які економлять години.** Гроші — цілі копійки (total\\_cents: integer), не float: рядок-decimal \"2600.00\" — це біль v1 з лекції, не повторюйте його у своїй v1. nullable: true — це OpenAPI 3.0; якщо пишете 3.1 — там type: \\[string, \"null\"\\], Redocly підкаже, якщо змішаєте. У варіанті Б беріть express@4 — з ним express-openapi-validator працює без сюрпризів. Валідатор вимагає header-параметри у lowercase у req.headers, але в спеці пишіть як заведено: Idempotency-Key — саме тому в його detail побачите 'idempotency-key' з маленької. Якщо в package.json стоїть \"type\": \"module\", приклади з require(...) впадуть із ReferenceError: require is not defined in ES module scope: або переводьте застосунок на import, або називайте файл app.cjs. Не покладайтесь на те, що сервер «сам не віддасть зайвого» — саме тому в ДЗ і є пункт 5: у варіанті Б цю роль виконує validateResponses: true (на чернетці варто було перейменувати в хендлері total\\_cents → totalCents, як той самий GET /orders/1 віддав 500 із detail: \"/response must have required property 'total\\_cents'\" — це рантайм-аналог того contract/check.mjs, який на лекції ловив DRIFT=1). І не описуйте у спеці те, чого не будете робити: пʼять чесних операцій кращі за двадцять вигаданих — наступні ДЗ будуватимуться саме по цій спеці.\n\nДодатковий виклик (без балів)\n\nДля варіанта Б — повна семантика ключа, як на лекції: повтор того самого ключа + тіла → той самий 201 + заголовок Idempotency-Replay: true; той самий ключ з іншим тілом → 422 problem+json.\n\nAcceptance criteria\n\n1.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Спека валідна.** npx @redocly/cli lint openapi/openapi.yaml завершується з exit code 0 (warnings дозволені, errors — ні). Підказка: redocly-правило security-defined закривається явним security: \\[\\] на корені — авторизації в API поки свідомо немає. (Перевірено: без цього рядка та сама спека дає exit 1 і Error was generated by the security-defined rule.)\n2.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Обсяг спеки витримано.** Щонайменше **2 ресурси** і **5 операцій**. Перевірка двома командами:\n\nnpx @redocly/cli bundle openapi/openapi.yaml -o spec.json\n\nnode -e \"const s=require('./spec.json'),M=\\['get','post','put','patch','delete'\\];\\\\\n\nconst ops=Object.entries(s.paths).flatMap((\\[p,v\\])=>Object.keys(v).filter(m=>M.includes(m)).map(m=>\\[p,m\\]));\\\\\n\nconst idem=ops.flatMap((\\[p,m\\])=>s.paths\\[p\\]\\[m\\].parameters??\\[\\]).find(x=>x.in==='header'&&/idempotency-key/i.test(x.name));\\\\\n\nconsole.log('операцій:',ops.length,'· ресурсів:',new Set(Object.keys(s.paths).map(p=>p.split('/')\\[1\\])).size);\\\\\n\nconsole.log('Idempotency-Key: required =',idem?.required,'· опис, символів =',(idem?.description??'').trim().length)\"\n\n\\# очікуємо: операцій ≥ 5 · ресурсів ≥ 2 · required = true · опис ≥ 40 символів\n\n1.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Idempotency-Key задекларовано.** grep -c 'Idempotency-Key' openapi/openapi.yaml ≥ 1, і в POST-операції це header-параметр із required: true. Оскільки стандарту на цей заголовок **немає** (IETF-draft expired, див. матеріали), у description параметра має бути описана семантика повтору — це і перевіряє «опис ≥ 40 символів» вище.\n2.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Cursor-пагінація у контракті.** grep -c 'next\\_cursor' openapi/openapi.yaml ≥ 1; спискова операція має query-параметри cursor і limit, схема відповіді містить items + next\\_cursor (nullable).\n3.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**problem+json скрізь у помилках.** grep -c 'application/problem+json' openapi/openapi.yaml ≥ 2; у components.schemas є Problem з обовʼязковими type/title/status/detail/instance.\n4.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Contract-частина працює — варіант А.** Команда тестів із README (наприклад, node --test consumer.pact.test.mjs) завершується з exit 0 і створює файл pacts/\\*.json (перевірка: ls pacts/\\*.json). На чернетці вийшло marketplace-web-marketplace-api.json з однією взаємодією.\n5.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Contract-частина працює — варіант Б.** Після npm start: запит POST /orders **без** Idempotency-Key → 400 із Content-Type: application/problem+json (заголовок вимагає спека, а не if у коді); запит із невалідним тілом (порожній items) → 400 із деталлю від валідатора; валідний запит → 201. На чернетці валідатор дав рівно такі detail:\n\nrequest/headers must have required property 'idempotency-key'\n\nrequest/body/items must NOT have fewer than 1 items\n\n1.  ![без прапорця](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAA1ElEQVR4Ae3bMQ4BURSFYY2xBuwQ7BIkTGxFRj9Oo9RdkXn5TvL3L19u+2ZmZmZmZhVbpH26pFcaJ9IrndMudb/CWadHGiden1bll9MIzqd79SUd0thY20qga4NA50qgoUGgoRJo/NL/V/N+QIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIECBAgQIAAAQIEyFeEZyXQpUGgUyXQrkGgTSVQl/qGcG5pnkq3Sn0jOMv0k3Vpm05pmNjfsGPalFyOmZmZmdkbSS9cKbtzhxMAAAAASUVORK5CYII=)**Усе працює після чистої установки.** Усі команди з criteria проходять після npm install — без ручних кроків, не описаних у README.\n\n  \n\nФормат здачі\n\nРепозиторій курсового проєкту, Pull Request із гілки hw-09.\n\n**Структура:**\n\n  \n\n<table><tbody><tr><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл / тека</strong></td><td data-row=\"1\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">openapi/openapi.yaml</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">спека: 2 ресурси, 5 операцій, cursor-пагінація, Idempotency-Key, problem+json</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">pacts/</span><span class=\"ql-bg-transparent ql-color-#000000\"> + тест-файл</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">контракт-файл і тест консюмера (</span><strong class=\"ql-bg-transparent ql-color-#000000\">варіант А</strong><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">app</span><span class=\"ql-bg-transparent ql-color-#000000\"> із валідатором</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">сервер з </span><span class=\"ql-bg-transparent ql-color-#188038\">express-openapi-validator</span><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><strong class=\"ql-bg-transparent ql-color-#000000\">варіант Б</strong><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">яким варіантом ішли + команди запуску/перевірки</span></td></tr></tbody></table>\n\n  \n\n**Вимога до README:** явно вказати обраний варіант (А чи Б) і навести команди запуску та перевірки — усі команди з acceptance criteria мають працювати після npm install.\n\nУ LMS здаєте **посилання на PR**, не на головну гілку.\n\n  \n\nЗвʼязок з курсовим проєктом\n\nЦе ДЗ №1 курсового: спека стає **джерелом правди** вашого Marketplace API.\n\nПо її ресурсах ви спроєктуєте схему БД (#12) та entities (#13), transactional-логіка оформлення замовлення (#14) реалізує задекларований тут POST з Idempotency-Key, а contract-частина виросте в integration/E2E-suite (#16).\n\nЩо чесніше спроєктуєте зараз — то менше переробок у наступні три місяці.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104315/homework/54342"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:41:23.350Z"
+    }
+  },
+  "materials": {
+    "status": "partial",
+    "fetchedAt": "2026-10-12T13:41:28.792Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104315,
+        "iri": "/api/lessons/104315",
+        "number": 9,
+        "name": "API design: REST, OpenAPI, idempotency і contract testing",
+        "translationStatus": "available",
+        "startsAt": "2026-08-20T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104315"
+      },
+      "materials": [
+        {
+          "id": 202821,
+          "iri": "/api/lesson_materials/202821",
+          "relationId": "/api/lesson_material_has_lessons/202821-104315",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 9",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/1B04kZ6Ex9URxqjPZGja-OutkNx23QzRqPRQDn8iGXe0/edit\"}}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [
+            "UNSUPPORTED_DESCRIPTION_BLOCK"
+          ],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1B04kZ6Ex9URxqjPZGja-OutkNx23QzRqPRQDn8iGXe0/edit",
+              "cacheKey": "1b47c2ee4180820b1944aa87a84c695d32895c6ce9af019210620093e551d294",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/presentation.pdf",
+              "bytes": 896880,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "380549a3820c2d952921abcacd64ea7a37d919bf02503a52d3df6738d88e64b3",
+              "fetchedAt": "2026-10-12T13:41:27.579Z"
+            }
+          ]
+        },
+        {
+          "id": 202822,
+          "iri": "/api/lesson_materials/202822",
+          "relationId": "/api/lesson_material_has_lessons/202822-104315",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: RFC 9457 — Problem Details for HTTP APIs",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Стандарт problem+json, наступник RFC 7807. П'ять полів + розширення</p>\"}]",
+          "html": "<p>Стандарт problem+json, наступник RFC 7807. П'ять полів + розширення</p>",
+          "markdown": "Стандарт problem+json, наступник RFC 7807. П'ять полів + розширення",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.rfc-editor.org/rfc/rfc9457.html",
+              "cacheKey": "8e6ffa4fd74ff2d231cc5bd222d686a60a8ab15d81ee57d377bffb60c23f4960",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202823,
+          "iri": "/api/lesson_materials/202823",
+          "relationId": "/api/lesson_material_has_lessons/202823-104315",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — OpenAPI: Introduction",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>DocumentBuilder, SwaggerModule, /docs і JSON-документ спеки</p>\"}]",
+          "html": "<p>DocumentBuilder, SwaggerModule, /docs і JSON-документ спеки</p>",
+          "markdown": "DocumentBuilder, SwaggerModule, /docs і JSON-документ спеки",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/openapi/introduction",
+              "cacheKey": "5bc9b1aa2bddc8274a88418bd27a6a3e5477ad79f0afad359af66756a593ae7c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202824,
+          "iri": "/api/lesson_materials/202824",
+          "relationId": "/api/lesson_material_has_lessons/202824-104315",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — OpenAPI: Types and parameters",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>@ApiProperty, масиви, енуми: як DTO стають components.schemas</p>\"}]",
+          "html": "<p>@ApiProperty, масиви, енуми: як DTO стають components.schemas</p>",
+          "markdown": "@ApiProperty, масиви, енуми: як DTO стають components.schemas",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/openapi/types-and-parameters",
+              "cacheKey": "95750608bf840bec02ca818965d6d9a0bdd51209131c0727a92d34a62e9759b5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202825,
+          "iri": "/api/lesson_materials/202825",
+          "relationId": "/api/lesson_material_has_lessons/202825-104315",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Versioning",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>URI / header / media-type, VERSION_NEUTRAL, дефолтна версія</p>\"}]",
+          "html": "<p>URI / header / media-type, VERSION_NEUTRAL, дефолтна версія</p>",
+          "markdown": "URI / header / media-type, VERSION\\_NEUTRAL, дефолтна версія",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/techniques/versioning",
+              "cacheKey": "36d704c726a6e9e0fbaa955647888704877b8c8e7f278a2d5ee4097cee0edff2",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202826,
+          "iri": "/api/lesson_materials/202826",
+          "relationId": "/api/lesson_material_has_lessons/202826-104315",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Stripe — Idempotent requests",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Еталон Idempotency-Key: ключ на спробу, 24h TTL, replay</p>\"}]",
+          "html": "<p>Еталон Idempotency-Key: ключ на спробу, 24h TTL, replay</p>",
+          "markdown": "Еталон Idempotency-Key: ключ на спробу, 24h TTL, replay",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.stripe.com/api/idempotent_requests",
+              "cacheKey": "dae1bbb86101136c82312a83a298a955c4b99d9ca4f0a76db4bdba623100f9b8",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202827,
+          "iri": "/api/lesson_materials/202827",
+          "relationId": "/api/lesson_material_has_lessons/202827-104315",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Redocly CLI",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Лінтер, яким перевіряється спека ДЗ: npx @redocly/cli lint</p>\"}]",
+          "html": "<p>Лінтер, яким перевіряється спека ДЗ: npx @redocly/cli lint</p>",
+          "markdown": "Лінтер, яким перевіряється спека ДЗ: npx @redocly/cli lint",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://redocly.com/docs/cli",
+              "cacheKey": "d1e31ad3df335672270771080b7f476aaa736cf902ff7686fa8a80a4e12e81b6",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202828,
+          "iri": "/api/lesson_materials/202828",
+          "relationId": "/api/lesson_material_has_lessons/202828-104315",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "Zalando RESTful API Guidelines",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Публічний звід REST-правил: pagination, problem+json, deprecation</p>\"}]",
+          "html": "<p>Публічний звід REST-правил: pagination, problem+json, deprecation</p>",
+          "markdown": "Публічний звід REST-правил: pagination, problem+json, deprecation",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://opensource.zalando.com/restful-api-guidelines/",
+              "cacheKey": "bb4c615588538ca3f2e1630cbb9438fe7387c41d063927a3c3eda79baedceea1",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202829,
+          "iri": "/api/lesson_materials/202829",
+          "relationId": "/api/lesson_material_has_lessons/202829-104315",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — OpenAPI: Operations",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>@ApiResponse із raw content — декларація application/problem+json</p>\"}]",
+          "html": "<p>@ApiResponse із raw content — декларація application/problem+json</p>",
+          "markdown": "@ApiResponse із raw content — декларація application/problem+json",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/openapi/operations",
+              "cacheKey": "ba883f993f5e9732da7ecdbd363e4752b66f225cbcda93788d7ca1d607955eec",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202830,
+          "iri": "/api/lesson_materials/202830",
+          "relationId": "/api/lesson_material_has_lessons/202830-104315",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "IETF draft — The Idempotency-Key HTTP Header Field",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Семантика повтору й конфліктів (409/422). Не стандарт: expired draft</p>\"}]",
+          "html": "<p>Семантика повтору й конфліктів (409/422). Не стандарт: expired draft</p>",
+          "markdown": "Семантика повтору й конфліктів (409/422). Не стандарт: expired draft",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/",
+              "cacheKey": "de34037f76edecd7f7bf5fd24c087d344b0b2b876a6a1359c0079abdebad49e6",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202831,
+          "iri": "/api/lesson_materials/202831",
+          "relationId": "/api/lesson_material_has_lessons/202831-104315",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "Slack Engineering — Evolving API Pagination at Slack",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому offset не пережив реальні дані; міграція на cursor</p>\"}]",
+          "html": "<p>Чому offset не пережив реальні дані; міграція на cursor</p>",
+          "markdown": "Чому offset не пережив реальні дані; міграція на cursor",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://slack.engineering/evolving-api-pagination-at-slack/",
+              "cacheKey": "4d4e8076e3e90eb62d990da1aaf8066fc181ebc782b2c37f69ee33ab07933f22",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202832,
+          "iri": "/api/lesson_materials/202832",
+          "relationId": "/api/lesson_material_has_lessons/202832-104315",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "Pact — документація",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Consumer-driven contracts: очікування споживача. Варіант А у ДЗ</p>\"}]",
+          "html": "<p>Consumer-driven contracts: очікування споживача. Варіант А у ДЗ</p>",
+          "markdown": "Consumer-driven contracts: очікування споживача. Варіант А у ДЗ",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.pact.io/",
+              "cacheKey": "2f5059be6dfe5ba72deb02888c5354220de831a979c6c13be47429b0ecbcb925",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202833,
+          "iri": "/api/lesson_materials/202833",
+          "relationId": "/api/lesson_material_has_lessons/202833-104315",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "express-openapi-validator",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Runtime-валідація запитів і відповідей проти спеки. Варіант Б</p>\"}]",
+          "html": "<p>Runtime-валідація запитів і відповідей проти спеки. Варіант Б</p>",
+          "markdown": "Runtime-валідація запитів і відповідей проти спеки. Варіант Б",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/cdimascio/express-openapi-validator",
+              "cacheKey": "de1dcb86ca155f1958c5b94723048b497043d1cda11f900a502dea8fff7838b0",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202834,
+          "iri": "/api/lesson_materials/202834",
+          "relationId": "/api/lesson_material_has_lessons/202834-104315",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "RFC 9745 — The Deprecation HTTP Header Field",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Машиночитне «застаріло з @unix-часу», яке ставили на v1</p>\"}]",
+          "html": "<p>Машиночитне «застаріло з @unix-часу», яке ставили на v1</p>",
+          "markdown": "Машиночитне «застаріло з @unix-часу», яке ставили на v1",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.rfc-editor.org/rfc/rfc9745.html",
+              "cacheKey": "15ab8f8db2f42937cae012bb2f66c8ed6782af1cdee72b3c56e531751e2b1b62",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202835,
+          "iri": "/api/lesson_materials/202835",
+          "relationId": "/api/lesson_material_has_lessons/202835-104315",
+          "position": 14,
+          "type": 0,
+          "typeName": "site",
+          "name": "RFC 8594 — The Sunset HTTP Header Field",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>«Після цієї дати вимкнемо»: друга половина deprecation policy</p>\"}]",
+          "html": "<p>«Після цієї дати вимкнемо»: друга половина deprecation policy</p>",
+          "markdown": "«Після цієї дати вимкнемо»: друга половина deprecation policy",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.rfc-editor.org/rfc/rfc8594.html",
+              "cacheKey": "b10899cf28b180dcfec8db26dbde938e40e55b94584e20268e38c503b6b2346e",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202836,
+          "iri": "/api/lesson_materials/202836",
+          "relationId": "/api/lesson_material_has_lessons/202836-104315",
+          "position": 15,
+          "type": 0,
+          "typeName": "site",
+          "name": "Stripe — APIs as infrastructure: future-proofing Stripe with versioning",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Version pinning per-account і transformation layers замість /v2</p>\"}]",
+          "html": "<p>Version pinning per-account і transformation layers замість /v2</p>",
+          "markdown": "Version pinning per-account і transformation layers замість /v2",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://stripe.com/blog/api-versioning",
+              "cacheKey": "135c947397b879169126730a85cf36928e593579fd140db08871bfd51892d18e",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202837,
+          "iri": "/api/lesson_materials/202837",
+          "relationId": "/api/lesson_material_has_lessons/202837-104315",
+          "position": 16,
+          "type": 0,
+          "typeName": "site",
+          "name": "Use The Index, Luke — No Offset",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому глибокий OFFSET дорожчає і як рятує keyset</p>\"}]",
+          "html": "<p>Чому глибокий OFFSET дорожчає і як рятує keyset</p>",
+          "markdown": "Чому глибокий OFFSET дорожчає і як рятує keyset",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://use-the-index-luke.com/no-offset",
+              "cacheKey": "a57dc07612ffa6c072541d89181d24454b4105e82ee1e1c70437786580c2fc13",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202838,
+          "iri": "/api/lesson_materials/202838",
+          "relationId": "/api/lesson_material_has_lessons/202838-104315",
+          "position": 17,
+          "type": 0,
+          "typeName": "site",
+          "name": "openapi-typescript",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>TS-типи зі спеки: клієнт компілюється проти контракту</p>\"}]",
+          "html": "<p>TS-типи зі спеки: клієнт компілюється проти контракту</p>",
+          "markdown": "TS-типи зі спеки: клієнт компілюється проти контракту",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/openapi-ts/openapi-typescript",
+              "cacheKey": "6bfda2c843af9b46da25e176ef3d9d902a0799139569e30f6fd08bb208f0ac94",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202839,
+          "iri": "/api/lesson_materials/202839",
+          "relationId": "/api/lesson_material_has_lessons/202839-104315",
+          "position": 18,
+          "type": 0,
+          "typeName": "site",
+          "name": "Google — API Improvement Proposals (AIP)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Resource-oriented design у номерах: AIP-132, AIP-158</p>\"}]",
+          "html": "<p>Resource-oriented design у номерах: AIP-132, AIP-158</p>",
+          "markdown": "Resource-oriented design у номерах: AIP-132, AIP-158",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://google.aip.dev/",
+              "cacheKey": "df81da4cae2fe94f097b606453c8b0c7a6095d1336cf6827476a325697519bee",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202857,
+          "iri": "/api/lesson_materials/202857",
+          "relationId": "/api/lesson_material_has_lessons/202857-104315",
+          "position": 19,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1GNTNzJIENq2rZgn5tsoelhPwHUQAgpJN/view",
+              "cacheKey": "c023709b2817e290ffdf78571447b88d8c7b66cfb7422b595e0653b6aa2b87da",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/transcript.md",
+              "bytes": 123288,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Fri, 21 Aug 2026 10:06:06 GMT",
+              "sha256": "225df9b7ca6a17772d7199cebd3beaa3e05f7ed34baede456d8a0784d8088506",
+              "fetchedAt": "2026-10-12T13:41:28.792Z"
+            }
+          ]
+        },
+        {
+          "id": 203225,
+          "iri": "/api/lesson_materials/203225",
+          "relationId": "/api/lesson_material_has_lessons/203225-104315",
+          "position": 20,
+          "type": 0,
+          "typeName": "site",
+          "name": "Архітектурна записка курсового проєкту",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/document/d/1iyASzcxw2iTwpckF48N1LSTOtlmtd19UQn53x9mpHq0/edit",
+              "cacheKey": "6d4ff57aca2e8ca6076b929054b94957e92c273e99385efe2cde405caea82346",
+              "kind": "unsupported",
+              "role": "material",
+              "status": "unsupported",
+              "file": null
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:41:28.792Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:39.409Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104315,
+        "iri": "/api/lessons/104315",
+        "number": 9,
+        "name": "API design: REST, OpenAPI, idempotency і contract testing",
+        "translationStatus": "available",
+        "startsAt": "2026-08-20T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104315"
+      },
+      "recordings": [
+        {
+          "id": 139815,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 139815,
+      "resolutionId": 654710,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/lecture.mp4",
+      "bytes": 389886074,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:41:39.409Z"
+    }
+  }
+}

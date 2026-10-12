@@ -1,0 +1,486 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104309,
+    "iri": "/api/lessons/104309",
+    "number": 3,
+    "name": "HTTP, TLS і практичний дебаг мережевої взаємодії",
+    "translationStatus": "available",
+    "startsAt": "2026-07-30T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104309"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:39:55.749Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:39:38.834Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104309,
+        "iri": "/api/lessons/104309",
+        "number": 3,
+        "name": "HTTP, TLS і практичний дебаг мережевої взаємодії",
+        "translationStatus": "available",
+        "startsAt": "2026-07-30T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104309"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54337,
+          "iri": "/api/lesson_homeworks/54337",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\"><u>Постановка</u></strong></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Ви будуєте HTTP-сервер «з нуля» — без фреймворка і без модуля </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">http</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Мета — побачити, що HTTP/1.1 — це просто текст поверх TCP: ви самі приймаєте байти з сокета, розбираєте request-line та заголовки і самі формуєте валідну відповідь.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Це той рівень, який </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">http.createServer</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> зазвичай ховає від вас. Але на роботі саме він і потрібен: коли треба зрозуміти, «чому клієнт бачить 400», прочитати вивід </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -v</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або Wireshark, з'ясувати, звідки беруться </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Content-Length</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Connection: keep-alive</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і статус-рядок.</span></p><p><br></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\"><u>Що потрібно зробити</u></strong></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">1. HTTP-сервер на </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">net.createServer()</strong></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">require('http')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — приймаєте сирі байти з TCP-сокета.</span></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">2. Парсер request</strong></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Витягує з вхідного тексту </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">method</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">path</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і мапу </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">headers</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (ключі нормалізовані до lower-case).</span></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">3. Роутинг і валідні відповіді</strong></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Запит</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Відповідь</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">GET /</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">200 OK</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Content-Type: text/plain</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">)</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">GET /headers</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">розпарсені заголовки запиту</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">будь-що інше</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">404 Not Found</span></td></tr></tbody></table><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Кожна відповідь — коректний HTTP/1.1: статус-рядок, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Content-Type</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Content-Length</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, порожній рядок, тіло.</span></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">4. HTTPS-варіант</strong></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">На </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">tls.createServer()</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">require('https')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">), із самопідписаним сертифікатом (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openssl req -x509</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">). Переюзає той самий обробник запиту.</span></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">5. Debug-сесія</strong></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">У </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> вклейте вивід </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openssl s_client -connect localhost:3443</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із рядком </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">verify error</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (для self-signed він очікуваний) і одним реченням поясніть, що це за код помилки:</span></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Код</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Значення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">18</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">self-signed</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">19</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">chain incomplete</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">10</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">expired</span></td></tr></tbody></table><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Обмеження.</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> Стартуєте з порожнього репозиторію — весь код ваш. Стандартна бібліотека Node (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">net</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">tls</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">fs</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">crypto</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) дозволена, сторонні npm-залежності — ні.</span></p><p><br></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\"><u>Acceptance criteria</u></strong></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">[ ] </span><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Без </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">http</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">/</strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">https</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Жоден файл у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не імпортує </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">http</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> чи </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">https</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -REn \\\"(require\\\\(|from )['\\\\\\\"](node:)?https?['\\\\\\\"]\\\" src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не дає жодного збігу, а </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -n \\\"net.createServer\\\" src/server.js</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -n \\\"tls.createServer\\\" src/https-server.js</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — дають по збігу.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">[ ] </span><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Плейн-сервер відповідає коректно.</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -sv </span><a href=\\\"http://localhost:3000/\\\" rel=\\\"noopener noreferrer\\\" target=\\\"_blank\\\" class=\\\"ql-bg-transparent ql-color-#188038\\\">http://localhost:3000/</a><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → перший рядок </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">HTTP/1.1 200 OK</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і хедер </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Content-Type: text/plain</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -s -o /dev/null -w \\\"%{http_code}\\\\n\\\" </span><a href=\\\"http://localhost:3000/nope\\\" rel=\\\"noopener noreferrer\\\" target=\\\"_blank\\\" class=\\\"ql-bg-transparent ql-color-#188038\\\">http://localhost:3000/nope</a><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виводить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">404</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">[ ] </span><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Парсер заголовків працює.</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -s </span><a href=\\\"http://localhost:3000/headers\\\" rel=\\\"noopener noreferrer\\\" target=\\\"_blank\\\" class=\\\"ql-bg-transparent ql-color-#188038\\\">http://localhost:3000/headers</a><span class=\\\"ql-bg-transparent ql-color-#188038\\\"> -H \\\"X-Demo: abc\\\"</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> повертає тіло, у якому присутні рядки </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">host:</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">x-demo: abc</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (ключі в lower-case) — тобто method/path/headers реально розпарсені у структуру, а не захардкоджені.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">[ ] </span><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">HTTPS-варіант піднімається на самопідписаному серті.</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -sk -o /dev/null -w \\\"%{http_code}\\\\n\\\" </span><a href=\\\"https://localhost:3443/\\\" rel=\\\"noopener noreferrer\\\" target=\\\"_blank\\\" class=\\\"ql-bg-transparent ql-color-#188038\\\">https://localhost:3443/</a><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виводить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">200</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Команда генерації сертифіката (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openssl req -x509 -newkey rsa:2048 -nodes ...</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) присутня в </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а самі </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">*.pem</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> / </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">*.key</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.gitignore</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (не закомічені).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">[ ] </span><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Debug-сесія задокументована.</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> містить блок виводу </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openssl s_client -connect localhost:3443 -servername localhost</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із рядком, що матчить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -E \\\"verify (error|return code)\\\" README.md</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і одне речення з поясненням коду помилки self-signed.</span></li></ol><p><br></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\"><u>Формат здачі</u></strong></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Репозиторій:</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> публічний GitHub-репозиторій (або гілка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">hw-03</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у наявному навчальному репо) + Pull Request.</span></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Структура:</strong></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Файл</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">src/server.js</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">raw HTTP на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">net</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">src/https-server.js</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">HTTPS на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">tls</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (переюзає парсер/обробник із </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">server.js</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">)</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">README.md</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">команди запуску обох серверів, команда генерації self-signed сертифіката, вклеєний вивід </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openssl s_client</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з поясненням </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">verify error</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-color-#188038 ql-bg-transparent\\\">.gitignore</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">виключає згенеровані </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">*.pem</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> / </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">*.key</span></td></tr></tbody></table><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">Вимога до README:</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> грейдер має змогти запустити все двома командами (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node src/server.js</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node src/https-server.js</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) — без вгадування портів чи прапорців.</span></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">У LMS здаєте посилання на PR</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">, не на головну гілку.</span></p><p><br></p><p><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\"><u>Зв'язок з курсовим проєктом</u></strong></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Це </span><strong class=\\\"ql-color-#000000 ql-bg-transparent\\\">foundation-ДЗ поза курсовим проєктом</strong><span class=\\\"ql-color-#000000 ql-bg-transparent\\\"> — воно нічого не додає до Marketplace API.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Його ціль — вибудувати ментальну модель HTTP/TLS на рівні байтів і сокетів. Щоб пізніше, працюючи з Express/Fastify (Лекція 4) і NestJS-шаром, ви розуміли, що саме фреймворк робить за вас, і могли дебажити мережеві та TLS-проблеми через </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -v</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> та </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">openssl s_client</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а не лише через логи фреймворка.</span></p><p><span class=\\\"ql-color-#000000 ql-bg-transparent\\\">Навички звідси — читання raw request, self-signed сертифікати, коди </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">verify error</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — прямо перевикористовуються у Лекції 27 (Security hardening, mTLS).</span></p>\"}]",
+          "html": "<p><strong class=\"ql-color-#000000 ql-bg-transparent\"><u>Постановка</u></strong></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Ви будуєте HTTP-сервер «з нуля» — без фреймворка і без модуля </span><span class=\"ql-bg-transparent ql-color-#188038\">http</span><span class=\"ql-bg-transparent ql-color-#000000\">. Мета — побачити, що HTTP/1.1 — це просто текст поверх TCP: ви самі приймаєте байти з сокета, розбираєте request-line та заголовки і самі формуєте валідну відповідь.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Це той рівень, який </span><span class=\"ql-bg-transparent ql-color-#188038\">http.createServer</span><span class=\"ql-bg-transparent ql-color-#000000\"> зазвичай ховає від вас. Але на роботі саме він і потрібен: коли треба зрозуміти, «чому клієнт бачить 400», прочитати вивід </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -v</span><span class=\"ql-bg-transparent ql-color-#000000\"> або Wireshark, з'ясувати, звідки беруться </span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Length</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">Connection: keep-alive</span><span class=\"ql-bg-transparent ql-color-#000000\"> і статус-рядок.</span></p><p><br></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\"><u>Що потрібно зробити</u></strong></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">1. HTTP-сервер на </strong><strong class=\"ql-bg-transparent ql-color-#188038\">net.createServer()</strong></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Без </span><span class=\"ql-bg-transparent ql-color-#188038\">require('http')</span><span class=\"ql-bg-transparent ql-color-#000000\"> — приймаєте сирі байти з TCP-сокета.</span></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">2. Парсер request</strong></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Витягує з вхідного тексту </span><span class=\"ql-bg-transparent ql-color-#188038\">method</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">path</span><span class=\"ql-bg-transparent ql-color-#000000\"> і мапу </span><span class=\"ql-bg-transparent ql-color-#188038\">headers</span><span class=\"ql-bg-transparent ql-color-#000000\"> (ключі нормалізовані до lower-case).</span></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">3. Роутинг і валідні відповіді</strong></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Запит</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Відповідь</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">GET /</span></td><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">200 OK</span><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Type: text/plain</span><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#188038 ql-bg-transparent\">GET /headers</span></td><td data-row=\"3\"><span class=\"ql-color-#000000 ql-bg-transparent\">розпарсені заголовки запиту</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#000000 ql-bg-transparent\">будь-що інше</span></td><td data-row=\"4\"><span class=\"ql-color-#188038 ql-bg-transparent\">404 Not Found</span></td></tr></tbody></table><p><span class=\"ql-color-#000000 ql-bg-transparent\">Кожна відповідь — коректний HTTP/1.1: статус-рядок, </span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Type</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Length</span><span class=\"ql-bg-transparent ql-color-#000000\">, порожній рядок, тіло.</span></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">4. HTTPS-варіант</strong></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">На </span><span class=\"ql-bg-transparent ql-color-#188038\">tls.createServer()</span><span class=\"ql-bg-transparent ql-color-#000000\"> (без </span><span class=\"ql-bg-transparent ql-color-#188038\">require('https')</span><span class=\"ql-bg-transparent ql-color-#000000\">), із самопідписаним сертифікатом (</span><span class=\"ql-bg-transparent ql-color-#188038\">openssl req -x509</span><span class=\"ql-bg-transparent ql-color-#000000\">). Переюзає той самий обробник запиту.</span></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">5. Debug-сесія</strong></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">У </span><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span><span class=\"ql-bg-transparent ql-color-#000000\"> вклейте вивід </span><span class=\"ql-bg-transparent ql-color-#188038\">openssl s_client -connect localhost:3443</span><span class=\"ql-bg-transparent ql-color-#000000\"> із рядком </span><span class=\"ql-bg-transparent ql-color-#188038\">verify error</span><span class=\"ql-bg-transparent ql-color-#000000\"> (для self-signed він очікуваний) і одним реченням поясніть, що це за код помилки:</span></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Код</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Значення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">18</span></td><td data-row=\"2\"><span class=\"ql-color-#000000 ql-bg-transparent\">self-signed</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#188038 ql-bg-transparent\">19</span></td><td data-row=\"3\"><span class=\"ql-color-#000000 ql-bg-transparent\">chain incomplete</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#188038 ql-bg-transparent\">10</span></td><td data-row=\"4\"><span class=\"ql-color-#000000 ql-bg-transparent\">expired</span></td></tr></tbody></table><p><strong class=\"ql-color-#000000 ql-bg-transparent\">Обмеження.</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> Стартуєте з порожнього репозиторію — весь код ваш. Стандартна бібліотека Node (</span><span class=\"ql-bg-transparent ql-color-#188038\">net</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">tls</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">fs</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">crypto</span><span class=\"ql-bg-transparent ql-color-#000000\">) дозволена, сторонні npm-залежності — ні.</span></p><p><br></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\"><u>Acceptance criteria</u></strong></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-color-#000000 ql-bg-transparent\">[ ] </span><strong class=\"ql-color-#000000 ql-bg-transparent\">Без </strong><strong class=\"ql-bg-transparent ql-color-#188038\">http</strong><strong class=\"ql-bg-transparent ql-color-#000000\">/</strong><strong class=\"ql-bg-transparent ql-color-#188038\">https</strong><strong class=\"ql-bg-transparent ql-color-#000000\">.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Жоден файл у </span><span class=\"ql-bg-transparent ql-color-#188038\">src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> не імпортує </span><span class=\"ql-bg-transparent ql-color-#188038\">http</span><span class=\"ql-bg-transparent ql-color-#000000\"> чи </span><span class=\"ql-bg-transparent ql-color-#188038\">https</span><span class=\"ql-bg-transparent ql-color-#000000\">: </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -REn \"(require\\(|from )['\\\"](node:)?https?['\\\"]\" src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> не дає жодного збігу, а </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -n \"net.createServer\" src/server.js</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -n \"tls.createServer\" src/https-server.js</span><span class=\"ql-bg-transparent ql-color-#000000\"> — дають по збігу.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-color-#000000 ql-bg-transparent\">[ ] </span><strong class=\"ql-color-#000000 ql-bg-transparent\">Плейн-сервер відповідає коректно.</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -sv </span><a href=\"http://localhost:3000/\" rel=\"noopener noreferrer\" target=\"_blank\" class=\"ql-bg-transparent ql-color-#188038\">http://localhost:3000/</a><span class=\"ql-bg-transparent ql-color-#000000\"> → перший рядок </span><span class=\"ql-bg-transparent ql-color-#188038\">HTTP/1.1 200 OK</span><span class=\"ql-bg-transparent ql-color-#000000\"> і хедер </span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Type: text/plain</span><span class=\"ql-bg-transparent ql-color-#000000\">. </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -s -o /dev/null -w \"%{http_code}\\n\" </span><a href=\"http://localhost:3000/nope\" rel=\"noopener noreferrer\" target=\"_blank\" class=\"ql-bg-transparent ql-color-#188038\">http://localhost:3000/nope</a><span class=\"ql-bg-transparent ql-color-#000000\"> виводить </span><span class=\"ql-bg-transparent ql-color-#188038\">404</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-color-#000000 ql-bg-transparent\">[ ] </span><strong class=\"ql-color-#000000 ql-bg-transparent\">Парсер заголовків працює.</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -s </span><a href=\"http://localhost:3000/headers\" rel=\"noopener noreferrer\" target=\"_blank\" class=\"ql-bg-transparent ql-color-#188038\">http://localhost:3000/headers</a><span class=\"ql-bg-transparent ql-color-#188038\"> -H \"X-Demo: abc\"</span><span class=\"ql-bg-transparent ql-color-#000000\"> повертає тіло, у якому присутні рядки </span><span class=\"ql-bg-transparent ql-color-#188038\">host:</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">x-demo: abc</span><span class=\"ql-bg-transparent ql-color-#000000\"> (ключі в lower-case) — тобто method/path/headers реально розпарсені у структуру, а не захардкоджені.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-color-#000000 ql-bg-transparent\">[ ] </span><strong class=\"ql-color-#000000 ql-bg-transparent\">HTTPS-варіант піднімається на самопідписаному серті.</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -sk -o /dev/null -w \"%{http_code}\\n\" </span><a href=\"https://localhost:3443/\" rel=\"noopener noreferrer\" target=\"_blank\" class=\"ql-bg-transparent ql-color-#188038\">https://localhost:3443/</a><span class=\"ql-bg-transparent ql-color-#000000\"> виводить </span><span class=\"ql-bg-transparent ql-color-#188038\">200</span><span class=\"ql-bg-transparent ql-color-#000000\">. Команда генерації сертифіката (</span><span class=\"ql-bg-transparent ql-color-#188038\">openssl req -x509 -newkey rsa:2048 -nodes ...</span><span class=\"ql-bg-transparent ql-color-#000000\">) присутня в </span><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span><span class=\"ql-bg-transparent ql-color-#000000\">, а самі </span><span class=\"ql-bg-transparent ql-color-#188038\">*.pem</span><span class=\"ql-bg-transparent ql-color-#000000\"> / </span><span class=\"ql-bg-transparent ql-color-#188038\">*.key</span><span class=\"ql-bg-transparent ql-color-#000000\"> — у </span><span class=\"ql-bg-transparent ql-color-#188038\">.gitignore</span><span class=\"ql-bg-transparent ql-color-#000000\"> (не закомічені).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-color-#000000 ql-bg-transparent\">[ ] </span><strong class=\"ql-color-#000000 ql-bg-transparent\">Debug-сесія задокументована.</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span><span class=\"ql-bg-transparent ql-color-#000000\"> містить блок виводу </span><span class=\"ql-bg-transparent ql-color-#188038\">openssl s_client -connect localhost:3443 -servername localhost</span><span class=\"ql-bg-transparent ql-color-#000000\"> із рядком, що матчить </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -E \"verify (error|return code)\" README.md</span><span class=\"ql-bg-transparent ql-color-#000000\">, і одне речення з поясненням коду помилки self-signed.</span></li></ol><p><br></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\"><u>Формат здачі</u></strong></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">Репозиторій:</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> публічний GitHub-репозиторій (або гілка </span><span class=\"ql-bg-transparent ql-color-#188038\">hw-03</span><span class=\"ql-bg-transparent ql-color-#000000\"> у наявному навчальному репо) + Pull Request.</span></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">Структура:</strong></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">src/server.js</span></td><td data-row=\"2\"><span class=\"ql-color-#000000 ql-bg-transparent\">raw HTTP на </span><span class=\"ql-bg-transparent ql-color-#188038\">net</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#188038 ql-bg-transparent\">src/https-server.js</span></td><td data-row=\"3\"><span class=\"ql-color-#000000 ql-bg-transparent\">HTTPS на </span><span class=\"ql-bg-transparent ql-color-#188038\">tls</span><span class=\"ql-bg-transparent ql-color-#000000\"> (переюзає парсер/обробник із </span><span class=\"ql-bg-transparent ql-color-#188038\">server.js</span><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#188038 ql-bg-transparent\">README.md</span></td><td data-row=\"4\"><span class=\"ql-color-#000000 ql-bg-transparent\">команди запуску обох серверів, команда генерації self-signed сертифіката, вклеєний вивід </span><span class=\"ql-bg-transparent ql-color-#188038\">openssl s_client</span><span class=\"ql-bg-transparent ql-color-#000000\"> з поясненням </span><span class=\"ql-bg-transparent ql-color-#188038\">verify error</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-color-#188038 ql-bg-transparent\">.gitignore</span></td><td data-row=\"5\"><span class=\"ql-color-#000000 ql-bg-transparent\">виключає згенеровані </span><span class=\"ql-bg-transparent ql-color-#188038\">*.pem</span><span class=\"ql-bg-transparent ql-color-#000000\"> / </span><span class=\"ql-bg-transparent ql-color-#188038\">*.key</span></td></tr></tbody></table><p><strong class=\"ql-color-#000000 ql-bg-transparent\">Вимога до README:</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> грейдер має змогти запустити все двома командами (</span><span class=\"ql-bg-transparent ql-color-#188038\">node src/server.js</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">node src/https-server.js</span><span class=\"ql-bg-transparent ql-color-#000000\">) — без вгадування портів чи прапорців.</span></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\">У LMS здаєте посилання на PR</strong><span class=\"ql-color-#000000 ql-bg-transparent\">, не на головну гілку.</span></p><p><br></p><p><strong class=\"ql-color-#000000 ql-bg-transparent\"><u>Зв'язок з курсовим проєктом</u></strong></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Це </span><strong class=\"ql-color-#000000 ql-bg-transparent\">foundation-ДЗ поза курсовим проєктом</strong><span class=\"ql-color-#000000 ql-bg-transparent\"> — воно нічого не додає до Marketplace API.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Його ціль — вибудувати ментальну модель HTTP/TLS на рівні байтів і сокетів. Щоб пізніше, працюючи з Express/Fastify (Лекція 4) і NestJS-шаром, ви розуміли, що саме фреймворк робить за вас, і могли дебажити мережеві та TLS-проблеми через </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -v</span><span class=\"ql-bg-transparent ql-color-#000000\"> та </span><span class=\"ql-bg-transparent ql-color-#188038\">openssl s_client</span><span class=\"ql-bg-transparent ql-color-#000000\">, а не лише через логи фреймворка.</span></p><p><span class=\"ql-color-#000000 ql-bg-transparent\">Навички звідси — читання raw request, self-signed сертифікати, коди </span><span class=\"ql-bg-transparent ql-color-#188038\">verify error</span><span class=\"ql-bg-transparent ql-color-#000000\"> — прямо перевикористовуються у Лекції 27 (Security hardening, mTLS).</span></p>",
+          "markdown": "**Постановка**\n\nВи будуєте HTTP-сервер «з нуля» — без фреймворка і без модуля http. Мета — побачити, що HTTP/1.1 — це просто текст поверх TCP: ви самі приймаєте байти з сокета, розбираєте request-line та заголовки і самі формуєте валідну відповідь.\n\nЦе той рівень, який http.createServer зазвичай ховає від вас. Але на роботі саме він і потрібен: коли треба зрозуміти, «чому клієнт бачить 400», прочитати вивід curl -v або Wireshark, з'ясувати, звідки беруться Content-Length, Connection: keep-alive і статус-рядок.\n\n  \n\n**Що потрібно зробити**\n\n**1\\. HTTP-сервер на** **net.createServer()**\n\nБез require('http') — приймаєте сирі байти з TCP-сокета.\n\n**2\\. Парсер request**\n\nВитягує з вхідного тексту method, path і мапу headers (ключі нормалізовані до lower-case).\n\n**3\\. Роутинг і валідні відповіді**\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Запит</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Відповідь</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">GET /</span></td><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">200 OK</span><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><span class=\"ql-bg-transparent ql-color-#188038\">Content-Type: text/plain</span><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#188038 ql-bg-transparent\">GET /headers</span></td><td data-row=\"3\"><span class=\"ql-color-#000000 ql-bg-transparent\">розпарсені заголовки запиту</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#000000 ql-bg-transparent\">будь-що інше</span></td><td data-row=\"4\"><span class=\"ql-color-#188038 ql-bg-transparent\">404 Not Found</span></td></tr></tbody></table>\n\nКожна відповідь — коректний HTTP/1.1: статус-рядок, Content-Type, Content-Length, порожній рядок, тіло.\n\n**4\\. HTTPS-варіант**\n\nНа tls.createServer() (без require('https')), із самопідписаним сертифікатом (openssl req -x509). Переюзає той самий обробник запиту.\n\n**5\\. Debug-сесія**\n\nУ README.md вклейте вивід openssl s\\_client -connect localhost:3443 із рядком verify error (для self-signed він очікуваний) і одним реченням поясніть, що це за код помилки:\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Код</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Значення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">18</span></td><td data-row=\"2\"><span class=\"ql-color-#000000 ql-bg-transparent\">self-signed</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#188038 ql-bg-transparent\">19</span></td><td data-row=\"3\"><span class=\"ql-color-#000000 ql-bg-transparent\">chain incomplete</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#188038 ql-bg-transparent\">10</span></td><td data-row=\"4\"><span class=\"ql-color-#000000 ql-bg-transparent\">expired</span></td></tr></tbody></table>\n\n**Обмеження.** Стартуєте з порожнього репозиторію — весь код ваш. Стандартна бібліотека Node (net, tls, fs, crypto) дозволена, сторонні npm-залежності — ні.\n\n  \n\n**Acceptance criteria**\n\n1.  \\[ \\] **Без** **http****/****https****.** Жоден файл у src/ не імпортує http чи https: grep -REn \"(require\\\\(|from )\\['\\\\\"\\](node:)?https?\\['\\\\\"\\]\" src/ не дає жодного збігу, а grep -n \"net.createServer\" src/server.js і grep -n \"tls.createServer\" src/https-server.js — дають по збігу.\n2.  \\[ \\] **Плейн-сервер відповідає коректно.** curl -sv [http://localhost:3000/](http://localhost:3000/) → перший рядок HTTP/1.1 200 OK і хедер Content-Type: text/plain. curl -s -o /dev/null -w \"%{http\\_code}\\\\n\" [http://localhost:3000/nope](http://localhost:3000/nope) виводить 404.\n3.  \\[ \\] **Парсер заголовків працює.** curl -s [http://localhost:3000/headers](http://localhost:3000/headers) -H \"X-Demo: abc\" повертає тіло, у якому присутні рядки host: і x-demo: abc (ключі в lower-case) — тобто method/path/headers реально розпарсені у структуру, а не захардкоджені.\n4.  \\[ \\] **HTTPS-варіант піднімається на самопідписаному серті.** curl -sk -o /dev/null -w \"%{http\\_code}\\\\n\" [https://localhost:3443/](https://localhost:3443/) виводить 200. Команда генерації сертифіката (openssl req -x509 -newkey rsa:2048 -nodes ...) присутня в README.md, а самі \\*.pem / \\*.key — у .gitignore (не закомічені).\n5.  \\[ \\] **Debug-сесія задокументована.** README.md містить блок виводу openssl s\\_client -connect localhost:3443 -servername localhost із рядком, що матчить grep -E \"verify (error|return code)\" README.md, і одне речення з поясненням коду помилки self-signed.\n\n  \n\n**Формат здачі**\n\n**Репозиторій:** публічний GitHub-репозиторій (або гілка hw-03 у наявному навчальному репо) + Pull Request.\n\n**Структура:**\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-color-#000000 ql-bg-transparent\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-color-#188038 ql-bg-transparent\">src/server.js</span></td><td data-row=\"2\"><span class=\"ql-color-#000000 ql-bg-transparent\">raw HTTP на </span><span class=\"ql-bg-transparent ql-color-#188038\">net</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-color-#188038 ql-bg-transparent\">src/https-server.js</span></td><td data-row=\"3\"><span class=\"ql-color-#000000 ql-bg-transparent\">HTTPS на </span><span class=\"ql-bg-transparent ql-color-#188038\">tls</span><span class=\"ql-bg-transparent ql-color-#000000\"> (переюзає парсер/обробник із </span><span class=\"ql-bg-transparent ql-color-#188038\">server.js</span><span class=\"ql-bg-transparent ql-color-#000000\">)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-color-#188038 ql-bg-transparent\">README.md</span></td><td data-row=\"4\"><span class=\"ql-color-#000000 ql-bg-transparent\">команди запуску обох серверів, команда генерації self-signed сертифіката, вклеєний вивід </span><span class=\"ql-bg-transparent ql-color-#188038\">openssl s_client</span><span class=\"ql-bg-transparent ql-color-#000000\"> з поясненням </span><span class=\"ql-bg-transparent ql-color-#188038\">verify error</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-color-#188038 ql-bg-transparent\">.gitignore</span></td><td data-row=\"5\"><span class=\"ql-color-#000000 ql-bg-transparent\">виключає згенеровані </span><span class=\"ql-bg-transparent ql-color-#188038\">*.pem</span><span class=\"ql-bg-transparent ql-color-#000000\"> / </span><span class=\"ql-bg-transparent ql-color-#188038\">*.key</span></td></tr></tbody></table>\n\n**Вимога до README:** грейдер має змогти запустити все двома командами (node src/server.js, node src/https-server.js) — без вгадування портів чи прапорців.\n\n**У LMS здаєте посилання на PR**, не на головну гілку.\n\n  \n\n**Зв'язок з курсовим проєктом**\n\nЦе **foundation-ДЗ поза курсовим проєктом** — воно нічого не додає до Marketplace API.\n\nЙого ціль — вибудувати ментальну модель HTTP/TLS на рівні байтів і сокетів. Щоб пізніше, працюючи з Express/Fastify (Лекція 4) і NestJS-шаром, ви розуміли, що саме фреймворк робить за вас, і могли дебажити мережеві та TLS-проблеми через curl -v та openssl s\\_client, а не лише через логи фреймворка.\n\nНавички звідси — читання raw request, self-signed сертифікати, коди verify error — прямо перевикористовуються у Лекції 27 (Security hardening, mTLS).",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104309/homework/54337"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:39:38.834Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:39:47.566Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104309,
+        "iri": "/api/lessons/104309",
+        "number": 3,
+        "name": "HTTP, TLS і практичний дебаг мережевої взаємодії",
+        "translationStatus": "available",
+        "startsAt": "2026-07-30T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104309"
+      },
+      "materials": [
+        {
+          "id": 201077,
+          "iri": "/api/lesson_materials/201077",
+          "relationId": "/api/lesson_material_has_lessons/201077-104309",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 3",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1aFyxXvRdz9Fy_skF5KiTnoqHpgzqUqVshaECUDg3Kp4/edit",
+              "cacheKey": "6a7817d06bc2c01b3b8d0ac922eaafd975631224132f2436660be7756a422e95",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/presentation.pdf",
+              "bytes": 1782617,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "ec53a755be1f94c119f42ec86c6297470fdcff18d0bb3b594b3748daf1b59e29",
+              "fetchedAt": "2026-10-12T13:39:46.289Z"
+            }
+          ]
+        },
+        {
+          "id": 201078,
+          "iri": "/api/lesson_materials/201078",
+          "relationId": "/api/lesson_material_has_lessons/201078-104309",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "HTTP Semantics (RFC 9110)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Актуальна специфікація методів, статус-кодів і заголовків. Замінила старі RFC 7230–7235 — на неї й посилайтеся, якщо сперечаєтеся про семантику.</p>\"}]",
+          "html": "<p>Актуальна специфікація методів, статус-кодів і заголовків. Замінила старі RFC 7230–7235 — на неї й посилайтеся, якщо сперечаєтеся про семантику.</p>",
+          "markdown": "Актуальна специфікація методів, статус-кодів і заголовків. Замінила старі RFC 7230–7235 — на неї й посилайтеся, якщо сперечаєтеся про семантику.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.rfc-editor.org/rfc/rfc9110.html",
+              "cacheKey": "0c05a375cddfb8f47ba9eecf9abfcd77335dbec07ed4bd21089ec2af068ab43b",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201079,
+          "iri": "/api/lesson_materials/201079",
+          "relationId": "/api/lesson_material_has_lessons/201079-104309",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "net — TCP-сокети (nodejs.org API docs)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>База для ДЗ: сервер без модуля http. Дивіться createServer, socket.write, події data / end.</p>\"}]",
+          "html": "<p>База для ДЗ: сервер без модуля http. Дивіться createServer, socket.write, події data / end.</p>",
+          "markdown": "База для ДЗ: сервер без модуля http. Дивіться createServer, socket.write, події data / end.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/net.html",
+              "cacheKey": "686737802a5cd63fda416fbac416a16aae9e62a71dffd553be77d2da6801b02e",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201080,
+          "iri": "/api/lesson_materials/201080",
+          "relationId": "/api/lesson_material_has_lessons/201080-104309",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "HTTP Caching (RFC 9111)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Cache-Control, ETag, Vary, умовні запити й 304. Розділ про Vary — найчастіше джерело «кеш віддав не те».</p>\"}]",
+          "html": "<p>Cache-Control, ETag, Vary, умовні запити й 304. Розділ про Vary — найчастіше джерело «кеш віддав не те».</p>",
+          "markdown": "Cache-Control, ETag, Vary, умовні запити й 304. Розділ про Vary — найчастіше джерело «кеш віддав не те».",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.rfc-editor.org/rfc/rfc9111.html",
+              "cacheKey": "e0e41d91635ce3747ea31e9b26d3b1bc4388a3d1696580d5fdae409a9304d9a5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201081,
+          "iri": "/api/lesson_materials/201081",
+          "relationId": "/api/lesson_material_has_lessons/201081-104309",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "MDN: HTTP caching",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Те саме людською мовою, зі схемами. Читати перед RFC, якщо тема нова.</p>\"}]",
+          "html": "<p>Те саме людською мовою, зі схемами. Читати перед RFC, якщо тема нова.</p>",
+          "markdown": "Те саме людською мовою, зі схемами. Читати перед RFC, якщо тема нова.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+              "cacheKey": "a83b0bfbe977447bb78c423a9114e9dae82c490ffa02f539ad0fe1f4fd867def",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201082,
+          "iri": "/api/lesson_materials/201082",
+          "relationId": "/api/lesson_material_has_lessons/201082-104309",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "http (nodejs.org API docs)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Зверніть увагу на server.keepAliveTimeout і server.headersTimeout — саме вони дають випадкові 502 за балансувальником.</p>\"}]",
+          "html": "<p>Зверніть увагу на server.keepAliveTimeout і server.headersTimeout — саме вони дають випадкові 502 за балансувальником.</p>",
+          "markdown": "Зверніть увагу на server.keepAliveTimeout і server.headersTimeout — саме вони дають випадкові 502 за балансувальником.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/http.html",
+              "cacheKey": "555d5baa120f68f03f2c667142759e7e227b0b84dd25fe3010d94dd2d3a4d444",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201083,
+          "iri": "/api/lesson_materials/201083",
+          "relationId": "/api/lesson_material_has_lessons/201083-104309",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "TLS 1.3 (RFC 8446)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Handshake за 1-RTT, викинуті застарілі шифри. Читати розділ 2 (Protocol Overview) — решта для тих, хто реалізує.</p>\"}]",
+          "html": "<p>Handshake за 1-RTT, викинуті застарілі шифри. Читати розділ 2 (Protocol Overview) — решта для тих, хто реалізує.</p>",
+          "markdown": "Handshake за 1-RTT, викинуті застарілі шифри. Читати розділ 2 (Protocol Overview) — решта для тих, хто реалізує.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.rfc-editor.org/rfc/rfc8446.html",
+              "cacheKey": "262ee9d1a01ae971d722d7caa40bc59a12c8d5dfbf47cde56bc2072ca365672f",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201084,
+          "iri": "/api/lesson_materials/201084",
+          "relationId": "/api/lesson_material_has_lessons/201084-104309",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "tls (nodejs.org API docs)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>createServer, SNI-колбек, rejectUnauthorized. Знадобиться для HTTPS-частини ДЗ.</p>\"}]",
+          "html": "<p>createServer, SNI-колбек, rejectUnauthorized. Знадобиться для HTTPS-частини ДЗ.</p>",
+          "markdown": "createServer, SNI-колбек, rejectUnauthorized. Знадобиться для HTTPS-частини ДЗ.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/tls.html",
+              "cacheKey": "ac01b934cbffe129451d2d55a685245133a27d5d76d5f9940531bb130733ac6c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201085,
+          "iri": "/api/lesson_materials/201085",
+          "relationId": "/api/lesson_material_has_lessons/201085-104309",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "openssl s_client (man)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Головний інструмент дебагу TLS. У ДЗ треба показати сесію — тут усі прапорці.</p>\"}]",
+          "html": "<p>Головний інструмент дебагу TLS. У ДЗ треба показати сесію — тут усі прапорці.</p>",
+          "markdown": "Головний інструмент дебагу TLS. У ДЗ треба показати сесію — тут усі прапорці.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.openssl.org/3.0/man1/openssl-s_client/",
+              "cacheKey": "9b2bdd42773ba5fbeb8ca7884f79d21af73a12f4a1701a278bc73e23bf320c01",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201086,
+          "iri": "/api/lesson_materials/201086",
+          "relationId": "/api/lesson_material_has_lessons/201086-104309",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "Let's Encrypt: Chain of Trust",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Звідки береться intermediate-сертифікат і чому без нього «у браузері працює, а curl падає».</p>\"}]",
+          "html": "<p>Звідки береться intermediate-сертифікат і чому без нього «у браузері працює, а curl падає».</p>",
+          "markdown": "Звідки береться intermediate-сертифікат і чому без нього «у браузері працює, а curl падає».",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://letsencrypt.org/certificates/",
+              "cacheKey": "be7f94870b7906dc81db822a2e0ee51bcd475400c9eb29b613d08835ef40cdba",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201087,
+          "iri": "/api/lesson_materials/201087",
+          "relationId": "/api/lesson_material_has_lessons/201087-104309",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "MDN: Strict-Transport-Security (HSTS)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>І окремо про preload: у список потрапити легко, вийти — місяцями.</p>\"}]",
+          "html": "<p>І окремо про preload: у список потрапити легко, вийти — місяцями.</p>",
+          "markdown": "І окремо про preload: у список потрапити легко, вийти — місяцями.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security",
+              "cacheKey": "400cb68d3abf7b1da889ab6f5baff8657a13ab3f68619003e7de8cb46456af7a",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201088,
+          "iri": "/api/lesson_materials/201088",
+          "relationId": "/api/lesson_material_has_lessons/201088-104309",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "SSL Labs Server Test (інструмент)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Перевірити будь-який публічний домен: ланцюг, протоколи, шифри. Корисно подивитися на свій робочий проєкт.</p>\"}]",
+          "html": "<p>Перевірити будь-який публічний домен: ланцюг, протоколи, шифри. Корисно подивитися на свій робочий проєкт.</p>",
+          "markdown": "Перевірити будь-який публічний домен: ланцюг, протоколи, шифри. Корисно подивитися на свій робочий проєкт.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.ssllabs.com/ssltest/",
+              "cacheKey": "1bd77a4cdc8640bffdabd8236a81ce16e84df2c749317f98b18de268b190d3e7",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201089,
+          "iri": "/api/lesson_materials/201089",
+          "relationId": "/api/lesson_material_has_lessons/201089-104309",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "MDN: HTTP (довідник)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Тримати у вкладці: найзручніший довідник по конкретному заголовку чи статусу.</p>\"}]",
+          "html": "<p>Тримати у вкладці: найзручніший довідник по конкретному заголовку чи статусу.</p>",
+          "markdown": "Тримати у вкладці: найзручніший довідник по конкретному заголовку чи статусу.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP",
+              "cacheKey": "95b960fed107e3b7ed32f1e3e66956a67fb98e4f742b7e1c664615bbed315cc8",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201240,
+          "iri": "/api/lesson_materials/201240",
+          "relationId": "/api/lesson_material_has_lessons/201240-104309",
+          "position": 13,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1g9-oWgh62UPvTv9Qg_5CPTtK5ApNEWpg/view",
+              "cacheKey": "9fda78e26c0f637d85870776bb67a4916d884c735d7dc7aed58d22c3e6d6200d",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/transcript.md",
+              "bytes": 142388,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Fri, 31 Jul 2026 13:34:37 GMT",
+              "sha256": "8c52241d0c2e599f00e9d011d296b8e908ee907b00a3560654ccf55ce401dfba",
+              "fetchedAt": "2026-10-12T13:39:47.566Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:39:47.566Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:39:55.749Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104309,
+        "iri": "/api/lessons/104309",
+        "number": 3,
+        "name": "HTTP, TLS і практичний дебаг мережевої взаємодії",
+        "translationStatus": "available",
+        "startsAt": "2026-07-30T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104309"
+      },
+      "recordings": [
+        {
+          "id": 138881,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 138881,
+      "resolutionId": 649865,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/lecture.mp4",
+      "bytes": 296609623,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/03-HTTP-TLS-і-практичний-дебаг-мережевої-взаємодії/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:39:55.749Z"
+    }
+  }
+}

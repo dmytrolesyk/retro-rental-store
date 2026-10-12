@@ -1,0 +1,402 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104308,
+    "iri": "/api/lessons/104308",
+    "number": 2,
+    "name": "Асинхронність, Streams і backpressure у реальних Node.js-сервісах",
+    "translationStatus": "available",
+    "startsAt": "2026-07-28T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104308"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:39:37.549Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:39:22.769Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104308,
+        "iri": "/api/lessons/104308",
+        "number": 2,
+        "name": "Асинхронність, Streams і backpressure у реальних Node.js-сервісах",
+        "translationStatus": "available",
+        "startsAt": "2026-07-28T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104308"
+      },
+      "status": "no_homework",
+      "homeworks": [],
+      "fetchedAt": "2026-10-12T13:39:22.769Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:39:29.299Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104308,
+        "iri": "/api/lessons/104308",
+        "number": 2,
+        "name": "Асинхронність, Streams і backpressure у реальних Node.js-сервісах",
+        "translationStatus": "available",
+        "startsAt": "2026-07-28T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104308"
+      },
+      "materials": [
+        {
+          "id": 200840,
+          "iri": "/api/lesson_materials/200840",
+          "relationId": "/api/lesson_material_has_lessons/200840-104308",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 2",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/163CVD-ReIFdxmmq_Xm8FGFniWztIJsvEaXufMZX-1T4/edit",
+              "cacheKey": "bf5ccb88ef642d853dc0f5836bec2962c951fa7f79fd70574eff826972efe0ff",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/presentation.pdf",
+              "bytes": 1051529,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "6c091b3485c49da6dea1c1a36e898ef01a3dfc480f27ddde07089ea48550dd34",
+              "fetchedAt": "2026-10-12T13:39:27.292Z"
+            }
+          ]
+        },
+        {
+          "id": 200841,
+          "iri": "/api/lesson_materials/200841",
+          "relationId": "/api/lesson_material_has_lessons/200841-104308",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "Backpressuring in Streams",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Канонічний протокол backpressure і чому pipeline кращий за pipe</p>\"}]",
+          "html": "<p>Канонічний протокол backpressure і чому pipeline кращий за pipe</p>",
+          "markdown": "Канонічний протокол backpressure і чому pipeline кращий за pipe",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/learn/modules/backpressuring-in-streams",
+              "cacheKey": "94ee86bdbb07b1d98392580828f1a6d68c0a887de87b63b0d441244d2a414a10",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200842,
+          "iri": "/api/lesson_materials/200842",
+          "relationId": "/api/lesson_material_has_lessons/200842-104308",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "Stream (API docs)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Повний довідник Readable, Writable, Transform, Duplex і pipeline</p>\"}]",
+          "html": "<p>Повний довідник Readable, Writable, Transform, Duplex і pipeline</p>",
+          "markdown": "Повний довідник Readable, Writable, Transform, Duplex і pipeline",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/docs/latest-v22.x/api/stream.html",
+              "cacheKey": "f9e6db30e61370c9e5ebb279ae61d2d357eec7aedee4516822ca7fc93b61527e",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200843,
+          "iri": "/api/lesson_materials/200843",
+          "relationId": "/api/lesson_material_has_lessons/200843-104308",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "Asynchronous context tracking — AsyncLocalStorage",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Контекст запиту без prop drilling: run, getStore, snapshot</p>\"}]",
+          "html": "<p>Контекст запиту без prop drilling: run, getStore, snapshot</p>",
+          "markdown": "Контекст запиту без prop drilling: run, getStore, snapshot",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/docs/latest-v22.x/api/async_context.html",
+              "cacheKey": "34032662eced3f2dc9c82005c614fdf7677ee411b7a18bcf835b68c0f43d49d4",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200844,
+          "iri": "/api/lesson_materials/200844",
+          "relationId": "/api/lesson_material_has_lessons/200844-104308",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "AbortController / AbortSignal",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Скасування операцій: timeout, any, throwIfAborted</p>\"}]",
+          "html": "<p>Скасування операцій: timeout, any, throwIfAborted</p>",
+          "markdown": "Скасування операцій: timeout, any, throwIfAborted",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/globals.html",
+              "cacheKey": "001002390b4f6cf401a1485804ed65ea0f9229956c323842ac7e17d23355d7e3",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200845,
+          "iri": "/api/lesson_materials/200845",
+          "relationId": "/api/lesson_material_has_lessons/200845-104308",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "The Node.js Event Loop, Timers, and process.nextTick()",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Фази event loop, microtasks і небезпека рекурсивного nextTick</p>\"}]",
+          "html": "<p>Фази event loop, microtasks і небезпека рекурсивного nextTick</p>",
+          "markdown": "Фази event loop, microtasks і небезпека рекурсивного nextTick",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/learn/asynchronous-work/event-loop-timers-and-nexttick",
+              "cacheKey": "9d13e10903b20226042e3487bc5a7de7b85b01a91b47fe57b59f1b5d5032661f",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200846,
+          "iri": "/api/lesson_materials/200846",
+          "relationId": "/api/lesson_material_has_lessons/200846-104308",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "Web Streams API",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Крос-платформна модель стрімів і мости fromWeb / toWeb</p>\"}]",
+          "html": "<p>Крос-платформна модель стрімів і мости fromWeb / toWeb</p>",
+          "markdown": "Крос-платформна модель стрімів і мости fromWeb / toWeb",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/webstreams.html",
+              "cacheKey": "9a495a8d550b3e52e40f9892765bc42b717040962e99522cd6d811afb2cccb94",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200847,
+          "iri": "/api/lesson_materials/200847",
+          "relationId": "/api/lesson_material_has_lessons/200847-104308",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "Understanding AbortController in Node.js",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Практичне пояснення скасування, гарний pre-read перед лекцією</p>\"}]",
+          "html": "<p>Практичне пояснення скасування, гарний pre-read перед лекцією</p>",
+          "markdown": "Практичне пояснення скасування, гарний pre-read перед лекцією",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://betterstack.com/community/guides/scaling-nodejs/understanding-abortcontroller/",
+              "cacheKey": "a8acbfeb8f37644172b911ded1948bea3cda56f9a696accd1e9e6c6aec42c6e0",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200848,
+          "iri": "/api/lesson_materials/200848",
+          "relationId": "/api/lesson_material_has_lessons/200848-104308",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "The Production Playbook for Node.js Stream Leaks",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому pipe тече при помилці, а pipeline ні</p>\"}]",
+          "html": "<p>Чому pipe тече при помилці, а pipeline ні</p>",
+          "markdown": "Чому pipe тече при помилці, а pipeline ні",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://frontendmasters.com/blog/the-production-playbook-for-node-js-stream-leaks/",
+              "cacheKey": "c9d34f8933e1ed6a5905657710b4ab060d3513d7956388ac8c8a251bcf46b0e4",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200849,
+          "iri": "/api/lesson_materials/200849",
+          "relationId": "/api/lesson_material_has_lessons/200849-104308",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "Node.js 24.0.0 release notes — AsyncContextFrame",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>AsyncContextFrame як дефолтна реалізація ALS у Node 24</p>\"}]",
+          "html": "<p>AsyncContextFrame як дефолтна реалізація ALS у Node 24</p>",
+          "markdown": "AsyncContextFrame як дефолтна реалізація ALS у Node 24",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/en/blog/release/v24.0.0",
+              "cacheKey": "1e4c1396ac8effe6c4b77027a40ee7772c19deb6fd900600932d635286ea1873",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201092,
+          "iri": "/api/lesson_materials/201092",
+          "relationId": "/api/lesson_material_has_lessons/201092-104308",
+          "position": 10,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/18AwjlVCXqQo2-XlG6ZP-XpsVRW_ZfBkU/view",
+              "cacheKey": "8e63f438155ae11474c47979c91568053360513db06ff8b253681c48f9dae487",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/transcript.md",
+              "bytes": 125989,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Thu, 30 Jul 2026 10:52:44 GMT",
+              "sha256": "2744ca428df22c49ba55f5112b6db5ed841bc60551781fdfb03152ad82be5eb8",
+              "fetchedAt": "2026-10-12T13:39:29.299Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:39:29.299Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:39:37.549Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104308,
+        "iri": "/api/lessons/104308",
+        "number": 2,
+        "name": "Асинхронність, Streams і backpressure у реальних Node.js-сервісах",
+        "translationStatus": "available",
+        "startsAt": "2026-07-28T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104308"
+      },
+      "recordings": [
+        {
+          "id": 138779,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 138779,
+      "resolutionId": 649478,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/lecture.mp4",
+      "bytes": 289694385,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/02-Асинхронність-Streams-і-backpressure-у-реальних-Node-js-сервісах/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:39:37.549Z"
+    }
+  }
+}

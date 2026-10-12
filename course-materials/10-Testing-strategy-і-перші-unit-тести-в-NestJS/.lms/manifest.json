@@ -1,0 +1,555 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104316,
+    "iri": "/api/lessons/104316",
+    "number": 10,
+    "name": "Testing strategy і перші unit-тести в NestJS",
+    "translationStatus": "available",
+    "startsAt": "2026-08-25T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104316"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:41:57.061Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:41.106Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104316,
+        "iri": "/api/lessons/104316",
+        "number": 10,
+        "name": "Testing strategy і перші unit-тести в NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-25T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104316"
+      },
+      "status": "no_homework",
+      "homeworks": [],
+      "fetchedAt": "2026-10-12T13:41:41.106Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:47.941Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104316,
+        "iri": "/api/lessons/104316",
+        "number": 10,
+        "name": "Testing strategy і перші unit-тести в NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-25T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104316"
+      },
+      "materials": [
+        {
+          "id": 202978,
+          "iri": "/api/lesson_materials/202978",
+          "relationId": "/api/lesson_material_has_lessons/202978-104316",
+          "position": 0,
+          "type": 0,
+          "typeName": "site",
+          "name": "Презентація до заняття 10",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1k6DT3zZiP0YIAijVb7_0vPJHmLnXZ9nnQxiTm9Fr5F4/edit",
+              "cacheKey": "f0bbef121f6bb59877531168d84b2d8a2068973fea46a2aec1e8d6691358cf9f",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/presentation.pdf",
+              "bytes": 1583297,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "14edf2742a461e33b6995db3bb58656072fefb5d1a56b6690d7faa4facfe6729",
+              "fetchedAt": "2026-10-12T13:41:46.684Z"
+            }
+          ]
+        },
+        {
+          "id": 202979,
+          "iri": "/api/lesson_materials/202979",
+          "relationId": "/api/lesson_material_has_lessons/202979-104316",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: The Practical Test Pyramid",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Піраміда з кодом: unit, integration, E2E</p>\"}]",
+          "html": "<p>Піраміда з кодом: unit, integration, E2E</p>",
+          "markdown": "Піраміда з кодом: unit, integration, E2E",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://martinfowler.com/articles/practical-test-pyramid.html",
+              "cacheKey": "8f4e461927b4db690a76935a82552c37e66232a090588b5a69e42953a53f2ff4",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202980,
+          "iri": "/api/lesson_materials/202980",
+          "relationId": "/api/lesson_material_has_lessons/202980-104316",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Testing (NestJS)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>createTestingModule і overrideProvider: підміна залежності через DI</p>\"}]",
+          "html": "<p>createTestingModule і overrideProvider: підміна залежності через DI</p>",
+          "markdown": "createTestingModule і overrideProvider: підміна залежності через DI",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/testing",
+              "cacheKey": "40164b96bf1dc85a2259745cac05f01fcafc3e4cf4f8860ecadb105b0a11b864",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202981,
+          "iri": "/api/lesson_materials/202981",
+          "relationId": "/api/lesson_material_has_lessons/202981-104316",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Test Double",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Канонічна таксономія: dummy, stub, spy, fake, mock</p>\"}]",
+          "html": "<p>Канонічна таксономія: dummy, stub, spy, fake, mock</p>",
+          "markdown": "Канонічна таксономія: dummy, stub, spy, fake, mock",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://martinfowler.com/bliki/TestDouble.html",
+              "cacheKey": "5f3b664da2362bd2b5a948791eccb54d7c5495476d67c29968cc70e6d2399f97",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202982,
+          "iri": "/api/lesson_materials/202982",
+          "relationId": "/api/lesson_material_has_lessons/202982-104316",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Mock Functions",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>jest.fn(), mockResolvedValue, toHaveBeenCalledWith — мок у термінах Jest</p>\"}]",
+          "html": "<p>jest.fn(), mockResolvedValue, toHaveBeenCalledWith — мок у термінах Jest</p>",
+          "markdown": "jest.fn(), mockResolvedValue, toHaveBeenCalledWith — мок у термінах Jest",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://jestjs.io/docs/mock-functions",
+              "cacheKey": "424afbbd6bce8b70e29d920bb61d05551677b3d42856dbcd89fedd98b8d1b876",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202983,
+          "iri": "/api/lesson_materials/202983",
+          "relationId": "/api/lesson_material_has_lessons/202983-104316",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Custom providers",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>useValue, useClass, useFactory і токени: що підміняється</p>\"}]",
+          "html": "<p>useValue, useClass, useFactory і токени: що підміняється</p>",
+          "markdown": "useValue, useClass, useFactory і токени: що підміняється",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/custom-providers",
+              "cacheKey": "08eacb6c165bb4b6f6a75861ad5e0b7f239ee3bcb10b97fdb80f24b9c6bc7e59",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202984,
+          "iri": "/api/lesson_materials/202984",
+          "relationId": "/api/lesson_material_has_lessons/202984-104316",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Snapshot Testing",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Файлові й інлайн-снапшоти, property matchers, режим --ci</p>\"}]",
+          "html": "<p>Файлові й інлайн-снапшоти, property matchers, режим --ci</p>",
+          "markdown": "Файлові й інлайн-снапшоти, property matchers, режим --ci",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://jestjs.io/docs/snapshot-testing",
+              "cacheKey": "4c40dfec8d5e81efe4fcad35cc6daa1766f91d36a66847ef1dcb96681b72683c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202985,
+          "iri": "/api/lesson_materials/202985",
+          "relationId": "/api/lesson_material_has_lessons/202985-104316",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "Mocks Aren't Stubs",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>State-based проти interaction-based; чому over-mocking цементує реалізацію</p>\"}]",
+          "html": "<p>State-based проти interaction-based; чому over-mocking цементує реалізацію</p>",
+          "markdown": "State-based проти interaction-based; чому over-mocking цементує реалізацію",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://martinfowler.com/articles/mocksArentStubs.html",
+              "cacheKey": "a0af32ccedcf22c0b8c3dfd04cba360b2c6a8ff7efa14931d58c7350e344490f",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202986,
+          "iri": "/api/lesson_materials/202986",
+          "relationId": "/api/lesson_material_has_lessons/202986-104316",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "TestCoverage",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому 100% покриття не рятує від живого багу</p>\"}]",
+          "html": "<p>Чому 100% покриття не рятує від живого багу</p>",
+          "markdown": "Чому 100% покриття не рятує від живого багу",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://martinfowler.com/bliki/TestCoverage.html",
+              "cacheKey": "e02570419a32cdc6d9507b1ecef8f77c3b08ee2a8b32c53528b3f73c7a06d528",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202987,
+          "iri": "/api/lesson_materials/202987",
+          "relationId": "/api/lesson_material_has_lessons/202987-104316",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "Why Vitest",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Аргументи ESM-first раннера; вибір диктує екосистема проєкту</p>\"}]",
+          "html": "<p>Аргументи ESM-first раннера; вибір диктує екосистема проєкту</p>",
+          "markdown": "Аргументи ESM-first раннера; вибір диктує екосистема проєкту",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://vitest.dev/guide/why.html",
+              "cacheKey": "d582f75d6de7beb4b0ed6c92972bcc85e5825e2b1779372692d242b4479025d0",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202988,
+          "iri": "/api/lesson_materials/202988",
+          "relationId": "/api/lesson_material_has_lessons/202988-104316",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "Comparisons",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Таблиця відмінностей від Jest: vi.*, globals, снапшоти</p>\"}]",
+          "html": "<p>Таблиця відмінностей від Jest: vi.*, globals, снапшоти</p>",
+          "markdown": "Таблиця відмінностей від Jest: vi.\\*, globals, снапшоти",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://vitest.dev/guide/comparisons.html",
+              "cacheKey": "2c86028cc0b885f56d06959c88525bb73a61e7e302977af5fa0413c22479271d",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202989,
+          "iri": "/api/lesson_materials/202989",
+          "relationId": "/api/lesson_material_has_lessons/202989-104316",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "Configuration",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>roots, reporters, collectCoverageFrom, coverageThreshold — усе з jest.config.js</p>\"}]",
+          "html": "<p>roots, reporters, collectCoverageFrom, coverageThreshold — усе з jest.config.js</p>",
+          "markdown": "roots, reporters, collectCoverageFrom, coverageThreshold — усе з jest.config.js",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://jestjs.io/docs/configuration",
+              "cacheKey": "cfefee2551b40708c50f5dfd3956fb81cb8a4d534402fc97dc13555c69757482",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202990,
+          "iri": "/api/lesson_materials/202990",
+          "relationId": "/api/lesson_material_has_lessons/202990-104316",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "Expect — довідник матчерів",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>toBe проти toEqual, toBeCloseTo, rejects.toThrow</p>\"}]",
+          "html": "<p>toBe проти toEqual, toBeCloseTo, rejects.toThrow</p>",
+          "markdown": "toBe проти toEqual, toBeCloseTo, rejects.toThrow",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://jestjs.io/docs/expect",
+              "cacheKey": "b55088406c8493afc0c025f682ca20bbf4f5e4a5885fba65106683811d016063",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202991,
+          "iri": "/api/lesson_materials/202991",
+          "relationId": "/api/lesson_material_has_lessons/202991-104316",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "ts-jest",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому Nest-декоратори потребують tsc-шляху з метаданими</p>\"}]",
+          "html": "<p>Чому Nest-декоратори потребують tsc-шляху з метаданими</p>",
+          "markdown": "Чому Nest-декоратори потребують tsc-шляху з метаданими",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://kulshekhar.github.io/ts-jest/",
+              "cacheKey": "753f0b6438df795e7efbc1f218e42102efe2d4e82ecc6553926c21fe500da9b0",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202992,
+          "iri": "/api/lesson_materials/202992",
+          "relationId": "/api/lesson_material_has_lessons/202992-104316",
+          "position": 14,
+          "type": 0,
+          "typeName": "site",
+          "name": "Test Behavior, Not Implementation",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Головний анти-патерн: чи переживуть тести рефакторинг?</p>\"}]",
+          "html": "<p>Головний анти-патерн: чи переживуть тести рефакторинг?</p>",
+          "markdown": "Головний анти-патерн: чи переживуть тести рефакторинг?",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://testing.googleblog.com/2013/08/testing-on-toilet-test-behavior-not.html",
+              "cacheKey": "f14b46e7f6a701128812eb207ddfd24607d49828d09b9f11c0aa42e3f4938e2b",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202993,
+          "iri": "/api/lesson_materials/202993",
+          "relationId": "/api/lesson_material_has_lessons/202993-104316",
+          "position": 15,
+          "type": 0,
+          "typeName": "site",
+          "name": "SWE at Google, гл. 12 — Unit Testing",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>DAMP проти DRY; зміна коду не повинна ламати тести</p>\"}]",
+          "html": "<p>DAMP проти DRY; зміна коду не повинна ламати тести</p>",
+          "markdown": "DAMP проти DRY; зміна коду не повинна ламати тести",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://abseil.io/resources/swe-book/html/ch12.html",
+              "cacheKey": "3dc68927f3e421337b84aa96f9f728babc99d1796c72a820e51f6d1878387cd6",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 203111,
+          "iri": "/api/lesson_materials/203111",
+          "relationId": "/api/lesson_material_has_lessons/203111-104316",
+          "position": 16,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1or1zy1trTX7tLuwIvzJlyhZaDmWMb1jd/view",
+              "cacheKey": "a22979c964413e278a7ce758a2bbe36d8c5658c9dfe855d918591dbe6d3bacf1",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/transcript.md",
+              "bytes": 117902,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Wed, 26 Aug 2026 10:45:31 GMT",
+              "sha256": "2b52dbeb335503b72467675f83477e2c1cc9461b9431d4962ce3e190cc440b44",
+              "fetchedAt": "2026-10-12T13:41:47.941Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [
+        {
+          "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_140060_6a8f185b5b6d80.63129985.vtt",
+          "cacheKey": "5078ada50ccf5e9860914843dfeffc45d6584cd3cbca8704d6fa9dbeeca276e4",
+          "kind": "vtt",
+          "role": "transcript",
+          "status": "not_downloaded",
+          "file": null
+        }
+      ],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:41:47.941Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:57.061Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104316,
+        "iri": "/api/lessons/104316",
+        "number": 10,
+        "name": "Testing strategy і перші unit-тести в NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-25T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104316"
+      },
+      "recordings": [
+        {
+          "id": 140060,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 140060,
+      "resolutionId": 656399,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/lecture.mp4",
+      "bytes": 346214730,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/10-Testing-strategy-і-перші-unit-тести-в-NestJS/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:41:57.061Z"
+    }
+  }
+}

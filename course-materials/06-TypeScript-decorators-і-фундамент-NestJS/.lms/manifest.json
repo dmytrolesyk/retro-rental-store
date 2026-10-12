@@ -1,0 +1,510 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104312,
+    "iri": "/api/lessons/104312",
+    "number": 6,
+    "name": "TypeScript decorators і фундамент NestJS",
+    "translationStatus": "available",
+    "startsAt": "2026-08-11T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104312"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:40:46.555Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:29.227Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104312,
+        "iri": "/api/lessons/104312",
+        "number": 6,
+        "name": "TypeScript decorators і фундамент NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-11T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104312"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54339,
+          "iri": "/api/lesson_homeworks/54339",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Курсовий проєкт:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> ні (наскрізний training-артефакт)</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Постановка</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Ви пишете </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">власний IoC-контейнер</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, який робить те саме, що робить NestJS під капотом: читає метадані типів із конструктора й сам збирає граф залежностей.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Після цієї роботи </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Injectable()</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у Nest перестане бути магією — ви знатимете, що це рівно два рядки </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Reflect.defineMetadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">частина 1 з 3</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. На Лекції 7 додасте контролери й DTO, на Лекції 8 — pipes, guards, interceptors і фільтри. Пишіть так, щоб було не соромно розширювати.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що потрібно зробити</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">1. </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Injectable()</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Декоратор класу, що позначає клас як придатний до створення контейнером.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">2. Резолв за </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">design:paramtypes</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Коли клас позначено декоратором і увімкнено </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">emitDecoratorMetadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, TypeScript кладе типи параметрів конструктора у метадані. Ваш контейнер читає їх через </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Reflect.getMetadata('design:paramtypes', Target)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і рекурсивно створює кожну залежність.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">3. </strong><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Inject(token)</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Параметр-декоратор для випадків, коли типу недостатньо: інтерфейси в рантаймі не існують, тому для них потрібен явний токен (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Symbol</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або рядок).</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">4. Скоупи</strong></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Скоуп</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Поведінка</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">singleton</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">за замовчуванням — один екземпляр на контейнер</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">transient</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">новий екземпляр на кожен </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">resolve</span></td></tr></tbody></table><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Скоуп задається аргументом декоратора: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Injectable({ scope: 'transient' })</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">5. Детекція циклічних залежностей</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#188038\\\">A → B → A</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> має падати з </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">зрозумілою</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> помилкою, що називає весь ланцюг (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">A -&gt; B -&gt; A</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">), а не </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">RangeError: Maximum call stack size exceeded</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">6. Тести обов'язкові</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Мінімум: резолв простого графа, синглтон повертає той самий екземпляр, transient — різні, цикл кидає помилку з ланцюгом, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Inject</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із токеном працює.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Обмеження.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Дозволено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">reflect-metadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, будь-який тест-раннер (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">vitest</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">jest</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">). Заборонено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@nestjs/*</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">inversify</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">tsyringe</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">typedi</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — контейнер ваш. TypeScript беріть </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">6.x</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm i -D typescript@6</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">): сьома версія щойно вийшла, для цього ДЗ вона нічого не додає. Код запускається </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">у контейнері з ДЗ #5</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Підказки, які економлять години.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">import 'reflect-metadata'</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — найпершим рядком точки входу й тестового setup-файлу. </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">design:paramtypes</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з'являється тільки якщо на класі є хоч один декоратор — клас без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Injectable()</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не отримає метаданих навіть при увімкненому </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">emitDecoratorMetadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Інтерфейси в метаданих перетворюються на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Object</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — саме тому для них потрібен </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Inject(token)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: це стирання типів, а не обмеження вашої реалізації. Для детекції циклу ведіть </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Set</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> шляху резолву й передавайте його рекурсивно, а при вході в клас, що вже у шляху, кидайте помилку з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">[...path, current].join(' -&gt; ')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Acceptance criteria</strong></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Чужих контейнерів немає.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -RE \\\"@nestjs|inversify|tsyringe|typedi\\\" package.json src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не дає жодного збігу.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">tsconfig.json</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> увімкнув метадані.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Містить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">\\\"experimentalDecorators\\\": true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">\\\"emitDecoratorMetadata\\\": true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -E 'experimentalDecorators|emitDecoratorMetadata' tsconfig.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> дає два збіги.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Резолв реально через метадані, не через ручний список.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> У коді присутній </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Reflect.getMetadata('design:paramtypes'</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -rn \\\"design:paramtypes\\\" src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> дає збіг.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Граф збирається рекурсивно.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Тест, у якому </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">A</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> залежить від </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">B</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">B</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> від </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">C</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">; </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">container.resolve(A)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> повертає екземпляр із живим </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">C</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> усередині.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Singleton.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">container.resolve(X) === container.resolve(X)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">true</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> для класу без явного скоупу.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Transient.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Для класу з </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Injectable({ scope: 'transient' })</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> той самий вираз → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">false</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">@Inject(token)</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> працює.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Тест, де залежність зареєстрована під </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Symbol.for('CONFIG')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і резолвиться саме за токеном, а не за типом.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Цикл дає осмислену помилку.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Тест перевіряє, що повідомлення містить назви всіх класів ланцюга (наприклад, матчить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">/A -&gt; B -&gt; A/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) і що це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">не</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">RangeError</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Тести проходять.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> завершується з кодом 0, у виводі видно щонайменше 5 пройдених тестів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Працює в Docker.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose run --rm api npm test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> проходить (перевикористовуйте образ із ДЗ #5).</span></li></ol><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Формат здачі</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Репозиторій:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> публічний GitHub-репозиторій </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">mini-nest</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (саме він житиме до Лекції 8) + Pull Request із гілки </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">part-1-ioc</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Структура:</strong></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Файл</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/decorators/injectable.ts</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">декоратор </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Injectable()</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/decorators/inject.ts</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">параметр-декоратор </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@Inject(token)</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/container.ts</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">сам контейнер</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/tokens.ts</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">символи-токени</span></td></tr><tr><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">test/</span></td><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">тести</span></td></tr><tr><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span></td><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">як запустити + абзац «як це працює»</span></td></tr></tbody></table><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Вимога до README:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> окремий абзац «як це працює» — звідки беруться </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">design:paramtypes</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і чому без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">emitDecoratorMetadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> нічого не буде.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">У LMS здаєте посилання на PR</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, не на головну гілку.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Зв'язок з курсовим проєктом</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">training-артефакт поза курсовим проєктом</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — Marketplace API він не стосується.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Його ціль інша: пройти шлях, який пройшли автори Nest, щоб на Лекціях 7–8 бачити не «магічні теги», а знайомий механізм. Коли на Лекції 8 розбиратимемо, чим guard відрізняється від interceptor, ви вже знатимете, де саме в lifecycle вони викликаються, бо самі таке писали.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Готовий mini-Nest — сильний пункт у портфоліо: він показує розуміння рантайм-рефлексії, а не вміння читати документацію.</span></p>\"}]",
+          "html": "<p><strong class=\"ql-bg-transparent ql-color-#000000\">Курсовий проєкт:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> ні (наскрізний training-артефакт)</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Постановка</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Ви пишете </span><strong class=\"ql-bg-transparent ql-color-#000000\">власний IoC-контейнер</strong><span class=\"ql-bg-transparent ql-color-#000000\">, який робить те саме, що робить NestJS під капотом: читає метадані типів із конструктора й сам збирає граф залежностей.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Після цієї роботи </span><span class=\"ql-bg-transparent ql-color-#188038\">@Injectable()</span><span class=\"ql-bg-transparent ql-color-#000000\"> у Nest перестане бути магією — ви знатимете, що це рівно два рядки </span><span class=\"ql-bg-transparent ql-color-#188038\">Reflect.defineMetadata</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це </span><strong class=\"ql-bg-transparent ql-color-#000000\">частина 1 з 3</strong><span class=\"ql-bg-transparent ql-color-#000000\">. На Лекції 7 додасте контролери й DTO, на Лекції 8 — pipes, guards, interceptors і фільтри. Пишіть так, щоб було не соромно розширювати.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Що потрібно зробити</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">1. </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Injectable()</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Декоратор класу, що позначає клас як придатний до створення контейнером.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">2. Резолв за </strong><strong class=\"ql-bg-transparent ql-color-#188038\">design:paramtypes</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Коли клас позначено декоратором і увімкнено </span><span class=\"ql-bg-transparent ql-color-#188038\">emitDecoratorMetadata</span><span class=\"ql-bg-transparent ql-color-#000000\">, TypeScript кладе типи параметрів конструктора у метадані. Ваш контейнер читає їх через </span><span class=\"ql-bg-transparent ql-color-#188038\">Reflect.getMetadata('design:paramtypes', Target)</span><span class=\"ql-bg-transparent ql-color-#000000\"> і рекурсивно створює кожну залежність.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">3. </strong><strong class=\"ql-bg-transparent ql-color-#188038\">@Inject(token)</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Параметр-декоратор для випадків, коли типу недостатньо: інтерфейси в рантаймі не існують, тому для них потрібен явний токен (</span><span class=\"ql-bg-transparent ql-color-#188038\">Symbol</span><span class=\"ql-bg-transparent ql-color-#000000\"> або рядок).</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">4. Скоупи</strong></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Скоуп</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Поведінка</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">singleton</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">за замовчуванням — один екземпляр на контейнер</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">transient</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">новий екземпляр на кожен </span><span class=\"ql-bg-transparent ql-color-#188038\">resolve</span></td></tr></tbody></table><p><span class=\"ql-bg-transparent ql-color-#000000\">Скоуп задається аргументом декоратора: </span><span class=\"ql-bg-transparent ql-color-#188038\">@Injectable({ scope: 'transient' })</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">5. Детекція циклічних залежностей</strong></p><p><span class=\"ql-bg-transparent ql-color-#188038\">A → B → A</span><span class=\"ql-bg-transparent ql-color-#000000\"> має падати з </span><strong class=\"ql-bg-transparent ql-color-#000000\">зрозумілою</strong><span class=\"ql-bg-transparent ql-color-#000000\"> помилкою, що називає весь ланцюг (</span><span class=\"ql-bg-transparent ql-color-#188038\">A -&gt; B -&gt; A</span><span class=\"ql-bg-transparent ql-color-#000000\">), а не </span><span class=\"ql-bg-transparent ql-color-#188038\">RangeError: Maximum call stack size exceeded</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">6. Тести обов'язкові</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Мінімум: резолв простого графа, синглтон повертає той самий екземпляр, transient — різні, цикл кидає помилку з ланцюгом, </span><span class=\"ql-bg-transparent ql-color-#188038\">@Inject</span><span class=\"ql-bg-transparent ql-color-#000000\"> із токеном працює.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Обмеження.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Дозволено: </span><span class=\"ql-bg-transparent ql-color-#188038\">reflect-metadata</span><span class=\"ql-bg-transparent ql-color-#000000\">, будь-який тест-раннер (</span><span class=\"ql-bg-transparent ql-color-#188038\">vitest</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">node:test</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">jest</span><span class=\"ql-bg-transparent ql-color-#000000\">). Заборонено: </span><span class=\"ql-bg-transparent ql-color-#188038\">@nestjs/*</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">inversify</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">tsyringe</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">typedi</span><span class=\"ql-bg-transparent ql-color-#000000\"> — контейнер ваш. TypeScript беріть </span><strong class=\"ql-bg-transparent ql-color-#000000\">6.x</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><span class=\"ql-bg-transparent ql-color-#188038\">npm i -D typescript@6</span><span class=\"ql-bg-transparent ql-color-#000000\">): сьома версія щойно вийшла, для цього ДЗ вона нічого не додає. Код запускається </span><strong class=\"ql-bg-transparent ql-color-#000000\">у контейнері з ДЗ #5</strong><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Підказки, які економлять години.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">import 'reflect-metadata'</span><span class=\"ql-bg-transparent ql-color-#000000\"> — найпершим рядком точки входу й тестового setup-файлу. </span><span class=\"ql-bg-transparent ql-color-#188038\">design:paramtypes</span><span class=\"ql-bg-transparent ql-color-#000000\"> з'являється тільки якщо на класі є хоч один декоратор — клас без </span><span class=\"ql-bg-transparent ql-color-#188038\">@Injectable()</span><span class=\"ql-bg-transparent ql-color-#000000\"> не отримає метаданих навіть при увімкненому </span><span class=\"ql-bg-transparent ql-color-#188038\">emitDecoratorMetadata</span><span class=\"ql-bg-transparent ql-color-#000000\">. Інтерфейси в метаданих перетворюються на </span><span class=\"ql-bg-transparent ql-color-#188038\">Object</span><span class=\"ql-bg-transparent ql-color-#000000\"> — саме тому для них потрібен </span><span class=\"ql-bg-transparent ql-color-#188038\">@Inject(token)</span><span class=\"ql-bg-transparent ql-color-#000000\">: це стирання типів, а не обмеження вашої реалізації. Для детекції циклу ведіть </span><span class=\"ql-bg-transparent ql-color-#188038\">Set</span><span class=\"ql-bg-transparent ql-color-#000000\"> шляху резолву й передавайте його рекурсивно, а при вході в клас, що вже у шляху, кидайте помилку з </span><span class=\"ql-bg-transparent ql-color-#188038\">[...path, current].join(' -&gt; ')</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Acceptance criteria</strong></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Чужих контейнерів немає.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -RE \"@nestjs|inversify|tsyringe|typedi\" package.json src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> не дає жодного збігу.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">tsconfig.json</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> увімкнув метадані.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Містить </span><span class=\"ql-bg-transparent ql-color-#188038\">\"experimentalDecorators\": true</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">\"emitDecoratorMetadata\": true</span><span class=\"ql-bg-transparent ql-color-#000000\"> — </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -E 'experimentalDecorators|emitDecoratorMetadata' tsconfig.json</span><span class=\"ql-bg-transparent ql-color-#000000\"> дає два збіги.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Резолв реально через метадані, не через ручний список.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> У коді присутній </span><span class=\"ql-bg-transparent ql-color-#188038\">Reflect.getMetadata('design:paramtypes'</span><span class=\"ql-bg-transparent ql-color-#000000\"> — </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -rn \"design:paramtypes\" src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> дає збіг.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Граф збирається рекурсивно.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Тест, у якому </span><span class=\"ql-bg-transparent ql-color-#188038\">A</span><span class=\"ql-bg-transparent ql-color-#000000\"> залежить від </span><span class=\"ql-bg-transparent ql-color-#188038\">B</span><span class=\"ql-bg-transparent ql-color-#000000\">, а </span><span class=\"ql-bg-transparent ql-color-#188038\">B</span><span class=\"ql-bg-transparent ql-color-#000000\"> від </span><span class=\"ql-bg-transparent ql-color-#188038\">C</span><span class=\"ql-bg-transparent ql-color-#000000\">; </span><span class=\"ql-bg-transparent ql-color-#188038\">container.resolve(A)</span><span class=\"ql-bg-transparent ql-color-#000000\"> повертає екземпляр із живим </span><span class=\"ql-bg-transparent ql-color-#188038\">C</span><span class=\"ql-bg-transparent ql-color-#000000\"> усередині.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Singleton.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">container.resolve(X) === container.resolve(X)</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">true</span><span class=\"ql-bg-transparent ql-color-#000000\"> для класу без явного скоупу.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Transient.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Для класу з </span><span class=\"ql-bg-transparent ql-color-#188038\">@Injectable({ scope: 'transient' })</span><span class=\"ql-bg-transparent ql-color-#000000\"> той самий вираз → </span><span class=\"ql-bg-transparent ql-color-#188038\">false</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">@Inject(token)</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> працює.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Тест, де залежність зареєстрована під </span><span class=\"ql-bg-transparent ql-color-#188038\">Symbol.for('CONFIG')</span><span class=\"ql-bg-transparent ql-color-#000000\"> і резолвиться саме за токеном, а не за типом.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Цикл дає осмислену помилку.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Тест перевіряє, що повідомлення містить назви всіх класів ланцюга (наприклад, матчить </span><span class=\"ql-bg-transparent ql-color-#188038\">/A -&gt; B -&gt; A/</span><span class=\"ql-bg-transparent ql-color-#000000\">) і що це </span><strong class=\"ql-bg-transparent ql-color-#000000\">не</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">RangeError</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Тести проходять.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">npm test</span><span class=\"ql-bg-transparent ql-color-#000000\"> завершується з кодом 0, у виводі видно щонайменше 5 пройдених тестів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Працює в Docker.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose run --rm api npm test</span><span class=\"ql-bg-transparent ql-color-#000000\"> проходить (перевикористовуйте образ із ДЗ #5).</span></li></ol><p><strong class=\"ql-bg-transparent ql-color-#000000\">Формат здачі</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Репозиторій:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> публічний GitHub-репозиторій </span><span class=\"ql-bg-transparent ql-color-#188038\">mini-nest</span><span class=\"ql-bg-transparent ql-color-#000000\"> (саме він житиме до Лекції 8) + Pull Request із гілки </span><span class=\"ql-bg-transparent ql-color-#188038\">part-1-ioc</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Структура:</strong></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/injectable.ts</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">декоратор </span><span class=\"ql-bg-transparent ql-color-#188038\">@Injectable()</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/inject.ts</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">параметр-декоратор </span><span class=\"ql-bg-transparent ql-color-#188038\">@Inject(token)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">src/container.ts</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">сам контейнер</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">src/tokens.ts</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">символи-токени</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">test/</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">тести</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">як запустити + абзац «як це працює»</span></td></tr></tbody></table><p><strong class=\"ql-bg-transparent ql-color-#000000\">Вимога до README:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> окремий абзац «як це працює» — звідки беруться </span><span class=\"ql-bg-transparent ql-color-#188038\">design:paramtypes</span><span class=\"ql-bg-transparent ql-color-#000000\"> і чому без </span><span class=\"ql-bg-transparent ql-color-#188038\">emitDecoratorMetadata</span><span class=\"ql-bg-transparent ql-color-#000000\"> нічого не буде.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">У LMS здаєте посилання на PR</strong><span class=\"ql-bg-transparent ql-color-#000000\">, не на головну гілку.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Зв'язок з курсовим проєктом</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це </span><strong class=\"ql-bg-transparent ql-color-#000000\">training-артефакт поза курсовим проєктом</strong><span class=\"ql-bg-transparent ql-color-#000000\"> — Marketplace API він не стосується.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Його ціль інша: пройти шлях, який пройшли автори Nest, щоб на Лекціях 7–8 бачити не «магічні теги», а знайомий механізм. Коли на Лекції 8 розбиратимемо, чим guard відрізняється від interceptor, ви вже знатимете, де саме в lifecycle вони викликаються, бо самі таке писали.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Готовий mini-Nest — сильний пункт у портфоліо: він показує розуміння рантайм-рефлексії, а не вміння читати документацію.</span></p>",
+          "markdown": "**Курсовий проєкт:** ні (наскрізний training-артефакт)\n\n**Постановка**\n\nВи пишете **власний IoC-контейнер**, який робить те саме, що робить NestJS під капотом: читає метадані типів із конструктора й сам збирає граф залежностей.\n\nПісля цієї роботи @Injectable() у Nest перестане бути магією — ви знатимете, що це рівно два рядки Reflect.defineMetadata.\n\nЦе **частина 1 з 3**. На Лекції 7 додасте контролери й DTO, на Лекції 8 — pipes, guards, interceptors і фільтри. Пишіть так, щоб було не соромно розширювати.\n\n**Що потрібно зробити**\n\n**1\\.** **@Injectable()**\n\nДекоратор класу, що позначає клас як придатний до створення контейнером.\n\n**2\\. Резолв за** **design:paramtypes**\n\nКоли клас позначено декоратором і увімкнено emitDecoratorMetadata, TypeScript кладе типи параметрів конструктора у метадані. Ваш контейнер читає їх через Reflect.getMetadata('design:paramtypes', Target) і рекурсивно створює кожну залежність.\n\n**3\\.** **@Inject(token)**\n\nПараметр-декоратор для випадків, коли типу недостатньо: інтерфейси в рантаймі не існують, тому для них потрібен явний токен (Symbol або рядок).\n\n**4\\. Скоупи**\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Скоуп</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Поведінка</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">singleton</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">за замовчуванням — один екземпляр на контейнер</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">transient</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">новий екземпляр на кожен </span><span class=\"ql-bg-transparent ql-color-#188038\">resolve</span></td></tr></tbody></table>\n\nСкоуп задається аргументом декоратора: @Injectable({ scope: 'transient' }).\n\n**5\\. Детекція циклічних залежностей**\n\nA → B → A має падати з **зрозумілою** помилкою, що називає весь ланцюг (A -> B -> A), а не RangeError: Maximum call stack size exceeded.\n\n**6\\. Тести обов'язкові**\n\nМінімум: резолв простого графа, синглтон повертає той самий екземпляр, transient — різні, цикл кидає помилку з ланцюгом, @Inject із токеном працює.\n\n**Обмеження.** Дозволено: reflect-metadata, будь-який тест-раннер (vitest, node:test, jest). Заборонено: @nestjs/\\*, inversify, tsyringe, typedi — контейнер ваш. TypeScript беріть **6.x** (npm i -D typescript@6): сьома версія щойно вийшла, для цього ДЗ вона нічого не додає. Код запускається **у контейнері з ДЗ #5**.\n\n**Підказки, які економлять години.** import 'reflect-metadata' — найпершим рядком точки входу й тестового setup-файлу. design:paramtypes з'являється тільки якщо на класі є хоч один декоратор — клас без @Injectable() не отримає метаданих навіть при увімкненому emitDecoratorMetadata. Інтерфейси в метаданих перетворюються на Object — саме тому для них потрібен @Inject(token): це стирання типів, а не обмеження вашої реалізації. Для детекції циклу ведіть Set шляху резолву й передавайте його рекурсивно, а при вході в клас, що вже у шляху, кидайте помилку з \\[...path, current\\].join(' -> ').\n\n**Acceptance criteria**\n\n1.  \\[ \\] **Чужих контейнерів немає.** grep -RE \"@nestjs|inversify|tsyringe|typedi\" package.json src/ не дає жодного збігу.\n2.  \\[ \\] **tsconfig.json** **увімкнув метадані.** Містить \"experimentalDecorators\": true і \"emitDecoratorMetadata\": true — grep -E 'experimentalDecorators|emitDecoratorMetadata' tsconfig.json дає два збіги.\n3.  \\[ \\] **Резолв реально через метадані, не через ручний список.** У коді присутній Reflect.getMetadata('design:paramtypes' — grep -rn \"design:paramtypes\" src/ дає збіг.\n4.  \\[ \\] **Граф збирається рекурсивно.** Тест, у якому A залежить від B, а B від C; container.resolve(A) повертає екземпляр із живим C усередині.\n5.  \\[ \\] **Singleton.** container.resolve(X) === container.resolve(X) → true для класу без явного скоупу.\n6.  \\[ \\] **Transient.** Для класу з @Injectable({ scope: 'transient' }) той самий вираз → false.\n7.  \\[ \\] **@Inject(token)** **працює.** Тест, де залежність зареєстрована під Symbol.for('CONFIG') і резолвиться саме за токеном, а не за типом.\n8.  \\[ \\] **Цикл дає осмислену помилку.** Тест перевіряє, що повідомлення містить назви всіх класів ланцюга (наприклад, матчить /A -> B -> A/) і що це **не** RangeError.\n9.  \\[ \\] **Тести проходять.** npm test завершується з кодом 0, у виводі видно щонайменше 5 пройдених тестів.\n10.  \\[ \\] **Працює в Docker.** docker compose run --rm api npm test проходить (перевикористовуйте образ із ДЗ #5).\n\n**Формат здачі**\n\n**Репозиторій:** публічний GitHub-репозиторій mini-nest (саме він житиме до Лекції 8) + Pull Request із гілки part-1-ioc.\n\n**Структура:**\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/injectable.ts</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">декоратор </span><span class=\"ql-bg-transparent ql-color-#188038\">@Injectable()</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">src/decorators/inject.ts</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">параметр-декоратор </span><span class=\"ql-bg-transparent ql-color-#188038\">@Inject(token)</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">src/container.ts</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">сам контейнер</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">src/tokens.ts</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">символи-токени</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">test/</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">тести</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">як запустити + абзац «як це працює»</span></td></tr></tbody></table>\n\n**Вимога до README:** окремий абзац «як це працює» — звідки беруться design:paramtypes і чому без emitDecoratorMetadata нічого не буде.\n\n**У LMS здаєте посилання на PR**, не на головну гілку.\n\n**Зв'язок з курсовим проєктом**\n\nЦе **training-артефакт поза курсовим проєктом** — Marketplace API він не стосується.\n\nЙого ціль інша: пройти шлях, який пройшли автори Nest, щоб на Лекціях 7–8 бачити не «магічні теги», а знайомий механізм. Коли на Лекції 8 розбиратимемо, чим guard відрізняється від interceptor, ви вже знатимете, де саме в lifecycle вони викликаються, бо самі таке писали.\n\nГотовий mini-Nest — сильний пункт у портфоліо: він показує розуміння рантайм-рефлексії, а не вміння читати документацію.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104312/homework/54339"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:40:29.227Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:35.450Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104312,
+        "iri": "/api/lessons/104312",
+        "number": 6,
+        "name": "TypeScript decorators і фундамент NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-11T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104312"
+      },
+      "materials": [
+        {
+          "id": 202006,
+          "iri": "/api/lesson_materials/202006",
+          "relationId": "/api/lesson_material_has_lessons/202006-104312",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 6",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1UrCrw2y-ZzmjWq-AEJ80-b8nPlLXFrLnokCjEAXpPwk/edit",
+              "cacheKey": "cf921c2864571ee9710be7280813e1f0df98c98e221a635918cfd4b30f4aa9c9",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/presentation.pdf",
+              "bytes": 917778,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "7478d09f120e939a2f59da151f0c61fedbd720e519248c4cbb0136a65f32dbb1",
+              "fetchedAt": "2026-10-12T13:40:34.085Z"
+            }
+          ]
+        },
+        {
+          "id": 202007,
+          "iri": "/api/lesson_materials/202007",
+          "relationId": "/api/lesson_material_has_lessons/202007-104312",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: TypeScript Handbook — Decorators",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Типи декораторів, фабрики, композиція й порядок виконання.</p>\"}]",
+          "html": "<p>Типи декораторів, фабрики, композиція й порядок виконання.</p>",
+          "markdown": "Типи декораторів, фабрики, композиція й порядок виконання.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.typescriptlang.org/docs/handbook/decorators.html",
+              "cacheKey": "d99ae3224e53b9d8754a2463c39d9b0751fde359f1cfee63e1acc201c77e3573",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202008,
+          "iri": "/api/lesson_materials/202008",
+          "relationId": "/api/lesson_material_has_lessons/202008-104312",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: tsconfig — experimentalDecorators",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Legacy-трансформер, на якому тримається NestJS 11. Не депрекація.</p>\"}]",
+          "html": "<p>Legacy-трансформер, на якому тримається NestJS 11. Не депрекація.</p>",
+          "markdown": "Legacy-трансформер, на якому тримається NestJS 11. Не депрекація.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.typescriptlang.org/tsconfig/",
+              "cacheKey": "d630896de7041ef0c50921e9e4feb753e0345d916bce4e99ac77a5e226728776",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202009,
+          "iri": "/api/lesson_materials/202009",
+          "relationId": "/api/lesson_material_has_lessons/202009-104312",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: tsconfig — emitDecoratorMetadata",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Звідки береться design:paramtypes. Без нього падіння в рантаймі.</p>\"}]",
+          "html": "<p>Звідки береться design:paramtypes. Без нього падіння в рантаймі.</p>",
+          "markdown": "Звідки береться design:paramtypes. Без нього падіння в рантаймі.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.typescriptlang.org/tsconfig/",
+              "cacheKey": "5681e72789925c55e90f77f5e070cb17b9540c20d8d03235561fb5e0a83e7780",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202010,
+          "iri": "/api/lesson_materials/202010",
+          "relationId": "/api/lesson_material_has_lessons/202010-104312",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: reflect-metadata",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Поліфіл Reflect-API. Імпортувати найпершим рядком, один раз.</p>\"}]",
+          "html": "<p>Поліфіл Reflect-API. Імпортувати найпершим рядком, один раз.</p>",
+          "markdown": "Поліфіл Reflect-API. Імпортувати найпершим рядком, один раз.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.npmjs.com/package/reflect-metadata",
+              "cacheKey": "7867b6ecb7bca66cbcc0b22620c2546f394ccd0dc21bc4fb0679fce3b69944b5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202011,
+          "iri": "/api/lesson_materials/202011",
+          "relationId": "/api/lesson_material_has_lessons/202011-104312",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Custom providers",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>useClass, useValue, useFactory, токени — механізм, що пишеш руками.</p>\"}]",
+          "html": "<p>useClass, useValue, useFactory, токени — механізм, що пишеш руками.</p>",
+          "markdown": "useClass, useValue, useFactory, токени — механізм, що пишеш руками.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/custom-providers",
+              "cacheKey": "08eacb6c165bb4b6f6a75861ad5e0b7f239ee3bcb10b97fdb80f24b9c6bc7e59",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202012,
+          "iri": "/api/lesson_materials/202012",
+          "relationId": "/api/lesson_material_has_lessons/202012-104312",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Injection scopes",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>DEFAULT, REQUEST, TRANSIENT. Перші два реалізуєш у ДЗ.</p>\"}]",
+          "html": "<p>DEFAULT, REQUEST, TRANSIENT. Перші два реалізуєш у ДЗ.</p>",
+          "markdown": "DEFAULT, REQUEST, TRANSIENT. Перші два реалізуєш у ДЗ.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/injection-scopes",
+              "cacheKey": "cbecb68fe711dd7636dc414195f19d276ee48437433c8028e686517586ad3017",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202013,
+          "iri": "/api/lesson_materials/202013",
+          "relationId": "/api/lesson_material_has_lessons/202013-104312",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Modules",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Модуль як межа видимості провайдерів. Аналог плагінів Fastify.</p>\"}]",
+          "html": "<p>Модуль як межа видимості провайдерів. Аналог плагінів Fastify.</p>",
+          "markdown": "Модуль як межа видимості провайдерів. Аналог плагінів Fastify.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/modules",
+              "cacheKey": "fd76137ccc6f9f0681c6903b48e79a9853e2cc3eec2d80480b63336123723793",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202014,
+          "iri": "/api/lesson_materials/202014",
+          "relationId": "/api/lesson_material_has_lessons/202014-104312",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Lifecycle events",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Куди чіпляти підключення до БД і graceful shutdown.</p>\"}]",
+          "html": "<p>Куди чіпляти підключення до БД і graceful shutdown.</p>",
+          "markdown": "Куди чіпляти підключення до БД і graceful shutdown.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/lifecycle-events",
+              "cacheKey": "a876df63089d5c21be6169222f3bab29a8d9559856919e0d4a0687f09a343157",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202015,
+          "iri": "/api/lesson_materials/202015",
+          "relationId": "/api/lesson_material_has_lessons/202015-104312",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Dynamic modules",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Патерн forRoot / forRootAsync з кожної інтеграції Nest.</p>\"}]",
+          "html": "<p>Патерн forRoot / forRootAsync з кожної інтеграції Nest.</p>",
+          "markdown": "Патерн forRoot / forRootAsync з кожної інтеграції Nest.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/dynamic-modules",
+              "cacheKey": "a975aae38b90fc9c4591204cec94c904f774ea0857e51aac42cab444c80b486d",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202016,
+          "iri": "/api/lesson_materials/202016",
+          "relationId": "/api/lesson_material_has_lessons/202016-104312",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Circular dependency",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>forwardRef і чому цикл сигналізує про неправильні межі модулів.</p>\"}]",
+          "html": "<p>forwardRef і чому цикл сигналізує про неправильні межі модулів.</p>",
+          "markdown": "forwardRef і чому цикл сигналізує про неправильні межі модулів.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/circular-dependency",
+              "cacheKey": "780d59b98c6041b95a4afff92d34f6defbeb74f016cf1bfb154a451dbd0028dc",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202017,
+          "iri": "/api/lesson_materials/202017",
+          "relationId": "/api/lesson_material_has_lessons/202017-104312",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "TC39 — proposal-decorators (Stage 3)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Майбутній стандарт з іншою моделлю: (value, context).</p>\"}]",
+          "html": "<p>Майбутній стандарт з іншою моделлю: (value, context).</p>",
+          "markdown": "Майбутній стандарт з іншою моделлю: (value, context).",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/tc39/proposal-decorators",
+              "cacheKey": "4e7430c47d102e8261b09d6fdbbdcae68fb75394e5a29ccafe0feabf32de389c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202018,
+          "iri": "/api/lesson_materials/202018",
+          "relationId": "/api/lesson_material_has_lessons/202018-104312",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "Angular DI",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Той самий патерн у сусідній екосистемі — звідки Nest узяв.</p>\"}]",
+          "html": "<p>Той самий патерн у сусідній екосистемі — звідки Nest узяв.</p>",
+          "markdown": "Той самий патерн у сусідній екосистемі — звідки Nest узяв.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://angular.dev/guide/di",
+              "cacheKey": "898a1f40a3b5458164bbf4dc93e5d9572f8bf51a7425c5363ba48512f6f1591f",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202019,
+          "iri": "/api/lesson_materials/202019",
+          "relationId": "/api/lesson_material_has_lessons/202019-104312",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "Martin Fowler — IoC Containers and the DI pattern",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Першоджерело термінів «IoC» і «DI», 2004 рік.</p>\"}]",
+          "html": "<p>Першоджерело термінів «IoC» і «DI», 2004 рік.</p>",
+          "markdown": "Першоджерело термінів «IoC» і «DI», 2004 рік.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://martinfowler.com/articles/injection.html",
+              "cacheKey": "fb6a411006c5908fe657c7988487d66c809d57339d063e244c124f71e8b96893",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202224,
+          "iri": "/api/lesson_materials/202224",
+          "relationId": "/api/lesson_material_has_lessons/202224-104312",
+          "position": 14,
+          "type": 0,
+          "typeName": "site",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1fB0JSDoRaa8gA1V2cCVaHG7AtlqJWN2R/view",
+              "cacheKey": "b45ab6b374afadb77dd2665e341ca9b29f0d92ce091c11fa6e1ff730eb66c57f",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/transcript.md",
+              "bytes": 132745,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Thu, 13 Aug 2026 11:13:24 GMT",
+              "sha256": "5bb3e7f88c534044a2d864c17507fcc8daef0bc1f76bbf52c364141b3750f0d7",
+              "fetchedAt": "2026-10-12T13:40:35.450Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:40:35.450Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:46.555Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104312,
+        "iri": "/api/lessons/104312",
+        "number": 6,
+        "name": "TypeScript decorators і фундамент NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-11T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104312"
+      },
+      "recordings": [
+        {
+          "id": 139401,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 139401,
+      "resolutionId": 652765,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/lecture.mp4",
+      "bytes": 436914635,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/06-TypeScript-decorators-і-фундамент-NestJS/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:40:46.555Z"
+    }
+  }
+}

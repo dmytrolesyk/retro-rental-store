@@ -1,0 +1,542 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104315,
+    "iri": "/api/lessons/104315",
+    "number": 9,
+    "name": "API design: REST, OpenAPI, idempotency і contract testing",
+    "translationStatus": "available",
+    "startsAt": "2026-08-20T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104315"
+  },
+  "materials": [
+    {
+      "id": 202821,
+      "iri": "/api/lesson_materials/202821",
+      "relationId": "/api/lesson_material_has_lessons/202821-104315",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 9",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/1B04kZ6Ex9URxqjPZGja-OutkNx23QzRqPRQDn8iGXe0/edit\"}}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [
+        "UNSUPPORTED_DESCRIPTION_BLOCK"
+      ],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1B04kZ6Ex9URxqjPZGja-OutkNx23QzRqPRQDn8iGXe0/edit",
+          "cacheKey": "1b47c2ee4180820b1944aa87a84c695d32895c6ce9af019210620093e551d294",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/presentation.pdf",
+          "bytes": 896880,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "380549a3820c2d952921abcacd64ea7a37d919bf02503a52d3df6738d88e64b3",
+          "fetchedAt": "2026-10-12T13:41:27.579Z"
+        }
+      ]
+    },
+    {
+      "id": 202822,
+      "iri": "/api/lesson_materials/202822",
+      "relationId": "/api/lesson_material_has_lessons/202822-104315",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: RFC 9457 — Problem Details for HTTP APIs",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Стандарт problem+json, наступник RFC 7807. П'ять полів + розширення</p>\"}]",
+      "html": "<p>Стандарт problem+json, наступник RFC 7807. П'ять полів + розширення</p>",
+      "markdown": "Стандарт problem+json, наступник RFC 7807. П'ять полів + розширення",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.rfc-editor.org/rfc/rfc9457.html",
+          "cacheKey": "8e6ffa4fd74ff2d231cc5bd222d686a60a8ab15d81ee57d377bffb60c23f4960",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202823,
+      "iri": "/api/lesson_materials/202823",
+      "relationId": "/api/lesson_material_has_lessons/202823-104315",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — OpenAPI: Introduction",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>DocumentBuilder, SwaggerModule, /docs і JSON-документ спеки</p>\"}]",
+      "html": "<p>DocumentBuilder, SwaggerModule, /docs і JSON-документ спеки</p>",
+      "markdown": "DocumentBuilder, SwaggerModule, /docs і JSON-документ спеки",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/openapi/introduction",
+          "cacheKey": "5bc9b1aa2bddc8274a88418bd27a6a3e5477ad79f0afad359af66756a593ae7c",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202824,
+      "iri": "/api/lesson_materials/202824",
+      "relationId": "/api/lesson_material_has_lessons/202824-104315",
+      "position": 3,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — OpenAPI: Types and parameters",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>@ApiProperty, масиви, енуми: як DTO стають components.schemas</p>\"}]",
+      "html": "<p>@ApiProperty, масиви, енуми: як DTO стають components.schemas</p>",
+      "markdown": "@ApiProperty, масиви, енуми: як DTO стають components.schemas",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/openapi/types-and-parameters",
+          "cacheKey": "95750608bf840bec02ca818965d6d9a0bdd51209131c0727a92d34a62e9759b5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202825,
+      "iri": "/api/lesson_materials/202825",
+      "relationId": "/api/lesson_material_has_lessons/202825-104315",
+      "position": 4,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — Versioning",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>URI / header / media-type, VERSION_NEUTRAL, дефолтна версія</p>\"}]",
+      "html": "<p>URI / header / media-type, VERSION_NEUTRAL, дефолтна версія</p>",
+      "markdown": "URI / header / media-type, VERSION\\_NEUTRAL, дефолтна версія",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/techniques/versioning",
+          "cacheKey": "36d704c726a6e9e0fbaa955647888704877b8c8e7f278a2d5ee4097cee0edff2",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202826,
+      "iri": "/api/lesson_materials/202826",
+      "relationId": "/api/lesson_material_has_lessons/202826-104315",
+      "position": 5,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Stripe — Idempotent requests",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Еталон Idempotency-Key: ключ на спробу, 24h TTL, replay</p>\"}]",
+      "html": "<p>Еталон Idempotency-Key: ключ на спробу, 24h TTL, replay</p>",
+      "markdown": "Еталон Idempotency-Key: ключ на спробу, 24h TTL, replay",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.stripe.com/api/idempotent_requests",
+          "cacheKey": "dae1bbb86101136c82312a83a298a955c4b99d9ca4f0a76db4bdba623100f9b8",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202827,
+      "iri": "/api/lesson_materials/202827",
+      "relationId": "/api/lesson_material_has_lessons/202827-104315",
+      "position": 6,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Redocly CLI",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Лінтер, яким перевіряється спека ДЗ: npx @redocly/cli lint</p>\"}]",
+      "html": "<p>Лінтер, яким перевіряється спека ДЗ: npx @redocly/cli lint</p>",
+      "markdown": "Лінтер, яким перевіряється спека ДЗ: npx @redocly/cli lint",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://redocly.com/docs/cli",
+          "cacheKey": "d1e31ad3df335672270771080b7f476aaa736cf902ff7686fa8a80a4e12e81b6",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202828,
+      "iri": "/api/lesson_materials/202828",
+      "relationId": "/api/lesson_material_has_lessons/202828-104315",
+      "position": 7,
+      "type": 0,
+      "typeName": "site",
+      "name": "Zalando RESTful API Guidelines",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Публічний звід REST-правил: pagination, problem+json, deprecation</p>\"}]",
+      "html": "<p>Публічний звід REST-правил: pagination, problem+json, deprecation</p>",
+      "markdown": "Публічний звід REST-правил: pagination, problem+json, deprecation",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://opensource.zalando.com/restful-api-guidelines/",
+          "cacheKey": "bb4c615588538ca3f2e1630cbb9438fe7387c41d063927a3c3eda79baedceea1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202829,
+      "iri": "/api/lesson_materials/202829",
+      "relationId": "/api/lesson_material_has_lessons/202829-104315",
+      "position": 8,
+      "type": 0,
+      "typeName": "site",
+      "name": "NestJS — OpenAPI: Operations",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>@ApiResponse із raw content — декларація application/problem+json</p>\"}]",
+      "html": "<p>@ApiResponse із raw content — декларація application/problem+json</p>",
+      "markdown": "@ApiResponse із raw content — декларація application/problem+json",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/openapi/operations",
+          "cacheKey": "ba883f993f5e9732da7ecdbd363e4752b66f225cbcda93788d7ca1d607955eec",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202830,
+      "iri": "/api/lesson_materials/202830",
+      "relationId": "/api/lesson_material_has_lessons/202830-104315",
+      "position": 9,
+      "type": 0,
+      "typeName": "site",
+      "name": "IETF draft — The Idempotency-Key HTTP Header Field",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Семантика повтору й конфліктів (409/422). Не стандарт: expired draft</p>\"}]",
+      "html": "<p>Семантика повтору й конфліктів (409/422). Не стандарт: expired draft</p>",
+      "markdown": "Семантика повтору й конфліктів (409/422). Не стандарт: expired draft",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/",
+          "cacheKey": "de34037f76edecd7f7bf5fd24c087d344b0b2b876a6a1359c0079abdebad49e6",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202831,
+      "iri": "/api/lesson_materials/202831",
+      "relationId": "/api/lesson_material_has_lessons/202831-104315",
+      "position": 10,
+      "type": 0,
+      "typeName": "site",
+      "name": "Slack Engineering — Evolving API Pagination at Slack",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому offset не пережив реальні дані; міграція на cursor</p>\"}]",
+      "html": "<p>Чому offset не пережив реальні дані; міграція на cursor</p>",
+      "markdown": "Чому offset не пережив реальні дані; міграція на cursor",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://slack.engineering/evolving-api-pagination-at-slack/",
+          "cacheKey": "4d4e8076e3e90eb62d990da1aaf8066fc181ebc782b2c37f69ee33ab07933f22",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202832,
+      "iri": "/api/lesson_materials/202832",
+      "relationId": "/api/lesson_material_has_lessons/202832-104315",
+      "position": 11,
+      "type": 0,
+      "typeName": "site",
+      "name": "Pact — документація",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Consumer-driven contracts: очікування споживача. Варіант А у ДЗ</p>\"}]",
+      "html": "<p>Consumer-driven contracts: очікування споживача. Варіант А у ДЗ</p>",
+      "markdown": "Consumer-driven contracts: очікування споживача. Варіант А у ДЗ",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.pact.io/",
+          "cacheKey": "2f5059be6dfe5ba72deb02888c5354220de831a979c6c13be47429b0ecbcb925",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202833,
+      "iri": "/api/lesson_materials/202833",
+      "relationId": "/api/lesson_material_has_lessons/202833-104315",
+      "position": 12,
+      "type": 0,
+      "typeName": "site",
+      "name": "express-openapi-validator",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Runtime-валідація запитів і відповідей проти спеки. Варіант Б</p>\"}]",
+      "html": "<p>Runtime-валідація запитів і відповідей проти спеки. Варіант Б</p>",
+      "markdown": "Runtime-валідація запитів і відповідей проти спеки. Варіант Б",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/cdimascio/express-openapi-validator",
+          "cacheKey": "de1dcb86ca155f1958c5b94723048b497043d1cda11f900a502dea8fff7838b0",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202834,
+      "iri": "/api/lesson_materials/202834",
+      "relationId": "/api/lesson_material_has_lessons/202834-104315",
+      "position": 13,
+      "type": 0,
+      "typeName": "site",
+      "name": "RFC 9745 — The Deprecation HTTP Header Field",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Машиночитне «застаріло з @unix-часу», яке ставили на v1</p>\"}]",
+      "html": "<p>Машиночитне «застаріло з @unix-часу», яке ставили на v1</p>",
+      "markdown": "Машиночитне «застаріло з @unix-часу», яке ставили на v1",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.rfc-editor.org/rfc/rfc9745.html",
+          "cacheKey": "15ab8f8db2f42937cae012bb2f66c8ed6782af1cdee72b3c56e531751e2b1b62",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202835,
+      "iri": "/api/lesson_materials/202835",
+      "relationId": "/api/lesson_material_has_lessons/202835-104315",
+      "position": 14,
+      "type": 0,
+      "typeName": "site",
+      "name": "RFC 8594 — The Sunset HTTP Header Field",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>«Після цієї дати вимкнемо»: друга половина deprecation policy</p>\"}]",
+      "html": "<p>«Після цієї дати вимкнемо»: друга половина deprecation policy</p>",
+      "markdown": "«Після цієї дати вимкнемо»: друга половина deprecation policy",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.rfc-editor.org/rfc/rfc8594.html",
+          "cacheKey": "b10899cf28b180dcfec8db26dbde938e40e55b94584e20268e38c503b6b2346e",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202836,
+      "iri": "/api/lesson_materials/202836",
+      "relationId": "/api/lesson_material_has_lessons/202836-104315",
+      "position": 15,
+      "type": 0,
+      "typeName": "site",
+      "name": "Stripe — APIs as infrastructure: future-proofing Stripe with versioning",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Version pinning per-account і transformation layers замість /v2</p>\"}]",
+      "html": "<p>Version pinning per-account і transformation layers замість /v2</p>",
+      "markdown": "Version pinning per-account і transformation layers замість /v2",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://stripe.com/blog/api-versioning",
+          "cacheKey": "135c947397b879169126730a85cf36928e593579fd140db08871bfd51892d18e",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202837,
+      "iri": "/api/lesson_materials/202837",
+      "relationId": "/api/lesson_material_has_lessons/202837-104315",
+      "position": 16,
+      "type": 0,
+      "typeName": "site",
+      "name": "Use The Index, Luke — No Offset",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому глибокий OFFSET дорожчає і як рятує keyset</p>\"}]",
+      "html": "<p>Чому глибокий OFFSET дорожчає і як рятує keyset</p>",
+      "markdown": "Чому глибокий OFFSET дорожчає і як рятує keyset",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://use-the-index-luke.com/no-offset",
+          "cacheKey": "a57dc07612ffa6c072541d89181d24454b4105e82ee1e1c70437786580c2fc13",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202838,
+      "iri": "/api/lesson_materials/202838",
+      "relationId": "/api/lesson_material_has_lessons/202838-104315",
+      "position": 17,
+      "type": 0,
+      "typeName": "site",
+      "name": "openapi-typescript",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>TS-типи зі спеки: клієнт компілюється проти контракту</p>\"}]",
+      "html": "<p>TS-типи зі спеки: клієнт компілюється проти контракту</p>",
+      "markdown": "TS-типи зі спеки: клієнт компілюється проти контракту",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/openapi-ts/openapi-typescript",
+          "cacheKey": "6bfda2c843af9b46da25e176ef3d9d902a0799139569e30f6fd08bb208f0ac94",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202839,
+      "iri": "/api/lesson_materials/202839",
+      "relationId": "/api/lesson_material_has_lessons/202839-104315",
+      "position": 18,
+      "type": 0,
+      "typeName": "site",
+      "name": "Google — API Improvement Proposals (AIP)",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Resource-oriented design у номерах: AIP-132, AIP-158</p>\"}]",
+      "html": "<p>Resource-oriented design у номерах: AIP-132, AIP-158</p>",
+      "markdown": "Resource-oriented design у номерах: AIP-132, AIP-158",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://google.aip.dev/",
+          "cacheKey": "df81da4cae2fe94f097b606453c8b0c7a6095d1336cf6827476a325697519bee",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202857,
+      "iri": "/api/lesson_materials/202857",
+      "relationId": "/api/lesson_material_has_lessons/202857-104315",
+      "position": 19,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1GNTNzJIENq2rZgn5tsoelhPwHUQAgpJN/view",
+          "cacheKey": "c023709b2817e290ffdf78571447b88d8c7b66cfb7422b595e0653b6aa2b87da",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/transcript.md",
+          "bytes": 123288,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 21 Aug 2026 10:06:06 GMT",
+          "sha256": "225df9b7ca6a17772d7199cebd3beaa3e05f7ed34baede456d8a0784d8088506",
+          "fetchedAt": "2026-10-12T13:41:28.792Z"
+        }
+      ]
+    },
+    {
+      "id": 203225,
+      "iri": "/api/lesson_materials/203225",
+      "relationId": "/api/lesson_material_has_lessons/203225-104315",
+      "position": 20,
+      "type": 0,
+      "typeName": "site",
+      "name": "Архітектурна записка курсового проєкту",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/document/d/1iyASzcxw2iTwpckF48N1LSTOtlmtd19UQn53x9mpHq0/edit",
+          "cacheKey": "6d4ff57aca2e8ca6076b929054b94957e92c273e99385efe2cde405caea82346",
+          "kind": "unsupported",
+          "role": "material",
+          "status": "unsupported",
+          "file": null
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/09-API-design-REST-OpenAPI-idempotency-і-contract-testing/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:41:28.792Z"
+}

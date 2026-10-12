@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104328,
+    "iri": "/api/lessons/104328",
+    "number": 22,
+    "name": "Saga, outbox, CDC, idempotency і resilience patterns",
+    "translationStatus": "available",
+    "startsAt": "2026-10-08T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104328"
+  },
+  "materials": [
+    {
+      "id": 206579,
+      "iri": "/api/lesson_materials/206579",
+      "relationId": "/api/lesson_material_has_lessons/206579-104328",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 22",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/13_tl3epZcqt2SAl1PvHi-sjc2rRdTNDipObP-In9KHI/edit",
+          "cacheKey": "ea5b5900c7a0836d58f019868e62de3db31fff7b4936689f63f294c2ad207bc8",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/22-Saga-outbox-CDC-idempotency-і-resilience-patterns/presentation.pdf",
+          "bytes": 1676855,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "ab7445b392e8a8ec2ff096a5029f9a3935555c05b5066fa3fbd94bc63f9783df",
+          "fetchedAt": "2026-10-12T13:45:13.405Z"
+        }
+      ]
+    },
+    {
+      "id": 206580,
+      "iri": "/api/lesson_materials/206580",
+      "relationId": "/api/lesson_material_has_lessons/206580-104328",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/22_DistributedPatterns/additional.md",
+          "cacheKey": "7bd7acdc4c867701220b7e56a63a732f40f3c8ebd668fa9ffa2c3cd86384a981",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 206793,
+      "iri": "/api/lesson_materials/206793",
+      "relationId": "/api/lesson_material_has_lessons/206793-104328",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1iHKwtLVduromZlBVMtEVZI8tN6BxXOAt/view",
+          "cacheKey": "82354f799abf73f37529e9a8126845d3faa031566c5722cd360af2aab7ff33de",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/22-Saga-outbox-CDC-idempotency-і-resilience-patterns/transcript.md",
+          "bytes": 113455,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 09 Oct 2026 14:00:35 GMT",
+          "sha256": "ab220b852f6bd6afe2c23b6956e186f6964b6f1aeb5418a0d35fc057c0440afb",
+          "fetchedAt": "2026-10-12T13:45:14.817Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [
+    {
+      "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_142241_6ac951f5edced3.01814244.vtt",
+      "cacheKey": "7f5795b4442e448e17cc39f114e37f9b295582108044b0bf6fa0de0694e0c859",
+      "kind": "vtt",
+      "role": "transcript",
+      "status": "not_downloaded",
+      "file": null
+    }
+  ],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/22-Saga-outbox-CDC-idempotency-і-resilience-patterns",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/22-Saga-outbox-CDC-idempotency-і-resilience-patterns/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:45:14.817Z"
+}

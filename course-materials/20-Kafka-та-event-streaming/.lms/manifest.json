@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104326,
+    "iri": "/api/lessons/104326",
+    "number": 20,
+    "name": "Kafka та event streaming",
+    "translationStatus": "available",
+    "startsAt": "2026-10-01T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104326"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:44:48.511Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:44:32.301Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104326,
+        "iri": "/api/lessons/104326",
+        "number": 20,
+        "name": "Kafka та event streaming",
+        "translationStatus": "available",
+        "startsAt": "2026-10-01T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "in_process",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104326"
+      },
+      "status": "no_homework",
+      "homeworks": [],
+      "fetchedAt": "2026-10-12T13:44:32.301Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:44:41.343Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104326,
+        "iri": "/api/lessons/104326",
+        "number": 20,
+        "name": "Kafka та event streaming",
+        "translationStatus": "available",
+        "startsAt": "2026-10-01T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "in_process",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104326"
+      },
+      "materials": [
+        {
+          "id": 206076,
+          "iri": "/api/lesson_materials/206076",
+          "relationId": "/api/lesson_material_has_lessons/206076-104326",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 20",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/10I-LRemaGcsvFjJ8tYuXbnVf8s7w0__vnZI0i0KVveg/edit\"}}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [
+            "UNSUPPORTED_DESCRIPTION_BLOCK"
+          ],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/10I-LRemaGcsvFjJ8tYuXbnVf8s7w0__vnZI0i0KVveg/edit",
+              "cacheKey": "9556e7c030b3d0e99ba46f701cb4709231c07c68a3ba16c226985e639fab9d04",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/presentation.pdf",
+              "bytes": 1827683,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "4cc3b85e42b419f6c65565caabd58a3fab642807e1cbe3252a0a417b96560298",
+              "fetchedAt": "2026-10-12T13:44:39.999Z"
+            }
+          ]
+        },
+        {
+          "id": 206077,
+          "iri": "/api/lesson_materials/206077",
+          "relationId": "/api/lesson_material_has_lessons/206077-104326",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "Перелік додаткових матеріалів",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+          "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+          "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/20_Kafka/additional.md",
+              "cacheKey": "b24991912b80f3be3e052b457cfff1d1cbe4957d06d8b0caa9544b16bed860cc",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 206494,
+          "iri": "/api/lesson_materials/206494",
+          "relationId": "/api/lesson_material_has_lessons/206494-104326",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1WsgY_aw4KL4HACGdG0ke2MFMBEM3-mZT/view",
+              "cacheKey": "486f70a2d82aa31485cc593b1a5fe16dda62c48997fcfb7c9c4deea07f8cf689",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/transcript.md",
+              "bytes": 104299,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Wed, 07 Oct 2026 10:32:34 GMT",
+              "sha256": "ccea6e2ef6f39ecc4e83fa0cbb1b09351484318fed27b30ed86860265585eb5f",
+              "fetchedAt": "2026-10-12T13:44:41.343Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:44:41.343Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:44:48.511Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104326,
+        "iri": "/api/lessons/104326",
+        "number": 20,
+        "name": "Kafka та event streaming",
+        "translationStatus": "available",
+        "startsAt": "2026-10-01T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "in_process",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104326"
+      },
+      "recordings": [
+        {
+          "id": 141920,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 141920,
+      "resolutionId": 666050,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/lecture.mp4",
+      "bytes": 284984098,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/20-Kafka-та-event-streaming/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:44:48.511Z"
+    }
+  }
+}

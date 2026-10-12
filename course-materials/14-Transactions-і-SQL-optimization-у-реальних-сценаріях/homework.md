@@ -1,7 +1,7 @@
 # Transactions і SQL optimization у реальних сценаріях
 
 Джерело: https://lms.robotdreams.cc/course/5467/lesson/104320
-Отримано: 2026-10-12T12:32:07.820Z
+Отримано: 2026-10-12T13:42:51.216Z
 
 ## Домашнє завдання
 
