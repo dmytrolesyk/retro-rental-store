@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 const run = (args, cwd) =>
@@ -37,6 +40,7 @@ test('invalid arguments produce JSON and usage exit code', () => {
     ['homework', '--lesson-id', '104319', '--lesson', '13'],
     ['login', '--course', '5467'],
     ['login', '--password', 'dummy'],
+    ['logout', '--check'],
     ['materials', '--video'],
     ['sync', '--latest', '--quality', '720'],
     ['video', '--latest', '--quality', '1080p'],
@@ -55,8 +59,6 @@ test('invalid arguments produce JSON and usage exit code', () => {
 
 test('all planned commands explicitly report that their actions are not implemented', () => {
   for (const args of [
-    ['login'],
-    ['logout'],
     ['lessons'],
     ['homework', '--lesson', '13'],
     ['materials', '--lesson-id', '104319'],
@@ -68,6 +70,25 @@ test('all planned commands explicitly report that their actions are not implemen
     const result = run(args);
     assert.equal(result.status, 3, args.join(' '));
     assert.equal(JSON.parse(result.stdout).error.code, 'NOT_IMPLEMENTED');
+  }
+});
+
+test('login requires TTY, missing session is explicit, logout is idempotent', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'lms-cli-test-'));
+  try {
+    const invoke = args =>
+      spawnSync(process.execPath, [cli, ...args], {
+        encoding: 'utf8',
+        env: { ...process.env, LMS_SESSION_DIR: directory },
+      });
+    assert.equal(JSON.parse(invoke(['login']).stdout).error.code, 'INTERACTIVE_REQUIRED');
+    const check = invoke(['login', '--check']);
+    assert.equal(check.status, 4);
+    assert.equal(JSON.parse(check.stdout).error.code, 'AUTH_REQUIRED');
+    assert.equal(invoke(['logout']).status, 0);
+    assert.equal(invoke(['logout']).status, 0);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
   }
 });
 

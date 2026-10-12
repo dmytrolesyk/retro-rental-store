@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs', 'tools/lms-client/dist/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -35,5 +35,13 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-argument': 'warn',
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
+  },
+  {
+    files: ['tools/lms-client/**/*.{ts,mjs}'],
+    languageOptions: { sourceType: 'module' },
+  },
+  {
+    files: ['tools/lms-client/test/**/*.mjs'],
+    extends: [tseslint.configs.disableTypeChecked],
   },
 );

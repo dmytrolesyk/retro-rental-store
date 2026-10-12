@@ -15,6 +15,11 @@
   },
   "devDependencies": {
     "@types/node": "24.13.4",
+    "@types/proper-lockfile": "4.1.4",
     "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "proper-lockfile": "4.1.2",
+    "tough-cookie": "6.0.2"
   }
 }

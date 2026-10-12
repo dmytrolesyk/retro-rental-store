@@ -20,6 +20,7 @@ type CommandName = keyof typeof COMMANDS;
 export interface CommandConfig {
   command: CommandName | 'help';
   help: boolean;
+  check: boolean;
   course: number;
   lesson?: number;
   lessonId?: number;
@@ -32,6 +33,7 @@ export interface CommandConfig {
 
 const OPTIONS = {
   help: { type: 'boolean', short: 'h' },
+  check: { type: 'boolean' },
   course: { type: 'string' },
   lesson: { type: 'string' },
   'lesson-id': { type: 'string' },
@@ -71,6 +73,7 @@ export function parseCommand(args: string[]): CommandConfig {
     throw new ArgumentError('Невідома команда або зайві позиційні аргументи. Див. --help.');
   }
   const allowed = new Set<string>(['help']);
+  if (command === 'login') allowed.add('check');
   if (command !== 'help' && command !== 'login' && command !== 'logout') allowed.add('course');
   if (['homework', 'materials', 'sync', 'video'].includes(command)) {
     for (const name of ['lesson', 'lesson-id', 'latest']) allowed.add(name);
@@ -112,6 +115,7 @@ export function parseCommand(args: string[]): CommandConfig {
   return {
     command: command as CommandConfig['command'],
     help,
+    check: values.check === true,
     course,
     lesson,
     lessonId,
@@ -130,6 +134,7 @@ export function helpData(command: CommandConfig['command']) {
     commands: COMMANDS,
     options: {
       '--help, -h': 'Показати довідку у JSON.',
+      '--check': 'Лише login: без введення пароля оновити сесію та перевірити доступ до курсу.',
       '--course <id>': 'ID курсу для lessons/homework/materials/sync/video; default 5467.',
       '--lesson <number>': 'Номер лекції; один із трьох селекторів.',
       '--lesson-id <id>': 'Стабільний ID лекції.',
@@ -144,7 +149,11 @@ export function helpData(command: CommandConfig['command']) {
       '1': 'Внутрішня помилка',
       '2': 'Неправильні аргументи',
       '3': 'Дію ще не реалізовано',
+      '4': 'Вхід/сесія потребує уваги',
+      '5': 'Мережа або відповідь LMS',
+      '6': 'Сесія зайнята іншим процесом',
+      '130': 'Вхід скасовано',
     },
-    stage: 'Каркас: дії команд із LMS ще не реалізовані.',
+    stage: 'Доступні login, login --check і logout. Інші дії ще не реалізовані.',
   };
 }
