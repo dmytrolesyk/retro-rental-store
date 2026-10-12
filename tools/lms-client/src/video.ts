@@ -1,6 +1,6 @@
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { MATERIALS_ROOT } from './config.js';
-import { downloadVideo, safeName, type VideoSource } from './download.js';
+import { downloadVideo, type VideoSource } from './download.js';
 import { ClientError } from './errors.js';
 import {
   type GraphqlReader,
@@ -11,6 +11,7 @@ import {
   record,
 } from './graphql.js';
 import { type Lesson } from './lessons.js';
+import { lessonDirectory } from './manifest.js';
 import { MATERIAL_COURSE, VIDEO_MEDIAS, VIDEO_RESOLUTIONS } from './queries.js';
 
 interface Recording {
@@ -28,6 +29,7 @@ interface VideoOptions {
   quality: number;
   mediaId?: number;
   root?: string;
+  directory?: string;
   fetchImpl?: typeof fetch;
   signal?: AbortSignal;
   onProgress?: (bytes: number, total: number) => void;
@@ -155,11 +157,9 @@ export async function getVideo(
   const course = await client.query(MATERIAL_COURSE, { id: `/api/courses/${String(courseId)}` });
   const translations = nodes(record(course.course).translations);
   const courseName = translations[0] ? nullableString(translations[0].name) : null;
-  const directory = join(
-    resolve(options.root ?? MATERIALS_ROOT),
-    `${safeName(courseName ?? 'course')}--${String(courseId)}`,
-    `${safeName(lesson.name ?? 'lesson')}--${String(lesson.id)}`,
-  );
+  const directory =
+    options.directory ??
+    (await lessonDirectory(options.root ?? MATERIALS_ROOT, courseId, courseName, lesson));
   const file = join(directory, `video-${String(selected.id)}-${String(options.quality)}p.mp4`);
   let resolutionId: number | undefined;
   const freshSource = async (): Promise<VideoSource> => {

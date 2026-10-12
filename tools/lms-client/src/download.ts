@@ -8,6 +8,29 @@ import lockfile from 'proper-lockfile';
 import { isRecord } from './http.js';
 import { ClientError } from './errors.js';
 
+export interface CachedFile {
+  file: string;
+  bytes: number;
+  contentType: string;
+  etag: string | null;
+  lastModified: string | null;
+  sha256: string;
+}
+export async function validCachedFile(cache: CachedFile): Promise<boolean> {
+  try {
+    await checkTarget(cache.file);
+    return await matchesState(cache.file, {
+      ...cache,
+      version: 1,
+      identity: '',
+      total: cache.bytes,
+      validator: null,
+      complete: true,
+    });
+  } catch {
+    return false;
+  }
+}
 export type FileKind = 'pdf' | 'text' | 'vtt' | 'file';
 export interface DownloadOptions {
   kind: FileKind;
@@ -16,6 +39,8 @@ export interface DownloadOptions {
   maxBytes?: number;
   signal?: AbortSignal;
   validateFile?: (temporaryPath: string) => Promise<void>;
+  cache?: CachedFile;
+  referer?: string;
 }
 export function safeName(value: string): string {
   return (
@@ -53,13 +78,19 @@ async function checkTarget(target: string): Promise<void> {
     if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) throw error;
   }
 }
-export async function writeLocalFile(target: string, text: string): Promise<void> {
+export async function writeLocalFile(
+  target: string,
+  text: string,
+  beforeCommit?: () => void,
+): Promise<void> {
   const temporary = `${target}.part-${randomUUID()}`;
   try {
     await checkTarget(target);
     await writeFile(temporary, text, { flag: 'wx' });
+    beforeCommit?.();
     await rename(temporary, target);
-  } catch {
+  } catch (error) {
+    if (error instanceof ClientError) throw error;
     throw new ClientError('FILE_IO', 'Не вдалося записати локальний матеріал.');
   } finally {
     await rm(temporary, { force: true });
@@ -111,10 +142,23 @@ export async function downloadFile(url: string, target: string, options: Downloa
   let response: Response | undefined;
   try {
     await checkTarget(target);
+    const cache =
+      options.cache && (await validCachedFile(options.cache)) ? options.cache : undefined;
+    const headers: Record<string, string> = options.referer
+      ? { Referer: checkedUrl(options.referer).href }
+      : {};
+    let redirected = false;
+    if (cache?.etag && /^"[^"\r\n]+"$/.test(cache.etag)) headers['If-None-Match'] = cache.etag;
+    else if (cache?.lastModified && Number.isFinite(Date.parse(cache.lastModified)))
+      headers['If-Modified-Since'] = cache.lastModified;
     let next = checkedUrl(url);
     for (let attempt = 0; attempt <= 5; attempt++) {
-      response = await (options.fetchImpl ?? fetch)(next, { redirect: 'manual', signal });
+      response = await (options.fetchImpl ?? fetch)(next, { redirect: 'manual', signal, headers });
       if (![301, 302, 303, 307, 308].includes(response.status)) break;
+      redirected = true;
+      // A validator belongs to a representation at a URI, not to a redirect target.
+      delete headers['If-None-Match'];
+      delete headers['If-Modified-Since'];
       await response.body?.cancel();
       const location = response.headers.get('location');
       if (!location || attempt === 5)
@@ -125,6 +169,12 @@ export async function downloadFile(url: string, target: string, options: Downloa
         );
       next = checkedUrl(new URL(location, next).href);
     }
+    if (
+      response?.status === 304 &&
+      cache &&
+      (headers['If-None-Match'] || headers['If-Modified-Since'])
+    )
+      return { ...cache, status: 'unchanged' as const };
     if (!response?.ok || !response.body)
       throw new ClientError('DOWNLOAD_UNAVAILABLE', 'Файл недоступний на джерелі.', 5);
     const contentType =
@@ -191,8 +241,17 @@ export async function downloadFile(url: string, target: string, options: Downloa
       throw new ClientError('DOWNLOAD_INVALID', 'Файл завантажився не повністю.', 5);
     validatePrefix(Buffer.concat(prefix), options.kind);
     await options.validateFile?.(temporary);
+    const sha256 = (await fileDigest(temporary)).sha256;
     await rename(temporary, target);
-    return { file: target, bytes, contentType };
+    return {
+      file: target,
+      bytes,
+      contentType,
+      etag: redirected ? null : response.headers.get('etag'),
+      lastModified: redirected ? null : response.headers.get('last-modified'),
+      sha256,
+      status: 'downloaded' as const,
+    };
   } catch (error) {
     if (error instanceof ClientError) throw error;
     throw new ClientError('DOWNLOAD_FAILED', 'Не вдалося завантажити файл повністю.', 5);

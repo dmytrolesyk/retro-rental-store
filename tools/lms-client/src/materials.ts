@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import { MATERIALS_ROOT } from './config.js';
 import { ClientError } from './errors.js';
 import {
@@ -16,24 +17,39 @@ import { type Lesson } from './lessons.js';
 import {
   downloadFile,
   ensureDirectory,
-  safeName,
   writeLocalFile,
   type FileKind,
+  type CachedFile,
+  validCachedFile,
 } from './download.js';
+import { lessonDirectory } from './manifest.js';
 import { vttToText } from './transcripts.js';
 import { MATERIAL_COURSE, MATERIAL_SUBTITLES, MATERIAL_TYPES, MATERIALS } from './queries.js';
 
 type SourceKind = 'drive' | 'slides' | 'file' | 'vtt' | 'external' | 'unsupported';
-interface Source {
+export interface Source {
   url: string;
+  cacheKey: string;
   kind: SourceKind;
   role: 'material' | 'transcript';
-  status: 'not_downloaded' | 'link' | 'unsupported' | 'downloaded' | 'unavailable' | 'failed';
+  status:
+    | 'not_downloaded'
+    | 'link'
+    | 'unsupported'
+    | 'downloaded'
+    | 'unavailable'
+    | 'failed'
+    | 'unchanged'
+    | 'stale';
   file: string | null;
   textFile?: string;
   bytes?: number;
   contentType?: string;
   errorCode?: string;
+  etag?: string | null;
+  lastModified?: string | null;
+  sha256?: string;
+  fetchedAt?: string;
 }
 interface Candidate {
   source: Source;
@@ -56,11 +72,17 @@ interface Material {
   warnings: string[];
   sources: Source[];
 }
+export interface CachedMaterial extends CachedFile {
+  fetchedAt: string;
+}
 interface MaterialOptions {
   download?: boolean;
   root?: string;
   fetchImpl?: typeof fetch;
   signal?: AbortSignal;
+  directory?: string;
+  cache?: ReadonlyMap<string, CachedMaterial>;
+  attempts?: number;
 }
 
 function stableUrl(url: URL): string {
@@ -148,6 +170,7 @@ function sourceFor(
   } else if (['drive.google.com', 'docs.google.com'].includes(url.hostname)) kind = 'unsupported';
   const source: Source = {
     url: stableUrl(url),
+    cacheKey: createHash('sha256').update(`${fileKind}:${downloadUrl}`).digest('hex'),
     kind,
     role: transcript || kind === 'vtt' ? 'transcript' : 'material',
     status:
@@ -347,11 +370,9 @@ export async function getMaterials(
     manifestPath: string | null = null;
   if (options.download) {
     checkCancelled();
-    directory = join(
-      resolve(options.root ?? MATERIALS_ROOT),
-      `${safeName(courseName ?? 'course')}--${String(course)}`,
-      `${safeName(lesson.name ?? 'lesson')}--${String(lesson.id)}`,
-    );
+    directory =
+      options.directory ??
+      (await lessonDirectory(options.root ?? MATERIALS_ROOT, course, courseName, lesson));
     await ensureDirectory(directory);
     for (const candidate of candidates) {
       checkCancelled();
@@ -365,25 +386,48 @@ export async function getMaterials(
               ? '.md'
               : '.bin';
       const target = join(directory, candidate.key + extension);
+      const cache = options.cache?.get(candidate.source.cacheKey);
       try {
         let transcriptText: string | undefined;
-        const downloaded = await downloadFile(candidate.downloadUrl, target, {
-          kind: candidate.fileKind,
-          fetchImpl: options.fetchImpl,
-          signal: options.signal,
-          validateFile:
-            candidate.fileKind === 'vtt'
-              ? async temporary => {
-                  transcriptText = vttToText(await readFile(temporary, 'utf8'));
-                }
-              : undefined,
-        });
+        const load = () =>
+          downloadFile(candidate.downloadUrl, target, {
+            kind: candidate.fileKind,
+            fetchImpl: options.fetchImpl,
+            signal: options.signal,
+            cache,
+            referer: candidate.fileKind === 'vtt' ? 'https://lms.robotdreams.cc/' : undefined,
+            validateFile:
+              candidate.fileKind === 'vtt'
+                ? async temporary => {
+                    transcriptText = vttToText(await readFile(temporary, 'utf8'));
+                  }
+                : undefined,
+          });
+        let downloaded: Awaited<ReturnType<typeof downloadFile>> | undefined;
+        for (let attempt = 0; attempt < Math.min(options.attempts ?? 1, 2); attempt++) {
+          try {
+            downloaded = await load();
+            break;
+          } catch (error) {
+            checkCancelled();
+            if (
+              attempt + 1 >= Math.min(options.attempts ?? 1, 2) ||
+              !(error instanceof ClientError) ||
+              !['DOWNLOAD_FAILED', 'DOWNLOAD_UNAVAILABLE'].includes(error.code)
+            )
+              throw error;
+          }
+        }
+        if (!downloaded)
+          throw new ClientError('DOWNLOAD_FAILED', 'Не вдалося завантажити матеріал.', 5);
+        if (downloaded.status === 'unchanged' && candidate.fileKind === 'vtt')
+          transcriptText = vttToText(await readFile(downloaded.file, 'utf8'));
         if (transcriptText !== undefined) {
           const textFile = join(directory, candidate.key + '.txt');
           await writeLocalFile(textFile, transcriptText);
           candidate.source.textFile = textFile;
         }
-        Object.assign(candidate.source, downloaded, { status: 'downloaded' });
+        Object.assign(candidate.source, downloaded, { fetchedAt: new Date().toISOString() });
       } catch (error) {
         if (options.signal?.aborted)
           throw new ClientError('CANCELLED', 'Завантаження скасовано.', 130);
@@ -392,6 +436,18 @@ export async function getMaterials(
             ? 'unavailable'
             : 'failed';
         candidate.source.errorCode = error instanceof ClientError ? error.code : 'DOWNLOAD_FAILED';
+        if (cache && (await validCachedFile(cache))) {
+          Object.assign(candidate.source, cache, { status: 'stale' });
+          if (candidate.fileKind === 'vtt') {
+            try {
+              const textFile = join(directory, candidate.key + '.txt');
+              await writeLocalFile(textFile, vttToText(await readFile(cache.file, 'utf8')));
+              candidate.source.textFile = textFile;
+            } catch {
+              /* The verified original VTT is still available. */
+            }
+          }
+        }
       }
     }
     manifestPath = join(directory, 'materials-manifest.json');
@@ -401,11 +457,13 @@ export async function getMaterials(
     .map(c => c.source);
   const transcriptStatus = !transcriptSources.length
     ? 'missing'
-    : transcriptSources.some(s => s.status === 'downloaded')
+    : transcriptSources.some(s => s.status === 'downloaded' || s.status === 'unchanged')
       ? 'available'
-      : options.download
-        ? 'unavailable'
-        : 'not_downloaded';
+      : transcriptSources.some(s => s.status === 'stale')
+        ? 'stale'
+        : options.download
+          ? 'unavailable'
+          : 'not_downloaded';
   const result = {
     version: 1,
     courseId: course,

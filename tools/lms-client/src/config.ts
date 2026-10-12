@@ -157,10 +157,9 @@ export function helpData(command: CommandConfig['command']) {
       '3': 'Дію ще не реалізовано',
       '4': 'Вхід/сесія потребує уваги',
       '5': 'Мережа або відповідь LMS',
-      '6': 'Сесія зайнята іншим процесом',
+      '6': 'Сесія, відеофайл або синхронізація зайняті іншим процесом',
       '130': 'Дію скасовано',
     },
-    stage:
-      'Доступні login, login --check, logout, lessons, homework, materials і video. Sync ще не реалізовано.',
+    stage: 'Доступні login, login --check, logout, lessons, homework, materials, video і sync.',
   };
 }

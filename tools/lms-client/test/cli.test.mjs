@@ -59,17 +59,6 @@ test('invalid arguments produce JSON and usage exit code', () => {
   }
 });
 
-test('remaining planned commands explicitly report that their actions are not implemented', () => {
-  for (const args of [
-    ['sync', '--latest'],
-    ['sync', '--lesson', '13', '--video'],
-  ]) {
-    const result = run(args);
-    assert.equal(result.status, 3, args.join(' '));
-    assert.equal(JSON.parse(result.stdout).error.code, 'NOT_IMPLEMENTED');
-  }
-});
-
 test('login requires TTY, missing session is explicit, logout is idempotent', () => {
   const directory = mkdtempSync(join(tmpdir(), 'lms-cli-test-'));
   try {
@@ -87,6 +76,8 @@ test('login requires TTY, missing session is explicit, logout is idempotent', ()
       ['homework', '--lesson', '13'],
       ['materials', '--lesson', '13'],
       ['video', '--lesson', '13'],
+      ['sync', '--lesson', '13'],
+      ['sync', '--latest', '--video', '--quality', '720'],
     ]) {
       const result = invoke(args);
       assert.equal(result.status, 4);

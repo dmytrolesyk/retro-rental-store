@@ -7,6 +7,7 @@ import { listLessons, selectLesson } from './lessons.js';
 import { getHomework } from './homework.js';
 import { getMaterials } from './materials.js';
 import { getVideo } from './video.js';
+import { syncLesson } from './sync.js';
 
 function writeJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -32,13 +33,15 @@ try {
     config.command === 'lessons' ||
     config.command === 'homework' ||
     config.command === 'materials' ||
-    config.command === 'video'
+    config.command === 'video' ||
+    config.command === 'sync'
   ) {
     const controller = new AbortController();
     const cancel = () => {
       controller.abort();
     };
-    if (config.download || config.command === 'video') process.once('SIGINT', cancel);
+    if (config.download || config.command === 'video' || config.command === 'sync')
+      process.once('SIGINT', cancel);
     let lastProgress = -1;
     const progress = (bytes: number, total: number) => {
       const percent = Math.floor((bytes * 100) / total);
@@ -56,24 +59,39 @@ try {
         data:
           config.command === 'lessons'
             ? result
-            : config.command === 'homework'
-              ? await getHomework(client, config.course, selectLesson(result.lessons, config))
-              : config.command === 'video'
-                ? await getVideo(client, config.course, selectLesson(result.lessons, config), {
-                    quality: config.quality,
-                    mediaId: config.mediaId,
-                    root: config.materialsRoot,
-                    signal: controller.signal,
-                    onProgress: progress,
-                  })
-                : await getMaterials(client, config.course, selectLesson(result.lessons, config), {
-                    download: config.download,
-                    root: config.materialsRoot,
-                    signal: controller.signal,
-                  }),
+            : config.command === 'sync'
+              ? await syncLesson(client, config.course, selectLesson(result.lessons, config), {
+                  root: config.materialsRoot,
+                  video: config.video,
+                  quality: config.quality,
+                  mediaId: config.mediaId,
+                  signal: controller.signal,
+                  onProgress: progress,
+                })
+              : config.command === 'homework'
+                ? await getHomework(client, config.course, selectLesson(result.lessons, config))
+                : config.command === 'video'
+                  ? await getVideo(client, config.course, selectLesson(result.lessons, config), {
+                      quality: config.quality,
+                      mediaId: config.mediaId,
+                      root: config.materialsRoot,
+                      signal: controller.signal,
+                      onProgress: progress,
+                    })
+                  : await getMaterials(
+                      client,
+                      config.course,
+                      selectLesson(result.lessons, config),
+                      {
+                        download: config.download,
+                        root: config.materialsRoot,
+                        signal: controller.signal,
+                      },
+                    ),
       });
     } finally {
-      if (config.download || config.command === 'video') process.removeListener('SIGINT', cancel);
+      if (config.download || config.command === 'video' || config.command === 'sync')
+        process.removeListener('SIGINT', cancel);
     }
   } else {
     const message = 'Дію команди ще не реалізовано: доступні довідка та валідація аргументів.';
