@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { MATERIALS_ROOT } from './config.js';
 import { ClientError } from './errors.js';
@@ -23,6 +23,8 @@ import {
   validCachedFile,
 } from './download.js';
 import { lessonDirectory } from './manifest.js';
+import { migrateLibrary } from './migrate-library.js';
+import { arrangeMaterials } from './library.js';
 import { vttToText } from './transcripts.js';
 import { MATERIAL_COURSE, MATERIAL_SUBTITLES, MATERIAL_TYPES, MATERIALS } from './queries.js';
 
@@ -83,6 +85,7 @@ interface MaterialOptions {
   directory?: string;
   cache?: ReadonlyMap<string, CachedMaterial>;
   attempts?: number;
+  referenceDirectory?: string;
 }
 
 function stableUrl(url: URL): string {
@@ -373,10 +376,27 @@ export async function getMaterials(
     directory =
       options.directory ??
       (await lessonDirectory(options.root ?? MATERIALS_ROOT, course, courseName, lesson));
-    await ensureDirectory(directory);
+    if (!options.directory) await migrateLibrary(directory, course, lesson.id);
+    const downloads = join(directory, '.lms', 'downloads');
+    await ensureDirectory(downloads);
+    candidates.sort(
+      (a, b) =>
+        Number(a.source.role === 'transcript' && a.fileKind === 'vtt') -
+        Number(b.source.role === 'transcript' && b.fileKind === 'vtt'),
+    );
     for (const candidate of candidates) {
       checkCancelled();
       if (candidate.source.status !== 'not_downloaded') continue;
+      if (
+        candidate.source.role === 'transcript' &&
+        candidates.some(
+          other =>
+            other !== candidate &&
+            other.source.role === 'transcript' &&
+            ['downloaded', 'unchanged'].includes(other.source.status),
+        )
+      )
+        continue;
       const extension =
         candidate.fileKind === 'pdf'
           ? '.pdf'
@@ -385,7 +405,7 @@ export async function getMaterials(
             : candidate.fileKind === 'text'
               ? '.md'
               : '.bin';
-      const target = join(directory, candidate.key + extension);
+      const target = join(downloads, candidate.key + extension);
       const cache = options.cache?.get(candidate.source.cacheKey);
       try {
         let transcriptText: string | undefined;
@@ -394,7 +414,8 @@ export async function getMaterials(
             kind: candidate.fileKind,
             fetchImpl: options.fetchImpl,
             signal: options.signal,
-            cache,
+            cache:
+              candidate.fileKind === 'vtt' && cache?.contentType !== 'text/vtt' ? undefined : cache,
             referer: candidate.fileKind === 'vtt' ? 'https://lms.robotdreams.cc/' : undefined,
             validateFile:
               candidate.fileKind === 'vtt'
@@ -423,7 +444,7 @@ export async function getMaterials(
         if (downloaded.status === 'unchanged' && candidate.fileKind === 'vtt')
           transcriptText = vttToText(await readFile(downloaded.file, 'utf8'));
         if (transcriptText !== undefined) {
-          const textFile = join(directory, candidate.key + '.txt');
+          const textFile = join(downloads, candidate.key + '.txt');
           await writeLocalFile(textFile, transcriptText);
           candidate.source.textFile = textFile;
         }
@@ -440,7 +461,7 @@ export async function getMaterials(
           Object.assign(candidate.source, cache, { status: 'stale' });
           if (candidate.fileKind === 'vtt') {
             try {
-              const textFile = join(directory, candidate.key + '.txt');
+              const textFile = join(downloads, candidate.key + '.txt');
               await writeLocalFile(textFile, vttToText(await readFile(cache.file, 'utf8')));
               candidate.source.textFile = textFile;
             } catch {
@@ -450,7 +471,7 @@ export async function getMaterials(
         }
       }
     }
-    manifestPath = join(directory, 'materials-manifest.json');
+    manifestPath = join(directory, '.lms', 'materials-manifest.json');
   }
   const transcriptSources = candidates
     .filter(c => c.source.role === 'transcript')
@@ -477,6 +498,11 @@ export async function getMaterials(
     fetchedAt: new Date().toISOString(),
   };
   checkCancelled();
-  if (manifestPath) await writeLocalFile(manifestPath, JSON.stringify(result, null, 2) + '\n');
+  if (manifestPath && directory) {
+    await arrangeMaterials(result, directory, options.referenceDirectory);
+    checkCancelled();
+    await writeLocalFile(manifestPath, JSON.stringify(result, null, 2) + '\n');
+    await rm(join(directory, '.lms', 'downloads'), { recursive: true, force: true });
+  }
   return result;
 }

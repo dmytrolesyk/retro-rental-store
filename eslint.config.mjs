@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs', 'tools/lms-client/dist/**'],
+    ignores: ['eslint.config.mjs', 'tools/lms-client/dist/**', 'reference/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,

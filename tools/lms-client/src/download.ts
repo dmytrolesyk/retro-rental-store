@@ -268,6 +268,8 @@ export interface VideoSource {
   referer?: string;
 }
 interface VideoDownloadOptions {
+  metadataPath?: string;
+  legacyTarget?: string;
   fetchImpl?: typeof fetch;
   signal?: AbortSignal;
   attempts?: number;
@@ -368,6 +370,59 @@ async function matchesState(file: string, state: VideoState): Promise<boolean> {
   }
 }
 
+async function moveLegacyVideo(
+  legacy: string,
+  target: string,
+  metadata: string,
+  active: () => void,
+): Promise<void> {
+  if (legacy === target) return;
+  const present = async (path: string) => {
+    try {
+      await lstat(path);
+      return true;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
+      throw error;
+    }
+  };
+  const pairs = [
+    [legacy, target],
+    [`${legacy}.part`, `${target}.part`],
+    [`${legacy}.json`, metadata],
+  ] as const;
+  if (!(await Promise.all(pairs.map(async ([from]) => present(from)))).some(Boolean)) return;
+  let release: () => Promise<void>;
+  const ownership = { compromised: false };
+  try {
+    release = await lockfile.lock(legacy, {
+      realpath: false,
+      retries: 0,
+      stale: 30_000,
+      update: 5_000,
+      onCompromised: () => {
+        ownership.compromised = true;
+      },
+    });
+  } catch {
+    throw new ClientError('VIDEO_BUSY', 'Старий відеофайл зараз використовує інший процес.', 6);
+  }
+  try {
+    for (const [from, to] of pairs) {
+      active();
+      if (ownership.compromised)
+        throw new ClientError('VIDEO_BUSY', 'Втрачено блокування міграції відео.', 6);
+      if (!(await present(from))) continue;
+      await checkTarget(from);
+      await checkTarget(to);
+      if (await present(to)) continue;
+      await rename(from, to);
+    }
+  } finally {
+    if (!ownership.compromised) await release();
+  }
+}
+
 // Signed URLs remain in memory. A byte-range GET probes size/identity: some CDNs reject HEAD.
 export async function downloadVideo(
   freshSource: () => Promise<VideoSource>,
@@ -375,7 +430,7 @@ export async function downloadVideo(
   options: VideoDownloadOptions = {},
 ) {
   const part = `${target}.part`,
-    metadata = `${target}.json`;
+    metadata = options.metadataPath ?? `${target}.json`;
   const ownership = new AbortController();
   const signal = AbortSignal.any([ownership.signal, ...(options.signal ? [options.signal] : [])]);
   const assertActive = () => {
@@ -405,6 +460,8 @@ export async function downloadVideo(
     } catch {
       throw new ClientError('VIDEO_BUSY', 'Цей відеофайл уже завантажує інший процес.', 6);
     }
+    if (options.legacyTarget)
+      await moveLegacyVideo(options.legacyTarget, target, metadata, assertActive);
     const attempts = Math.min(3, Math.max(1, options.attempts ?? 3));
     let lastError: unknown;
     for (let attempt = 0; attempt < attempts; attempt++) {

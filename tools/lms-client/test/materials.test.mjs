@@ -119,7 +119,11 @@ test('downloads PDF and Drive Markdown, retains external links, writes a manifes
   assert.ok(!result.directory.includes('../'));
   assert.equal(result.transcriptStatus, 'available');
   assert.match(await readFile(result.materials[1].sources[0].file, 'utf8'), /\*\*\[00:01\]\*\*/);
-  assert.equal(result.subtitles[0].status, 'unavailable');
+  assert.equal(result.subtitles[0].status, 'not_downloaded');
+  assert.equal(
+    urls.some(u => u.includes('.vtt')),
+    false,
+  );
   assert.equal(result.materials[2].sources[0].status, 'link');
   assert.ok(urls.some(u => u.includes('export=download')));
   assert.ok(urls.some(u => u.includes('/export/pdf')));
@@ -221,7 +225,7 @@ test('safe names and symlink destinations cannot redirect downloads', async t =>
   assert.equal(await readFile(target, 'utf8'), 'original');
 });
 
-test('VTT download keeps the original and creates timestamped text, malformed replacement preserves old VTT', async t => {
+test('VTT download exports one Markdown transcript; malformed replacement preserves its contents', async t => {
   const { getMaterials } = await import('../dist/materials.js');
   const root = await temp(t);
   const media = [
@@ -237,8 +241,8 @@ test('VTT download keeps the original and creates timestamped text, malformed re
     fetchImpl: async () => new Response(vtt, { headers: { 'content-type': 'text/vtt' } }),
   });
   assert.equal(result.transcriptStatus, 'available');
-  assert.equal(await readFile(result.subtitles[0].file, 'utf8'), vtt);
-  assert.match(await readFile(result.subtitles[0].textFile, 'utf8'), /\[00:00:01.000\] Привіт/);
+  assert.match(result.subtitles[0].file, /transcript\.md$/);
+  assert.match(await readFile(result.subtitles[0].file, 'utf8'), /\[00:00:01.000\] Привіт/);
   const failed = await getMaterials(reader([], media), 5467, selected, {
     download: true,
     root,
@@ -248,7 +252,7 @@ test('VTT download keeps the original and creates timestamped text, malformed re
       }),
   });
   assert.equal(failed.subtitles[0].status, 'failed');
-  assert.equal(await readFile(result.subtitles[0].file, 'utf8'), vtt);
+  assert.match(await readFile(result.subtitles[0].file, 'utf8'), /\[00:00:01.000\] Привіт/);
   assert.ok(!(await readdir(result.directory)).some(name => name.includes('.part-')));
 });
 

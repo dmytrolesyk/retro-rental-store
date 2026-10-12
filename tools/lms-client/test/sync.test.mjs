@@ -95,7 +95,7 @@ const fetchFile = async () =>
     },
   });
 
-test('sync publishes fresh homework and materials, repeat refreshes conditionally and preserves existing snapshot', async t => {
+test('sync publishes fresh homework and materials, repeat refreshes conditionally without retaining snapshots', async t => {
   const { syncLesson } = await import('../dist/sync.js');
   const root = await temp(t),
     client = reader();
@@ -113,7 +113,12 @@ test('sync publishes fresh homework and materials, repeat refreshes conditionall
   client.items = [1, 2];
   const second = await syncLesson(client, 1, lesson, { root, fetchImpl });
   assert.match(await readFile(second.homework.files[0], 'utf8'), /Changed assignment/);
-  assert.match(await readFile(first.homework.files[0], 'utf8'), /First version/);
+  assert.equal(second.homework.files[0], first.homework.files[0]);
+  assert.equal((await readdir(second.directory)).includes('snapshots'), false);
+  assert.equal(
+    (await readdir(join(second.directory, '.lms'))).some(name => name.startsWith('update-')),
+    false,
+  );
   assert.equal(second.materials.data.materials.length, 2);
   assert.equal(second.materials.data.materials[0].sources[0].status, 'unchanged');
   assert.equal(downloads, 2);
@@ -145,7 +150,7 @@ test('rename and colliding normalized names resolve by stable IDs', async t => {
     { download: true, root, fetchImpl: fetchFile },
   );
   assert.equal(standalone.directory, first.directory);
-  const nextLesson = { ...lesson, id: 21, iri: '/api/lessons/21' };
+  const nextLesson = { ...lesson, id: 21, number: 14, iri: '/api/lessons/21' };
   const other = await syncLesson(reader(nextLesson), 1, nextLesson, { root, fetchImpl: fetchFile });
   assert.notEqual(other.directory, first.directory);
 });
@@ -229,7 +234,7 @@ test('corrupt local cache is downloaded again; failed new material is explicit',
   assert.equal(result.status, 'partial');
   assert.equal(result.materials.data.materials[1].sources[0].status, 'unavailable');
   assert.equal(result.materials.data.materials[1].sources[0].file, null);
-  assert.deepEqual((await readdir(result.directory)).includes('manifest.json'), true);
+  assert.deepEqual((await readdir(join(result.directory, '.lms'))).includes('manifest.json'), true);
 });
 test('explicit --video records failures without hiding text context', async t => {
   const { syncLesson } = await import('../dist/sync.js');
@@ -279,13 +284,13 @@ test('LMS VTT is fetched with public Referer and appears as a local timed transc
     },
   });
   assert.equal(result.materials.data.transcriptStatus, 'available');
-  assert.match(await readFile(result.materials.data.subtitles[0].textFile, 'utf8'), /Привіт/);
+  assert.match(await readFile(result.materials.data.subtitles[0].file, 'utf8'), /Привіт/);
   const stale = await syncLesson(client, 1, lesson, {
     root,
     fetchImpl: async () => new Response(null, { status: 503 }),
   });
   assert.equal(stale.materials.data.subtitles[0].status, 'stale');
-  assert.match(await readFile(stale.materials.data.subtitles[0].textFile, 'utf8'), /Привіт/);
+  assert.match(await readFile(stale.materials.data.subtitles[0].file, 'utf8'), /Привіт/);
 });
 
 test('validators from a redirect destination are not reused for the original URI', async t => {
@@ -391,5 +396,91 @@ test('scrubbing signed URLs keeps ordinary query examples in the assignment inta
       'https://cdn.example/file?X-Amz-Signature=secret&X-Amz-Date=20261012#part',
     ),
     'https://cdn.example/file',
+  );
+});
+
+test('requesting another video quality preserves the previously downloaded variant', async t => {
+  const { syncLesson } = await import('../dist/sync.js');
+  const client = reader(),
+    base = client.query.bind(client),
+    root = await temp(t);
+  client.query = async (query, vars) => {
+    if (query.includes('ClientVideoMedias'))
+      return {
+        lesson: { id: lesson.iri, medias: conn([{ id: '/api/lesson_media/10', name: 'Lecture' }]) },
+      };
+    if (query.includes('ClientVideoResolutions'))
+      return {
+        lessonMediaResolutions: conn(
+          [1080, 720].map(q => ({
+            id: `/api/lesson_media_resolutions/${q}`,
+            type: q,
+            durationInSeconds: 10,
+            link: `https://cdn.example/video-${q}`,
+          })),
+        ),
+      };
+    return base(query, vars);
+  };
+  const bytes = Buffer.concat([Buffer.from('0000ftypisom'), Buffer.alloc(128, 42)]);
+  const fetchImpl = async (url, init) => {
+    if (!String(url).includes('/video-')) return fetchFile();
+    const probe = init.headers.Range === 'bytes=0-0';
+    const body = probe ? bytes.subarray(0, 1) : bytes;
+    return new Response(body, {
+      status: probe ? 206 : 200,
+      headers: {
+        'content-type': 'video/mp4',
+        'content-length': String(body.length),
+        etag: '"video"',
+        ...(probe ? { 'content-range': `bytes 0-0/${bytes.length}` } : {}),
+      },
+    });
+  };
+  const first = await syncLesson(client, 1, lesson, {
+    root,
+    fetchImpl,
+    video: true,
+    quality: 1080,
+  });
+  const second = await syncLesson(client, 1, lesson, {
+    root,
+    fetchImpl,
+    video: true,
+    quality: 720,
+  });
+  assert.equal(second.video.status, 'fresh');
+  for (const file of first.video.files) assert.ok(second.video.files.includes(file));
+  assert.equal((await readFile(first.video.data.file)).length, bytes.length);
+  assert.match(second.video.data.file, /lecture-720p\.mp4$/);
+});
+
+test('missing cached files are downloaded again and stale materials retain their metadata', async t => {
+  const { syncLesson } = await import('../dist/sync.js');
+  const root = await temp(t),
+    client = reader();
+  const first = await syncLesson(client, 1, lesson, { root, fetchImpl: fetchFile });
+  await rm(first.materials.data.materials[0].sources[0].file);
+  const second = await syncLesson(client, 1, lesson, { root, fetchImpl: fetchFile });
+  assert.equal(second.materials.data.materials[0].sources[0].status, 'downloaded');
+  client.failure = 'materials';
+  const stale = await syncLesson(client, 1, lesson, { root, fetchImpl: fetchFile });
+  assert.equal(stale.materials.status, 'stale');
+  assert.ok((await readFile(stale.materials.data.manifestPath, 'utf8')).includes('materials'));
+});
+test('destination collision cleans unpublished staging and preserves personal files', async t => {
+  const { syncLesson } = await import('../dist/sync.js');
+  const { lessonDirectory } = await import('../dist/manifest.js');
+  const root = await temp(t),
+    client = reader(),
+    directory = await lessonDirectory(root, 1, 'Node.js', lesson);
+  await writeFile(join(directory, 'PDF.pdf'), 'Personal notes');
+  await assert.rejects(syncLesson(client, 1, lesson, { root, fetchImpl: fetchFile }), {
+    code: 'FILE_IO',
+  });
+  assert.equal(await readFile(join(directory, 'PDF.pdf'), 'utf8'), 'Personal notes');
+  assert.equal(
+    (await readdir(join(directory, '.lms'))).some(name => name.startsWith('update-')),
+    false,
   );
 });

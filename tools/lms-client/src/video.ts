@@ -12,6 +12,8 @@ import {
 } from './graphql.js';
 import { type Lesson } from './lessons.js';
 import { lessonDirectory } from './manifest.js';
+import { migrateLibrary } from './migrate-library.js';
+import { recordingFilename } from './library.js';
 import { MATERIAL_COURSE, VIDEO_MEDIAS, VIDEO_RESOLUTIONS } from './queries.js';
 
 interface Recording {
@@ -160,7 +162,8 @@ export async function getVideo(
   const directory =
     options.directory ??
     (await lessonDirectory(options.root ?? MATERIALS_ROOT, courseId, courseName, lesson));
-  const file = join(directory, `video-${String(selected.id)}-${String(options.quality)}p.mp4`);
+  if (!options.directory) await migrateLibrary(directory, courseId, lesson.id);
+  const file = join(directory, recordingFilename(recordings, selected.id, options.quality));
   let resolutionId: number | undefined;
   const freshSource = async (): Promise<VideoSource> => {
     if (options.signal?.aborted) throw new ClientError('CANCELLED', 'Завантаження скасовано.', 130);
@@ -176,7 +179,11 @@ export async function getVideo(
       identity: `/api/lesson_media_resolutions/${String(fresh.id)}`,
     };
   };
-  const download = await downloadVideo(freshSource, file, options);
+  const download = await downloadVideo(freshSource, file, {
+    ...options,
+    legacyTarget: join(directory, `video-${String(selected.id)}-${String(options.quality)}p.mp4`),
+    metadataPath: join(directory, '.lms', `${file.split('/').at(-1) ?? 'lecture.mp4'}.json`),
+  });
   return {
     courseId,
     lesson,

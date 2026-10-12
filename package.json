@@ -28,7 +28,10 @@
     "migration:generate": "typeorm migration:generate -d dist/data-source.js",
     "seed": "node dist/scripts/seed.js",
     "demo:nplus1": "node dist/scripts/demo-nplus1.js",
-    "report": "node dist/scripts/report.js"
+    "report": "node dist/scripts/report.js",
+    "course:init": "git submodule update --init --recursive reference/node-js-pro",
+    "course:update": "git submodule update --init --remote reference/node-js-pro",
+    "course:diff": "git diff --submodule -- reference/node-js-pro"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

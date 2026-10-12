@@ -1,11 +1,11 @@
-import { randomUUID } from 'node:crypto';
-import { lstat, rm } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { lstat, rm, access } from 'node:fs/promises';
+import { dirname, join, extname } from 'node:path';
 import lockfile from 'proper-lockfile';
 import { MATERIALS_ROOT } from './config.js';
-import { ensureDirectory, writeLocalFile } from './download.js';
+import { ensureDirectory, writeLocalFile, validCachedFile } from './download.js';
 import { ClientError } from './errors.js';
 import { type GraphqlReader, nodes, nullableString, record } from './graphql.js';
+import { isRecord } from './http.js';
 import { getHomework } from './homework.js';
 import { type Lesson } from './lessons.js';
 import { getMaterials } from './materials.js';
@@ -18,6 +18,10 @@ import {
   type SyncSection,
 } from './manifest.js';
 import { MATERIAL_COURSE } from './queries.js';
+import { copyAsset } from './library.js';
+import { managedFiles, migrateLibrary } from './migrate-library.js';
+import { createStage, publishLesson } from './publication.js';
+import { rebasePaths } from './manifest.js';
 import { getVideo } from './video.js';
 
 interface SyncOptions {
@@ -71,7 +75,6 @@ export async function syncLesson(
     throw new ClientError('SYNC_BUSY', 'Цю лекцію вже синхронізує інший процес.', 6);
   }
   let snapshot: string | undefined;
-  let committed = false;
   const reader: GraphqlReader = {
     async query(query, variables) {
       for (let attempt = 0; ; attempt++) {
@@ -96,10 +99,20 @@ export async function syncLesson(
     const courseName = translation ? nullableString(translation.name) : null;
     active();
     const directory = await lessonDirectory(root, courseId, courseName, lesson);
-    const manifestPath = join(directory, 'manifest.json');
+    await migrateLibrary(directory, courseId, lesson.id);
+    const manifestPath = join(directory, '.lms', 'manifest.json');
     const previous = await readManifest(manifestPath, courseId, lesson.id, directory);
-    snapshot = join(directory, 'snapshots', randomUUID());
-    await ensureDirectory(snapshot);
+    snapshot = await createStage(directory);
+    const cache = materialCache(previous, directory);
+    for (const [key, entry] of cache) {
+      if (!(await validCachedFile(entry))) {
+        cache.delete(key);
+        continue;
+      }
+      const file = join(snapshot, '.lms', 'cache', key + extname(entry.file));
+      await copyAsset(entry.file, file);
+      cache.set(key, { ...entry, file });
+    }
     const now = () => new Date().toISOString();
     const failed = async (
       error: unknown,
@@ -178,17 +191,24 @@ export async function syncLesson(
         fetchImpl: options.fetchImpl,
         signal,
         attempts: 2,
-        cache: materialCache(previous, directory),
+        cache,
+        referenceDirectory: directory,
       });
       const sources = [...data.materials.flatMap(item => item.sources), ...data.subtitles];
       materials = {
-        status: sources.some(source =>
-          ['unavailable', 'failed', 'stale', 'unsupported'].includes(source.status),
+        status: sources.some(
+          source =>
+            !(
+              source.role === 'transcript' &&
+              !source.file &&
+              data.transcriptStatus === 'available'
+            ) && ['unavailable', 'failed', 'stale', 'unsupported'].includes(source.status),
         )
           ? 'partial'
           : 'fresh',
         fetchedAt: data.fetchedAt,
         files: [
+          join(snapshot, 'additional-materials.md'),
           ...new Set(
             sources.flatMap(source =>
               [source.file, source.textFile].filter(
@@ -221,7 +241,7 @@ export async function syncLesson(
         video = {
           status: 'fresh',
           fetchedAt: data.fetchedAt,
-          files: [data.file, data.metadata],
+          files: [...new Set([...(previous?.video.files ?? []), data.file, data.metadata])],
           data,
         };
       } catch (error) {
@@ -245,17 +265,50 @@ export async function syncLesson(
       materials,
       video,
     };
-    // Publish one pointer only after every section has a result. Previous snapshots stay readable.
+    const published = rebasePaths(
+      withoutTemporaryUrls(result),
+      snapshot,
+      directory,
+    ) as SyncManifest;
+    await rm(join(snapshot, '.lms', 'cache'), { recursive: true, force: true });
     await writeLocalFile(
-      manifestPath,
-      JSON.stringify(withoutTemporaryUrls(result), null, 2) + '\n',
+      join(snapshot, '.lms', 'manifest.json'),
+      JSON.stringify(published, null, 2) + '\n',
       active,
     );
-    committed = true;
-    return withoutTemporaryUrls(result) as SyncManifest;
+    if (published.materials.status !== 'stale' && published.materials.status !== 'failed')
+      await writeLocalFile(
+        join(snapshot, '.lms', 'materials-manifest.json'),
+        JSON.stringify(published.materials.data, null, 2) + '\n',
+        active,
+      );
+    active();
+    // Once the journal is durable publication finishes, or recovers on the next command.
+    const obsolete = managedFiles(previous);
+    await publishLesson(
+      directory,
+      snapshot,
+      obsolete,
+      [],
+      [
+        ...published.homework.files,
+        ...published.materials.files,
+        ...published.video.files,
+        ...(isRecord(published.materials.data) &&
+        typeof published.materials.data.manifestPath === 'string'
+          ? [published.materials.data.manifestPath]
+          : []),
+      ],
+    );
+    return published;
   } finally {
-    if (snapshot && !committed)
-      await rm(snapshot, { recursive: true, force: true }).catch(() => undefined);
+    if (snapshot) {
+      const pending = await access(join(snapshot, '..', 'publication.json')).then(
+        () => true,
+        () => false,
+      );
+      if (!pending) await rm(snapshot, { recursive: true, force: true }).catch(() => undefined);
+    }
     if (!ownership.signal.aborted) await release().catch(() => undefined);
   }
 }

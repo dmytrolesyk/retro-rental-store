@@ -428,3 +428,86 @@ test('weak ETag alone restarts; Last-Modified can validate a range', async t => 
     });
   }
 });
+
+test('legacy standalone complete video moves without full transfer and hides its metadata', async t => {
+  const legacy = await fixture(t),
+    target = join(legacy, '..', 'lecture.mp4'),
+    metadata = join(legacy, '..', '.lms', 'lecture.mp4.json');
+  await downloads.downloadVideo(source, legacy, {
+    fetchImpl: async (_url, init) =>
+      init.headers.Range === 'bytes=0-0'
+        ? new Response(bytes.subarray(0, 1), {
+            status: 206,
+            headers: {
+              'content-type': 'video/mp4',
+              'content-range': `bytes 0-0/${bytes.length}`,
+              'content-length': '1',
+              etag: '"original"',
+            },
+          })
+        : response(0, 200),
+  });
+  let requests = 0;
+  const result = await downloads.downloadVideo(source, target, {
+    legacyTarget: legacy,
+    metadataPath: metadata,
+    fetchImpl: async (_url, init) => {
+      requests++;
+      assert.equal(init.headers.Range, 'bytes=0-0');
+      return new Response(bytes.subarray(0, 1), {
+        status: 206,
+        headers: {
+          'content-type': 'video/mp4',
+          'content-range': `bytes 0-0/${bytes.length}`,
+          'content-length': '1',
+          etag: '"original"',
+        },
+      });
+    },
+  });
+  assert.equal(result.status, 'already_downloaded');
+  assert.equal(requests, 1);
+  assert.equal(result.metadata, metadata);
+  await assert.rejects(readFile(legacy), { code: 'ENOENT' });
+});
+test('legacy standalone partial video resumes after migration', async t => {
+  const { createHash } = await import('node:crypto');
+  const legacy = await fixture(t),
+    target = join(legacy, '..', 'lecture.mp4');
+  const prefix = bytes.subarray(0, 32);
+  await writeFile(legacy + '.part', prefix);
+  await writeFile(
+    legacy + '.json',
+    JSON.stringify({
+      version: 1,
+      identity: 'resolution:10',
+      total: bytes.length,
+      validator: '"original"',
+      bytes: prefix.length,
+      sha256: createHash('sha256').update(prefix).digest('hex'),
+      complete: false,
+    }),
+  );
+  let resumed = false;
+  const result = await downloads.downloadVideo(source, target, {
+    legacyTarget: legacy,
+    fetchImpl: async (_url, init) => {
+      if (init.headers.Range === 'bytes=0-0')
+        return new Response(bytes.subarray(0, 1), {
+          status: 206,
+          headers: {
+            'content-type': 'video/mp4',
+            'content-range': `bytes 0-0/${bytes.length}`,
+            'content-length': '1',
+            etag: '"original"',
+          },
+        });
+      assert.equal(init.headers.Range, 'bytes=32-');
+      resumed = true;
+      return response(32);
+    },
+  });
+  assert.equal(result.status, 'downloaded');
+  assert.equal(resumed, true);
+  assert.deepEqual(await readFile(target), bytes);
+});

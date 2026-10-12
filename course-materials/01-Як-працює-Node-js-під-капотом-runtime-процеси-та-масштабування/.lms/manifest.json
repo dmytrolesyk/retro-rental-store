@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104307,
+    "iri": "/api/lessons/104307",
+    "number": 1,
+    "name": "Як працює Node.js під капотом: runtime, процеси та масштабування",
+    "translationStatus": "available",
+    "startsAt": "2026-07-23T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104307"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T12:32:19.318Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T12:32:06.121Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104307,
+        "iri": "/api/lessons/104307",
+        "number": 1,
+        "name": "Як працює Node.js під капотом: runtime, процеси та масштабування",
+        "translationStatus": "available",
+        "startsAt": "2026-07-23T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104307"
+      },
+      "status": "no_homework",
+      "homeworks": [],
+      "fetchedAt": "2026-10-12T12:32:06.121Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T12:32:17.780Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104307,
+        "iri": "/api/lessons/104307",
+        "number": 1,
+        "name": "Як працює Node.js під капотом: runtime, процеси та масштабування",
+        "translationStatus": "available",
+        "startsAt": "2026-07-23T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104307"
+      },
+      "materials": [
+        {
+          "id": 200567,
+          "iri": "/api/lesson_materials/200567",
+          "relationId": "/api/lesson_material_has_lessons/200567-104307",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 1",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/1iH920-vH1npXLwRJE8VzjfcQZST36f2bOlDTPK-SzPU/edit\"}}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [
+            "UNSUPPORTED_DESCRIPTION_BLOCK"
+          ],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1iH920-vH1npXLwRJE8VzjfcQZST36f2bOlDTPK-SzPU/edit",
+              "cacheKey": "5e13afd01cb1789c637c252b8bb7938d2035761dddf9f0825d84038a243aa081",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/presentation.pdf",
+              "bytes": 2245387,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "23fa3fb02ba1868fc33aa6adc41d5a47ea1495d44d928e58cba77d1d128b309d",
+              "fetchedAt": "2026-10-12T12:32:16.418Z"
+            }
+          ]
+        },
+        {
+          "id": 200568,
+          "iri": "/api/lesson_materials/200568",
+          "relationId": "/api/lesson_material_has_lessons/200568-104307",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "Доступ до GitHub",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Весь код, який використовується на заняттях розміщено у приватному репозиторіїї. Для того, щоб отримати доступ заповніть форму за посланням</p>\"}]",
+          "html": "<p>Весь код, який використовується на заняттях розміщено у приватному репозиторіїї. Для того, щоб отримати доступ заповніть форму за посланням</p>",
+          "markdown": "Весь код, який використовується на заняттях розміщено у приватному репозиторіїї. Для того, щоб отримати доступ заповніть форму за посланням",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://teamrepoaccess-cwvlavqdda-lm.a.run.app/",
+              "cacheKey": "03a04e4fa7548cbdbd409f659e064975731b0c385baf95ae92c4543c2457e824",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200569,
+          "iri": "/api/lesson_materials/200569",
+          "relationId": "/api/lesson_material_has_lessons/200569-104307",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "Репозиторій курсу [Team name: NODE-JS-PRO-2]",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Весь код, який використовується на курсі та для домашніх занять розміщено у цьому репозиторії</p>\"}]",
+          "html": "<p>Весь код, який використовується на курсі та для домашніх занять розміщено у цьому репозиторії</p>",
+          "markdown": "Весь код, який використовується на курсі та для домашніх занять розміщено у цьому репозиторії",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2",
+              "cacheKey": "8a519138dd012c631fff63d3e2603e14ecc79b7af34529154bcc66229fc70599",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200570,
+          "iri": "/api/lesson_materials/200570",
+          "relationId": "/api/lesson_material_has_lessons/200570-104307",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "The Node.js Event Loop, Timers, and process.nextTick() (nodejs.org)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Канонічний опис 6 фаз event loop — головне доповнення до лекції</p>\"}]",
+          "html": "<p>Канонічний опис 6 фаз event loop — головне доповнення до лекції</p>",
+          "markdown": "Канонічний опис 6 фаз event loop — головне доповнення до лекції",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick",
+              "cacheKey": "c18ffe5089b23c65ae9f8108594d27daeb0ab8c84603a61468144cd02ca0fdb2",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200571,
+          "iri": "/api/lesson_materials/200571",
+          "relationId": "/api/lesson_material_has_lessons/200571-104307",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "Trash talk: the Orinoco garbage collector (v8.dev)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як реально працює GC у V8: Scavenge, Mark-Compact, чому паузи &lt; 10 мс</p>\"}]",
+          "html": "<p>Як реально працює GC у V8: Scavenge, Mark-Compact, чому паузи &lt; 10 мс</p>",
+          "markdown": "Як реально працює GC у V8: Scavenge, Mark-Compact, чому паузи < 10 мс",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://v8.dev/blog/trash-talk",
+              "cacheKey": "b568304327f8607e4bbf31875ff618ffd303600be05afa467ac2506725e268e5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200572,
+          "iri": "/api/lesson_materials/200572",
+          "relationId": "/api/lesson_material_has_lessons/200572-104307",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "Maglev — V8's Fastest Optimizing JIT (v8.dev)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Драбина компіляції Ignition → Sparkplug → Maglev → TurboFan.</p>\"}]",
+          "html": "<p>Драбина компіляції Ignition → Sparkplug → Maglev → TurboFan.</p>",
+          "markdown": "Драбина компіляції Ignition → Sparkplug → Maglev → TurboFan.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://v8.dev/blog/maglev",
+              "cacheKey": "76585cb556b78fce3caf63a4134c2aa3982007851c9488387a0b71b32c281869",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200573,
+          "iri": "/api/lesson_materials/200573",
+          "relationId": "/api/lesson_material_has_lessons/200573-104307",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "Cluster (nodejs.org API docs)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>API cluster-модуля — для Тесту #1 і ДЗ блоку process model.</p>\"}]",
+          "html": "<p>API cluster-модуля — для Тесту #1 і ДЗ блоку process model.</p>",
+          "markdown": "API cluster-модуля — для Тесту #1 і ДЗ блоку process model.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/cluster.html",
+              "cacheKey": "2081ac6b5ab66c413b158d89c0257f85d107373a86e080bd06cb8120131b1fff",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200574,
+          "iri": "/api/lesson_materials/200574",
+          "relationId": "/api/lesson_material_has_lessons/200574-104307",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "Worker threads (nodejs.org API docs)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Коли worker_threads замість cluster — decision matrix з лекції.</p>\"}]",
+          "html": "<p>Коли worker_threads замість cluster — decision matrix з лекції.</p>",
+          "markdown": "Коли worker\\_threads замість cluster — decision matrix з лекції.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/worker_threads.html",
+              "cacheKey": "2cfe39ab81bd234f1333d512635908eb301c79c63dd9f816603ab6f0829d396c",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200575,
+          "iri": "/api/lesson_materials/200575",
+          "relationId": "/api/lesson_material_has_lessons/200575-104307",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "PM2 — Cluster Mode (pm2.keymetrics.io)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Production-запуск: exec_mode cluster, instances max, zero-downtime reload.</p>\"}]",
+          "html": "<p>Production-запуск: exec_mode cluster, instances max, zero-downtime reload.</p>",
+          "markdown": "Production-запуск: exec\\_mode cluster, instances max, zero-downtime reload.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://pm2.keymetrics.io/docs/usage/cluster-mode/",
+              "cacheKey": "020b45faf211bef449efa3b0a3d75c872236c83647d94f4cd70049eba2fa4ca3",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 200647,
+          "iri": "/api/lesson_materials/200647",
+          "relationId": "/api/lesson_material_has_lessons/200647-104307",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "JS Event Loop Visualizer",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Інтерактивна візуалізація роботи event loop у JavaScript</p>\"}]",
+          "html": "<p>Інтерактивна візуалізація роботи event loop у JavaScript</p>",
+          "markdown": "Інтерактивна візуалізація роботи event loop у JavaScript",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://event-loop-visualizer-ruby.vercel.app/",
+              "cacheKey": "457c04db9765b6942d058d85a39c695ae08b5846abecd7663a7198f507474da4",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201091,
+          "iri": "/api/lesson_materials/201091",
+          "relationId": "/api/lesson_material_has_lessons/201091-104307",
+          "position": 10,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/164zhjZBvskQLpLyeAf43brq4dcYzQU3K/view",
+              "cacheKey": "d1e2b42766af13ddbcb3e1b085b3ff9c63375db0fe0b51f0e3a9dcf7bbf74840",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/transcript.md",
+              "bytes": 157978,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Thu, 30 Jul 2026 10:52:44 GMT",
+              "sha256": "cfe1c45530448c016c8b748028924f86fec1f17457d91acb624e0875c36fd015",
+              "fetchedAt": "2026-10-12T12:32:17.779Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T12:32:17.780Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T12:32:19.318Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104307,
+        "iri": "/api/lessons/104307",
+        "number": 1,
+        "name": "Як працює Node.js під капотом: runtime, процеси та масштабування",
+        "translationStatus": "available",
+        "startsAt": "2026-07-23T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104307"
+      },
+      "recordings": [
+        {
+          "id": 138619,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 138619,
+      "resolutionId": 648719,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/lecture.mp4",
+      "bytes": 274222311,
+      "status": "already_downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/01-Як-працює-Node-js-під-капотом-runtime-процеси-та-масштабування/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T12:32:19.318Z"
+    }
+  }
+}
