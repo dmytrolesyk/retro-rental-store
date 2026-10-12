@@ -5,6 +5,7 @@ import { readCredentials } from './prompt.js';
 import { GraphqlClient } from './graphql.js';
 import { listLessons, selectLesson } from './lessons.js';
 import { getHomework } from './homework.js';
+import { getMaterials } from './materials.js';
 
 function writeJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -26,16 +27,35 @@ try {
     }
   } else if (config.command === 'logout') {
     writeJson({ ok: true, data: await new AuthClient().logout() });
-  } else if (config.command === 'lessons' || config.command === 'homework') {
-    const client = new GraphqlClient();
-    const result = await listLessons(client, config.course);
-    writeJson({
-      ok: true,
-      data:
-        config.command === 'lessons'
-          ? result
-          : await getHomework(client, config.course, selectLesson(result.lessons, config)),
-    });
+  } else if (
+    config.command === 'lessons' ||
+    config.command === 'homework' ||
+    config.command === 'materials'
+  ) {
+    const controller = new AbortController();
+    const cancel = () => {
+      controller.abort();
+    };
+    if (config.download) process.once('SIGINT', cancel);
+    try {
+      const client = new GraphqlClient();
+      const result = await listLessons(client, config.course);
+      writeJson({
+        ok: true,
+        data:
+          config.command === 'lessons'
+            ? result
+            : config.command === 'homework'
+              ? await getHomework(client, config.course, selectLesson(result.lessons, config))
+              : await getMaterials(client, config.course, selectLesson(result.lessons, config), {
+                  download: config.download,
+                  root: config.materialsRoot,
+                  signal: controller.signal,
+                }),
+      });
+    } finally {
+      if (config.download) process.removeListener('SIGINT', cancel);
+    }
   } else {
     const message = 'Дію команди ще не реалізовано: доступні довідка та валідація аргументів.';
     writeJson({ ok: false, error: { code: 'NOT_IMPLEMENTED', message } });

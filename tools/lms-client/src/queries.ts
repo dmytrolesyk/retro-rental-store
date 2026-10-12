@@ -26,3 +26,26 @@ export const HOMEWORK = `query ClientHomework($id: ID!, $after: String) {
     }
   }
 }`;
+export const MATERIAL_COURSE = `query MaterialCourse($id: ID!) {
+  course(id: $id) { translations(locale: "uk", first: 1) { edges { node { name } } } }
+}`;
+export const MATERIAL_TYPES = `query MaterialTypes($after: String) {
+  lessonMaterialTypes(first: 30, after: $after) {
+    edges { node { _id name } } pageInfo { hasNextPage endCursor }
+  }
+}`;
+// LessonMaterial._id is advertised in the schema but fails on the actual API.
+export const MATERIALS = `query ClientMaterials($lesson: String!, $page: Int!) {
+  lessonMaterialHasLessons(lesson: $lesson, page: $page, itemsPerPage: 30) {
+    collection { id position lessonMaterial {
+      id type subtitle { contentUrl }
+      translations(locale: "uk", first: 1) { edges { node { name description link locale empty } } }
+    } }
+    paginationInfo { totalCount hasNextPage }
+  }
+}`;
+export const MATERIAL_SUBTITLES = `query MaterialSubtitles($id: ID!, $after: String) {
+  lesson(id: $id) { id medias(first: 30, after: $after) {
+    edges { node { id subtitle { contentUrl } } } pageInfo { hasNextPage endCursor }
+  } }
+}`;

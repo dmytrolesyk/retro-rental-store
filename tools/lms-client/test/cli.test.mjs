@@ -42,6 +42,8 @@ test('invalid arguments produce JSON and usage exit code', () => {
     ['login', '--password', 'dummy'],
     ['logout', '--check'],
     ['materials', '--video'],
+    ['lessons', '--download'],
+    ['sync', '--latest', '--download'],
     ['sync', '--latest', '--quality', '720'],
     ['video', '--latest', '--quality', '1080p'],
     ['video', '--latest', '--quality', '0'],
@@ -59,7 +61,6 @@ test('invalid arguments produce JSON and usage exit code', () => {
 
 test('remaining planned commands explicitly report that their actions are not implemented', () => {
   for (const args of [
-    ['materials', '--lesson-id', '104319'],
     ['sync', '--latest'],
     ['video', '--latest'],
     ['sync', '--lesson', '13', '--video'],
@@ -83,7 +84,11 @@ test('login requires TTY, missing session is explicit, logout is idempotent', ()
     const check = invoke(['login', '--check']);
     assert.equal(check.status, 4);
     assert.equal(JSON.parse(check.stdout).error.code, 'AUTH_REQUIRED');
-    for (const args of [['lessons'], ['homework', '--lesson', '13']]) {
+    for (const args of [
+      ['lessons'],
+      ['homework', '--lesson', '13'],
+      ['materials', '--lesson', '13'],
+    ]) {
       const result = invoke(args);
       assert.equal(result.status, 4);
       assert.equal(JSON.parse(result.stdout).error.code, 'AUTH_REQUIRED');

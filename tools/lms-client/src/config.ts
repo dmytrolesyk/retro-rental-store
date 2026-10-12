@@ -21,6 +21,7 @@ export interface CommandConfig {
   command: CommandName | 'help';
   help: boolean;
   check: boolean;
+  download: boolean;
   course: number;
   lesson?: number;
   lessonId?: number;
@@ -34,6 +35,7 @@ export interface CommandConfig {
 const OPTIONS = {
   help: { type: 'boolean', short: 'h' },
   check: { type: 'boolean' },
+  download: { type: 'boolean' },
   course: { type: 'string' },
   lesson: { type: 'string' },
   'lesson-id': { type: 'string' },
@@ -74,6 +76,7 @@ export function parseCommand(args: string[]): CommandConfig {
   }
   const allowed = new Set<string>(['help']);
   if (command === 'login') allowed.add('check');
+  if (command === 'materials') allowed.add('download');
   if (command !== 'help' && command !== 'login' && command !== 'logout') allowed.add('course');
   if (['homework', 'materials', 'sync', 'video'].includes(command)) {
     for (const name of ['lesson', 'lesson-id', 'latest']) allowed.add(name);
@@ -116,6 +119,7 @@ export function parseCommand(args: string[]): CommandConfig {
     command: command as CommandConfig['command'],
     help,
     check: values.check === true,
+    download: values.download === true,
     course,
     lesson,
     lessonId,
@@ -135,6 +139,8 @@ export function helpData(command: CommandConfig['command']) {
     options: {
       '--help, -h': 'Показати довідку у JSON.',
       '--check': 'Лише login: без введення пароля оновити сесію та перевірити доступ до курсу.',
+      '--download':
+        'Лише materials: завантажити підтримані файли й записати materials-manifest.json.',
       '--course <id>': 'ID курсу для lessons/homework/materials/sync/video; default 5467.',
       '--lesson <number>': 'Номер лекції; один із трьох селекторів.',
       '--lesson-id <id>': 'Стабільний ID лекції.',
@@ -155,6 +161,6 @@ export function helpData(command: CommandConfig['command']) {
       '130': 'Вхід скасовано',
     },
     stage:
-      'Доступні login, login --check, logout, lessons і homework. Матеріали та відео ще не реалізовані.',
+      'Доступні login, login --check, logout, lessons, homework і materials. Sync і відео ще не реалізовані.',
   };
 }
