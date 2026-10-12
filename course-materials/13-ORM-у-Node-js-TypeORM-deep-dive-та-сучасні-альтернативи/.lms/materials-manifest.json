@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104319,
+    "iri": "/api/lessons/104319",
+    "number": 13,
+    "name": "ORM у Node.js: TypeORM deep dive та сучасні альтернативи",
+    "translationStatus": "available",
+    "startsAt": "2026-09-08T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104319"
+  },
+  "materials": [
+    {
+      "id": 204127,
+      "iri": "/api/lesson_materials/204127",
+      "relationId": "/api/lesson_material_has_lessons/204127-104319",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 13",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/1yw_HJfL-pjUso2aKl64Y9GoxGAC1AwY2QTHrMJe0ON4/edit\"}}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [
+        "UNSUPPORTED_DESCRIPTION_BLOCK"
+      ],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1yw_HJfL-pjUso2aKl64Y9GoxGAC1AwY2QTHrMJe0ON4/edit",
+          "cacheKey": "e9f71f5232cb6fbdeebde6b02fbec2889cba5ca790d5ddb00a532e2fa249add2",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/13-ORM-у-Node-js-TypeORM-deep-dive-та-сучасні-альтернативи/presentation.pdf",
+          "bytes": 1705270,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "3c488f2e95570d0391f7252f87a21bfd4b94dad3394200caf09f3324affdfe0f",
+          "fetchedAt": "2026-10-12T13:42:40.377Z"
+        }
+      ]
+    },
+    {
+      "id": 204129,
+      "iri": "/api/lesson_materials/204129",
+      "relationId": "/api/lesson_material_has_lessons/204129-104319",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/13_OrmNodejs/additional.md",
+          "cacheKey": "0cea4cdca3dfb69170a3009792f48af7975b17abf1c639d23ff9a32f733deba7",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 204330,
+      "iri": "/api/lesson_materials/204330",
+      "relationId": "/api/lesson_material_has_lessons/204330-104319",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1J2TXoOQyxLYrKbVth9PwKokk6MkKqfHT/view",
+          "cacheKey": "74f73091f39d1fbfb577f01340e995eab6908301273c8a4f8b038be64a5dd898",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/13-ORM-у-Node-js-TypeORM-deep-dive-та-сучасні-альтернативи/transcript.md",
+          "bytes": 135744,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Thu, 10 Sep 2026 10:52:22 GMT",
+          "sha256": "5f82ce21eca443f4ed97b78d6c5df4e774957d8645ed33fcea0715ec479d8477",
+          "fetchedAt": "2026-10-12T13:42:41.662Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [
+    {
+      "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_140777_6aa19776484211.86934873.vtt",
+      "cacheKey": "1595b64febb9efb06f71e055d2f2abaec5b043793fee7427bdeb5e21a82280e8",
+      "kind": "vtt",
+      "role": "transcript",
+      "status": "not_downloaded",
+      "file": null
+    }
+  ],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/13-ORM-у-Node-js-TypeORM-deep-dive-та-сучасні-альтернативи",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/13-ORM-у-Node-js-TypeORM-deep-dive-та-сучасні-альтернативи/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:42:41.662Z"
+}

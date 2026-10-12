@@ -1,0 +1,782 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104318,
+    "iri": "/api/lessons/104318",
+    "number": 12,
+    "name": "PostgreSQL для backend-розробника: індекси, EXPLAIN і MVCC",
+    "translationStatus": "available",
+    "startsAt": "2026-09-01T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104318"
+  },
+  "materials": [
+    {
+      "id": 203571,
+      "iri": "/api/lesson_materials/203571",
+      "relationId": "/api/lesson_material_has_lessons/203571-104318",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 12",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1eEdniRKr-4YS9FmF5MGF15iTs3vbOlGqUpR2e13CTpw/edit",
+          "cacheKey": "a51d2d7e627618cc42ca9be0a93b592e2d0cff036813c1e69e4a4a068043e680",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/presentation.pdf",
+          "bytes": 1217584,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "3279485c4da8af028edf93cca274065829a2e5f338af878da524c26958e7863b",
+          "fetchedAt": "2026-10-12T13:42:23.380Z"
+        }
+      ]
+    },
+    {
+      "id": 203633,
+      "iri": "/api/lesson_materials/203633",
+      "relationId": "/api/lesson_material_has_lessons/203633-104318",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Using EXPLAIN",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Офіційний розбір планів; звідси правило «читаємо знизу вгору»</p>\"}]",
+      "html": "<p>Офіційний розбір планів; звідси правило «читаємо знизу вгору»</p>",
+      "markdown": "Офіційний розбір планів; звідси правило «читаємо знизу вгору»",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/using-explain.html",
+          "cacheKey": "b79df82756e88230a1f0e0a179725ad0fefcb4a2e3ce90e5fbcf1303a0ef50de",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203634,
+      "iri": "/api/lesson_materials/203634",
+      "relationId": "/api/lesson_material_has_lessons/203634-104318",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "EXPLAIN — довідник команди",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі опції: ANALYZE, BUFFERS, FORMAT JSON</p>\"}]",
+      "html": "<p>Усі опції: ANALYZE, BUFFERS, FORMAT JSON</p>",
+      "markdown": "Усі опції: ANALYZE, BUFFERS, FORMAT JSON",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/sql-explain.html",
+          "cacheKey": "e341c705593d824bfc9980983e8788d182c7e620cc665c649d7451e60cca7287",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203635,
+      "iri": "/api/lesson_materials/203635",
+      "relationId": "/api/lesson_material_has_lessons/203635-104318",
+      "position": 3,
+      "type": 0,
+      "typeName": "site",
+      "name": "Planner/Optimizer",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як народжується план: шляхи, вартості, арифметика замість магії</p>\"}]",
+      "html": "<p>Як народжується план: шляхи, вартості, арифметика замість магії</p>",
+      "markdown": "Як народжується план: шляхи, вартості, арифметика замість магії",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/planner-optimizer.html",
+          "cacheKey": "797f2aa084b6d7646c8370b18d3b0263e419175ab8f8b9bebfa14b05c6e0d033",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203636,
+      "iri": "/api/lesson_materials/203636",
+      "relationId": "/api/lesson_material_has_lessons/203636-104318",
+      "position": 4,
+      "type": 0,
+      "typeName": "site",
+      "name": "Row Estimation Examples",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Звідки беруться rows=…: гістограми, MCV, селективність</p>\"}]",
+      "html": "<p>Звідки беруться rows=…: гістограми, MCV, селективність</p>",
+      "markdown": "Звідки беруться rows=…: гістограми, MCV, селективність",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/row-estimation-examples.html",
+          "cacheKey": "211f738dd0bb0330aa05745d2c464700e5046bee30f3fc4a6bd59eee6d536cb1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203637,
+      "iri": "/api/lesson_materials/203637",
+      "relationId": "/api/lesson_material_has_lessons/203637-104318",
+      "position": 5,
+      "type": 0,
+      "typeName": "site",
+      "name": "Indexes (глава цілком)",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>B-tree, GIN, GiST, BRIN, складені, partial, expression</p>\"}]",
+      "html": "<p>B-tree, GIN, GiST, BRIN, складені, partial, expression</p>",
+      "markdown": "B-tree, GIN, GiST, BRIN, складені, partial, expression",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/indexes.html",
+          "cacheKey": "14be647bbe685807629e1004ba5b35fbfce82d84f75264a3ea6f02afe0b806eb",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203639,
+      "iri": "/api/lesson_materials/203639",
+      "relationId": "/api/lesson_material_has_lessons/203639-104318",
+      "position": 6,
+      "type": 0,
+      "typeName": "site",
+      "name": "Partial Indexes",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Приклади «коли варто» і, важливіше, «коли не варто»</p>\"}]",
+      "html": "<p>Приклади «коли варто» і, важливіше, «коли не варто»</p>",
+      "markdown": "Приклади «коли варто» і, важливіше, «коли не варто»",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/indexes-partial.html",
+          "cacheKey": "9ad7adf311eb459474554071d521ea8c4e91dd476ca17334f0d614c65c870f07",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203640,
+      "iri": "/api/lesson_materials/203640",
+      "relationId": "/api/lesson_material_has_lessons/203640-104318",
+      "position": 7,
+      "type": 0,
+      "typeName": "site",
+      "name": "Indexes on Expressions",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Ціна: вираз обчислюється на кожен INSERT і UPDATE</p>\"}]",
+      "html": "<p>Ціна: вираз обчислюється на кожен INSERT і UPDATE</p>",
+      "markdown": "Ціна: вираз обчислюється на кожен INSERT і UPDATE",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/indexes-expressional.html",
+          "cacheKey": "b88bf4235eddb72320abe95bbc2148adad920ebd49315749f07d4b15dfa77354",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203641,
+      "iri": "/api/lesson_materials/203641",
+      "relationId": "/api/lesson_material_has_lessons/203641-104318",
+      "position": 8,
+      "type": 0,
+      "typeName": "site",
+      "name": "Multicolumn Indexes",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому працює «рівність ліворуч, діапазон праворуч»</p>\"}]",
+      "html": "<p>Чому працює «рівність ліворуч, діапазон праворуч»</p>",
+      "markdown": "Чому працює «рівність ліворуч, діапазон праворуч»",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/indexes-multicolumn.html",
+          "cacheKey": "68049f0a8ec2f0ea19795e7fdc250c8ef46ccd651742ec79d185079f28ee4755",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203642,
+      "iri": "/api/lesson_materials/203642",
+      "relationId": "/api/lesson_material_has_lessons/203642-104318",
+      "position": 9,
+      "type": 0,
+      "typeName": "site",
+      "name": "Index-Only Scans and Covering Indexes",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Visibility map, Heap Fetches ≠ 0, INCLUDE-колонки</p>\"}]",
+      "html": "<p>Visibility map, Heap Fetches ≠ 0, INCLUDE-колонки</p>",
+      "markdown": "Visibility map, Heap Fetches ≠ 0, INCLUDE-колонки",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/indexes-index-only-scans.html",
+          "cacheKey": "b1a4f50b22ee6a4887a8c1948bd1fd61c17ceb9cd083075586cfd6094d00a3a2",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203643,
+      "iri": "/api/lesson_materials/203643",
+      "relationId": "/api/lesson_material_has_lessons/203643-104318",
+      "position": 10,
+      "type": 0,
+      "typeName": "site",
+      "name": "MVCC Intro",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Знімки даних і правила видимості рядків між транзакціями</p>\"}]",
+      "html": "<p>Знімки даних і правила видимості рядків між транзакціями</p>",
+      "markdown": "Знімки даних і правила видимості рядків між транзакціями",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/mvcc-intro.html",
+          "cacheKey": "bf35c2ff930086c23f500702f5c3e69b4ef92c326657054bcc2f291592dd9def",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203645,
+      "iri": "/api/lesson_materials/203645",
+      "relationId": "/api/lesson_material_has_lessons/203645-104318",
+      "position": 11,
+      "type": 0,
+      "typeName": "site",
+      "name": "Transaction Isolation",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>READ COMMITTED проти REPEATABLE READ; міст у L#14</p>\"}]",
+      "html": "<p>READ COMMITTED проти REPEATABLE READ; міст у L#14</p>",
+      "markdown": "READ COMMITTED проти REPEATABLE READ; міст у L#14",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/transaction-iso.html",
+          "cacheKey": "275e4e347d50f8ff7852d4a745358e23b4ee6bdb693be3e194027f7b64e381e1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203646,
+      "iri": "/api/lesson_materials/203646",
+      "relationId": "/api/lesson_material_has_lessons/203646-104318",
+      "position": 12,
+      "type": 0,
+      "typeName": "site",
+      "name": "Routine Vacuuming",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Поріг спрацювання, wraparound і чому autovacuum не вимикають</p>\"}]",
+      "html": "<p>Поріг спрацювання, wraparound і чому autovacuum не вимикають</p>",
+      "markdown": "Поріг спрацювання, wraparound і чому autovacuum не вимикають",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/routine-vacuuming.html",
+          "cacheKey": "5bad0d68d008207322c1ac8b1992cc2138b14010ba98bb0642981ca2df73e865",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203647,
+      "iri": "/api/lesson_materials/203647",
+      "relationId": "/api/lesson_material_has_lessons/203647-104318",
+      "position": 13,
+      "type": 0,
+      "typeName": "site",
+      "name": "The Statistics Collector",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Довідник усіх pg_stat_* в'юх, з якими працювали</p>\"}]",
+      "html": "<p>Довідник усіх pg_stat_* в'юх, з якими працювали</p>",
+      "markdown": "Довідник усіх pg\\_stat\\_\\* в'юх, з якими працювали",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/monitoring-stats.html",
+          "cacheKey": "ab2e570c1cc490e4bda7f055a964cf4ae0b29640849df0902d0716e334d0c8a5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203648,
+      "iri": "/api/lesson_materials/203648",
+      "relationId": "/api/lesson_material_has_lessons/203648-104318",
+      "position": 14,
+      "type": 0,
+      "typeName": "site",
+      "name": "Use The Index, Luke!",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Найкраща книга про індекси, безплатна; глава «Anatomy» — must</p>\"}]",
+      "html": "<p>Найкраща книга про індекси, безплатна; глава «Anatomy» — must</p>",
+      "markdown": "Найкраща книга про індекси, безплатна; глава «Anatomy» — must",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://use-the-index-luke.com/",
+          "cacheKey": "ece7b691932628376136b185d0c117209455473a3543adc383755b3ef6e00473",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203649,
+      "iri": "/api/lesson_materials/203649",
+      "relationId": "/api/lesson_material_has_lessons/203649-104318",
+      "position": 15,
+      "type": 0,
+      "typeName": "site",
+      "name": "The Internals of PostgreSQL",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Глави 5 і 6: MVCC та VACUUM на байтах</p>\"}]",
+      "html": "<p>Глави 5 і 6: MVCC та VACUUM на байтах</p>",
+      "markdown": "Глави 5 і 6: MVCC та VACUUM на байтах",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.interdb.jp/pg/",
+          "cacheKey": "882d61db13472f2e9ef4f97af4f309a458f18c5d7f66eccf066a2a4b37353e6d",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203651,
+      "iri": "/api/lesson_materials/203651",
+      "relationId": "/api/lesson_material_has_lessons/203651-104318",
+      "position": 16,
+      "type": 0,
+      "typeName": "site",
+      "name": "pgMustard: EXPLAIN Glossary",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Словник кожного поля з EXPLAIN-виводу</p>\"}]",
+      "html": "<p>Словник кожного поля з EXPLAIN-виводу</p>",
+      "markdown": "Словник кожного поля з EXPLAIN-виводу",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.pgmustard.com/docs/explain",
+          "cacheKey": "3dd3b9faf45e5f2af47938985198164f2eff496c0308dcecacdeeb8d58d85162",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203652,
+      "iri": "/api/lesson_materials/203652",
+      "relationId": "/api/lesson_material_has_lessons/203652-104318",
+      "position": 17,
+      "type": 0,
+      "typeName": "site",
+      "name": "explain.dalibo.com",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Візуалізатор планів: JSON на вході, дерево з підсвіткою</p>\"}]",
+      "html": "<p>Візуалізатор планів: JSON на вході, дерево з підсвіткою</p>",
+      "markdown": "Візуалізатор планів: JSON на вході, дерево з підсвіткою",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://explain.dalibo.com/",
+          "cacheKey": "ebe19adfdb36ccf8cf3565c0172efbc1e973018e8fbe0cde506a8da56288a6a8",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203653,
+      "iri": "/api/lesson_materials/203653",
+      "relationId": "/api/lesson_material_has_lessons/203653-104318",
+      "position": 18,
+      "type": 0,
+      "typeName": "site",
+      "name": "PostgreSQL Wiki: Don't Do This",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Список анти-патернів від спільноти PostgreSQL</p>\"}]",
+      "html": "<p>Список анти-патернів від спільноти PostgreSQL</p>",
+      "markdown": "Список анти-патернів від спільноти PostgreSQL",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://wiki.postgresql.org/wiki/Don%27t_Do_This",
+          "cacheKey": "a5446b82c8982d4dba7070070687cefb77eb211bb5cb9b0bb01c1677d6a6ff37",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203654,
+      "iri": "/api/lesson_materials/203654",
+      "relationId": "/api/lesson_material_has_lessons/203654-104318",
+      "position": 19,
+      "type": 0,
+      "typeName": "site",
+      "name": "Full Text Search: вступ",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>tsvector, tsquery, оператор @@ — базові поняття</p>\"}]",
+      "html": "<p>tsvector, tsquery, оператор @@ — базові поняття</p>",
+      "markdown": "tsvector, tsquery, оператор @@ — базові поняття",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-intro.html",
+          "cacheKey": "e160dffda22dcf4c3e7952bf797d41146dc8f44217bc0409da164674e16d4463",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203656,
+      "iri": "/api/lesson_materials/203656",
+      "relationId": "/api/lesson_material_has_lessons/203656-104318",
+      "position": 20,
+      "type": 0,
+      "typeName": "site",
+      "name": "Таблиці та індекси для пошуку",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Пошук по колонці і збережена генерована колонка</p>\"}]",
+      "html": "<p>Пошук по колонці і збережена генерована колонка</p>",
+      "markdown": "Пошук по колонці і збережена генерована колонка",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-tables.html",
+          "cacheKey": "2340c1f07ea6a8ce93d35f3f926f0254d375cc7d8029853c32e176339f33d0d8",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203657,
+      "iri": "/api/lesson_materials/203657",
+      "relationId": "/api/lesson_material_has_lessons/203657-104318",
+      "position": 21,
+      "type": 0,
+      "typeName": "site",
+      "name": "Controlling Text Search",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ts_rank, ts_headline; IDF немає — частий спам перемагає унікальне</p>\"}]",
+      "html": "<p>ts_rank, ts_headline; IDF немає — частий спам перемагає унікальне</p>",
+      "markdown": "ts\\_rank, ts\\_headline; IDF немає — частий спам перемагає унікальне",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-controls.html",
+          "cacheKey": "e7bce163cf209c052addbc2af3190e56bcc13adbbb755564d7d6c31581172d2b",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203659,
+      "iri": "/api/lesson_materials/203659",
+      "relationId": "/api/lesson_material_has_lessons/203659-104318",
+      "position": 22,
+      "type": 0,
+      "typeName": "site",
+      "name": "GIN і GiST для повнотексту",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому ORDER BY rank не покривається індексом</p>\"}]",
+      "html": "<p>Чому ORDER BY rank не покривається індексом</p>",
+      "markdown": "Чому ORDER BY rank не покривається індексом",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-indexes.html",
+          "cacheKey": "737d5cb36d23e873bb1e692a6d4fa73690ae0c6f6b667069c5895b6bf2a46585",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203662,
+      "iri": "/api/lesson_materials/203662",
+      "relationId": "/api/lesson_material_has_lessons/203662-104318",
+      "position": 23,
+      "type": 0,
+      "typeName": "site",
+      "name": "Словники, синоніми, тезаурус",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>synonym і thesaurus; файл словника — на диску сервера</p>\"}]",
+      "html": "<p>synonym і thesaurus; файл словника — на диску сервера</p>",
+      "markdown": "synonym і thesaurus; файл словника — на диску сервера",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-dictionaries.html",
+          "cacheKey": "a29625b111e6927a1cdfc9b7f0557d2584d4ae9022813b9ebbb410fcfc9d7d03",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203665,
+      "iri": "/api/lesson_materials/203665",
+      "relationId": "/api/lesson_material_has_lessons/203665-104318",
+      "position": 24,
+      "type": 0,
+      "typeName": "site",
+      "name": "CREATE TEXT SEARCH DICTIONARY",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Синтаксис створення словника, зокрема TEMPLATE = ispell</p>\"}]",
+      "html": "<p>Синтаксис створення словника, зокрема TEMPLATE = ispell</p>",
+      "markdown": "Синтаксис створення словника, зокрема TEMPLATE = ispell",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/sql-createtsdictionary.html",
+          "cacheKey": "412e1ca5d1e134fa7d5752b04d15632feb7589a860045248db4019f4eda4c41b",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203667,
+      "iri": "/api/lesson_materials/203667",
+      "relationId": "/api/lesson_material_has_lessons/203667-104318",
+      "position": 25,
+      "type": 0,
+      "typeName": "site",
+      "name": "Своя конфігурація пошуку",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Конфігурації ukrainian немає; лікує Hunspell uk_UA, ціна ×13</p>\"}]",
+      "html": "<p>Конфігурації ukrainian немає; лікує Hunspell uk_UA, ціна ×13</p>",
+      "markdown": "Конфігурації ukrainian немає; лікує Hunspell uk\\_UA, ціна ×13",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-configuration.html",
+          "cacheKey": "5c6b94104f6da7a3bd811bcc448591aecf8d203f81772438b434fc71b08aafbe",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203669,
+      "iri": "/api/lesson_materials/203669",
+      "relationId": "/api/lesson_material_has_lessons/203669-104318",
+      "position": 26,
+      "type": 0,
+      "typeName": "site",
+      "name": "\\dF та інші метакоманди psql",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Подивитись наявні конфігурації, словники й парсери зсередини</p>\"}]",
+      "html": "<p>Подивитись наявні конфігурації, словники й парсери зсередини</p>",
+      "markdown": "Подивитись наявні конфігурації, словники й парсери зсередини",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/textsearch-psql.html",
+          "cacheKey": "a290911914b6e5bb163439e9baea1b8e9120c54b7c7ac5556d6bf1d201dd052f",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203670,
+      "iri": "/api/lesson_materials/203670",
+      "relationId": "/api/lesson_material_has_lessons/203670-104318",
+      "position": 27,
+      "type": 0,
+      "typeName": "site",
+      "name": "pg_stat_statements",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Топ найдорожчих запитів у проді; глибше — L#30</p>\"}]",
+      "html": "<p>Топ найдорожчих запитів у проді; глибше — L#30</p>",
+      "markdown": "Топ найдорожчих запитів у проді; глибше — L#30",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/pgstatstatements.html",
+          "cacheKey": "898599ebe567c47d02c121b459696343ab46d209f466bdc3c9e685d169a0d490",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203671,
+      "iri": "/api/lesson_materials/203671",
+      "relationId": "/api/lesson_material_has_lessons/203671-104318",
+      "position": 28,
+      "type": 0,
+      "typeName": "site",
+      "name": "pg_trgm",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Тріграми + GIN для LIKE '%…%'; шукають підрядок, не морфологію</p>\"}]",
+      "html": "<p>Тріграми + GIN для LIKE '%…%'; шукають підрядок, не морфологію</p>",
+      "markdown": "Тріграми + GIN для LIKE '%…%'; шукають підрядок, не морфологію",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.postgresql.org/docs/16/pgtrgm.html",
+          "cacheKey": "9108411cd3d4ae50261c80f34c372ace6a8e8aee01138a2ffbb2a28720b832c5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203672,
+      "iri": "/api/lesson_materials/203672",
+      "relationId": "/api/lesson_material_has_lessons/203672-104318",
+      "position": 29,
+      "type": 0,
+      "typeName": "site",
+      "name": "HypoPG",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Гіпотетичні індекси: перевірити «а якби був», не створюючи</p>\"}]",
+      "html": "<p>Гіпотетичні індекси: перевірити «а якби був», не створюючи</p>",
+      "markdown": "Гіпотетичні індекси: перевірити «а якби був», не створюючи",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/HypoPG/hypopg",
+          "cacheKey": "f9b9a3eeb76ca1cbebbc8ef6b9a371fccb40a28c9844adb0fdfc123350cf8ee7",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203860,
+      "iri": "/api/lesson_materials/203860",
+      "relationId": "/api/lesson_material_has_lessons/203860-104318",
+      "position": 30,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://drive.google.com/file/d/1k0m8RPP_Axcppstg58RbdeT9nvqHcM3X/view\"}}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [
+        "UNSUPPORTED_DESCRIPTION_BLOCK"
+      ],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1k0m8RPP_Axcppstg58RbdeT9nvqHcM3X/view",
+          "cacheKey": "ddc221113a4b1721d5136075beff95d752a8ff596bb96a189a43fda9efcba2c8",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/transcript.md",
+          "bytes": 141282,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 04 Sep 2026 08:48:57 GMT",
+          "sha256": "c19b8fda82ffdc431a512e7f3e5a26dcfcf53b6c8de93753d226ca384cf4387b",
+          "fetchedAt": "2026-10-12T13:42:24.699Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/12-PostgreSQL-для-backend-розробника-індекси-EXPLAIN-і-MVCC/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:42:24.699Z"
+}

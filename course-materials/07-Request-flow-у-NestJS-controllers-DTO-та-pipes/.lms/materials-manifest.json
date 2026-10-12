@@ -1,0 +1,420 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104313,
+    "iri": "/api/lessons/104313",
+    "number": 7,
+    "name": "Request flow у NestJS: controllers, DTO та pipes",
+    "translationStatus": "available",
+    "startsAt": "2026-08-13T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104313"
+  },
+  "materials": [
+    {
+      "id": 202229,
+      "iri": "/api/lesson_materials/202229",
+      "relationId": "/api/lesson_material_has_lessons/202229-104313",
+      "position": 0,
+      "type": 0,
+      "typeName": "site",
+      "name": "Презентація до заняття 7",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1ZyC6m6ZhKLtRNghk61VJptLkZJePDM3ccfZSrQmJqcs/edit",
+          "cacheKey": "bb310beb79d9bf4348c78d999a4699546009f23cf7fd13cdbb5969a0c83e64f4",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/presentation.pdf",
+          "bytes": 1111105,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "fa73fcb05ae46617f0f289722ab151dcee48ffe7bc5771b9828c5fd9dace74be",
+          "fetchedAt": "2026-10-12T13:40:53.612Z"
+        }
+      ]
+    },
+    {
+      "id": 202230,
+      "iri": "/api/lesson_materials/202230",
+      "relationId": "/api/lesson_material_has_lessons/202230-104313",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — Controllers",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Декоратори маршрутів і параметрів: @Get, @Body, @Param. Основа ДЗ.</p>\"}]",
+      "html": "<p>Декоратори маршрутів і параметрів: @Get, @Body, @Param. Основа ДЗ.</p>",
+      "markdown": "Декоратори маршрутів і параметрів: @Get, @Body, @Param. Основа ДЗ.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/controllers",
+          "cacheKey": "cc005d15606a591b176b4b7e5fe8e39dfdb4029e486a4171f0f0ac630d12a20c",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202231,
+      "iri": "/api/lesson_materials/202231",
+      "relationId": "/api/lesson_material_has_lessons/202231-104313",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — Validation",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ValidationPipe, whitelist, transform; типи приводить лише enableImplicitConversion.</p>\"}]",
+      "html": "<p>ValidationPipe, whitelist, transform; типи приводить лише enableImplicitConversion.</p>",
+      "markdown": "ValidationPipe, whitelist, transform; типи приводить лише enableImplicitConversion.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/techniques/validation",
+          "cacheKey": "f307ce26a2199c15d510c3afa4d6470a07414ff521f889f648d4d29dcab30c28",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202232,
+      "iri": "/api/lesson_materials/202232",
+      "relationId": "/api/lesson_material_has_lessons/202232-104313",
+      "position": 3,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — Pipes",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Валідує або трансформує конкретний аргумент перед викликом обробника.</p>\"}]",
+      "html": "<p>Валідує або трансформує конкретний аргумент перед викликом обробника.</p>",
+      "markdown": "Валідує або трансформує конкретний аргумент перед викликом обробника.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/pipes",
+          "cacheKey": "fbd80826eb993dc62f73d770a8b72591a7423e6502a93d0e2ff3f076a7a3cac8",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202233,
+      "iri": "/api/lesson_materials/202233",
+      "relationId": "/api/lesson_material_has_lessons/202233-104313",
+      "position": 4,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — Interceptors",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Обгортає виклик: бачить вхід і вихід. Логування, мапінг, кешування.</p>\"}]",
+      "html": "<p>Обгортає виклик: бачить вхід і вихід. Логування, мапінг, кешування.</p>",
+      "markdown": "Обгортає виклик: бачить вхід і вихід. Логування, мапінг, кешування.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/interceptors",
+          "cacheKey": "d67f612502ec3516f4525e3e4ce78a28be9681f313d07e778360b7a2b02159db",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202234,
+      "iri": "/api/lesson_materials/202234",
+      "relationId": "/api/lesson_material_has_lessons/202234-104313",
+      "position": 5,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: class-validator",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Каталог декораторів валідації та створення власних.</p>\"}]",
+      "html": "<p>Каталог декораторів валідації та створення власних.</p>",
+      "markdown": "Каталог декораторів валідації та створення власних.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/typestack/class-validator",
+          "cacheKey": "9df5a2b03a5bc8b2fd0f774e0e4fcb817b0e27eca2631883204e25a4172b0d1b",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202235,
+      "iri": "/api/lesson_materials/202235",
+      "relationId": "/api/lesson_material_has_lessons/202235-104313",
+      "position": 6,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: class-transformer",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>plainToInstance, @Expose/@Exclude; без екземпляра валідація мовчки не спрацює.</p>\"}]",
+      "html": "<p>plainToInstance, @Expose/@Exclude; без екземпляра валідація мовчки не спрацює.</p>",
+      "markdown": "plainToInstance, @Expose/@Exclude; без екземпляра валідація мовчки не спрацює.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/typestack/class-transformer",
+          "cacheKey": "3f9ce35c63d04d5f51e42f07b76be59e23ed4f0dd5265316b8d71d27956433d7",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202237,
+      "iri": "/api/lesson_materials/202237",
+      "relationId": "/api/lesson_material_has_lessons/202237-104313",
+      "position": 7,
+      "type": 0,
+      "typeName": "site",
+      "name": "NestJS — Custom route decorators",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>createParamDecorator: власний @CurrentUser().</p>\"}]",
+      "html": "<p>createParamDecorator: власний @CurrentUser().</p>",
+      "markdown": "createParamDecorator: власний @CurrentUser().",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/custom-decorators",
+          "cacheKey": "dce919970c7ecaf4d42c705952b6ae53ae7bef69f353925d07092c9da46d72fb",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202238,
+      "iri": "/api/lesson_materials/202238",
+      "relationId": "/api/lesson_material_has_lessons/202238-104313",
+      "position": 8,
+      "type": 0,
+      "typeName": "site",
+      "name": "Zod",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Схеми замість декораторів; у Zod 4 — error.issues.</p>\"}]",
+      "html": "<p>Схеми замість декораторів; у Zod 4 — error.issues.</p>",
+      "markdown": "Схеми замість декораторів; у Zod 4 — error.issues.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://zod.dev/",
+          "cacheKey": "baf283f6c60b1e81ffa0c1ab7b0d4e87bda34005388601095ea1c48c80062b36",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202239,
+      "iri": "/api/lesson_materials/202239",
+      "relationId": "/api/lesson_material_has_lessons/202239-104313",
+      "position": 9,
+      "type": 0,
+      "typeName": "site",
+      "name": "nestjs-zod",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Міст між Zod і Nest-пайпами замість двох систем валідації.</p>\"}]",
+      "html": "<p>Міст між Zod і Nest-пайпами замість двох систем валідації.</p>",
+      "markdown": "Міст між Zod і Nest-пайпами замість двох систем валідації.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/BenLorantfy/nestjs-zod",
+          "cacheKey": "109b9b9b5a1b6377c666433293d1dba807d0beb2f50783b6bac3ca56e5dd57b5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202240,
+      "iri": "/api/lesson_materials/202240",
+      "relationId": "/api/lesson_material_has_lessons/202240-104313",
+      "position": 10,
+      "type": 0,
+      "typeName": "site",
+      "name": "NestJS — Serialization",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ClassSerializerInterceptor і @Exclude приховують passwordHash у відповіді.</p>\"}]",
+      "html": "<p>ClassSerializerInterceptor і @Exclude приховують passwordHash у відповіді.</p>",
+      "markdown": "ClassSerializerInterceptor і @Exclude приховують passwordHash у відповіді.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/techniques/serialization",
+          "cacheKey": "3c8077aeb86076a59a4ae9eb4a02b72ccc8864245b116c19d688413094558983",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202241,
+      "iri": "/api/lesson_materials/202241",
+      "relationId": "/api/lesson_material_has_lessons/202241-104313",
+      "position": 11,
+      "type": 0,
+      "typeName": "site",
+      "name": "NestJS — OpenAPI",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>З DTO генерується Swagger, з нього — типізовані клієнти.</p>\"}]",
+      "html": "<p>З DTO генерується Swagger, з нього — типізовані клієнти.</p>",
+      "markdown": "З DTO генерується Swagger, з нього — типізовані клієнти.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/openapi/introduction",
+          "cacheKey": "5bc9b1aa2bddc8274a88418bd27a6a3e5477ad79f0afad359af66756a593ae7c",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202242,
+      "iri": "/api/lesson_materials/202242",
+      "relationId": "/api/lesson_material_has_lessons/202242-104313",
+      "position": 12,
+      "type": 0,
+      "typeName": "site",
+      "name": "@nestjs/mapped-types",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>PartialType, PickType — без дублювання DTO для create/update.</p>\"}]",
+      "html": "<p>PartialType, PickType — без дублювання DTO для create/update.</p>",
+      "markdown": "PartialType, PickType — без дублювання DTO для create/update.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/openapi/mapped-types",
+          "cacheKey": "47c501e30222d8936621088e0bd6b7ef6a69548f2b827e2e0cff2f909fb2dd17",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202243,
+      "iri": "/api/lesson_materials/202243",
+      "relationId": "/api/lesson_material_has_lessons/202243-104313",
+      "position": 13,
+      "type": 0,
+      "typeName": "site",
+      "name": "Zod 4 — що змінилось",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Продуктивність і jitless: z.object генерує код, class-validator обходить метадані.</p>\"}]",
+      "html": "<p>Продуктивність і jitless: z.object генерує код, class-validator обходить метадані.</p>",
+      "markdown": "Продуктивність і jitless: z.object генерує код, class-validator обходить метадані.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://zod.dev/v4",
+          "cacheKey": "00497ca4f770e27ee327ab0121153961d35c448fd08bfa61767153435d3eeb7f",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202244,
+      "iri": "/api/lesson_materials/202244",
+      "relationId": "/api/lesson_material_has_lessons/202244-104313",
+      "position": 14,
+      "type": 0,
+      "typeName": "site",
+      "name": "Fastify — Lifecycle",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Карта хуків: «до» і «після» — два різні хуки.</p>\"}]",
+      "html": "<p>Карта хуків: «до» і «після» — два різні хуки.</p>",
+      "markdown": "Карта хуків: «до» і «після» — два різні хуки.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://fastify.dev/docs/latest/Reference/Lifecycle/",
+          "cacheKey": "256ef3ac27d9470ec903e8bacb4edc7ab4b0fee9d88869060fb53fe99b8eb358",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 202351,
+      "iri": "/api/lesson_materials/202351",
+      "relationId": "/api/lesson_material_has_lessons/202351-104313",
+      "position": 15,
+      "type": 0,
+      "typeName": "site",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/17GPaZo3IZtsrqzLQg6DCausneZtT8Wvm/view",
+          "cacheKey": "a4fd858f94ba22e9d8f23dd8256d321ead708f897487b0f96730d3dcf5e16532",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/transcript.md",
+          "bytes": 121226,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 14 Aug 2026 13:33:55 GMT",
+          "sha256": "3ccdf71d17c8a0dde78752dda7755b6bd1cd7dc8cb8eafffb16bd7f69bbccc6a",
+          "fetchedAt": "2026-10-12T13:40:55.015Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/07-Request-flow-у-NestJS-controllers-DTO-та-pipes/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:40:55.015Z"
+}

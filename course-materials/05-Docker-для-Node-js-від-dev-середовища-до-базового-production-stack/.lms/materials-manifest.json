@@ -1,0 +1,396 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104311,
+    "iri": "/api/lessons/104311",
+    "number": 5,
+    "name": "Docker для Node.js: від dev-середовища до базового production-stack",
+    "translationStatus": "available",
+    "startsAt": "2026-08-06T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104311"
+  },
+  "materials": [
+    {
+      "id": 201599,
+      "iri": "/api/lesson_materials/201599",
+      "relationId": "/api/lesson_material_has_lessons/201599-104311",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 5",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1TPfGhUrYNbqeUZkxCB0-nu41amhb5ndGKkfiRpKIkvY/edit",
+          "cacheKey": "f84df15bd18a322f408ff823e715e9775680e160c993db20849cc289be612d1b",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/presentation.pdf",
+          "bytes": 1418037,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "7bed5affa15920724f164f5a6d8b2299f1655866bb5f169fccb7800f769b39e6",
+          "fetchedAt": "2026-10-12T13:40:19.751Z"
+        }
+      ]
+    },
+    {
+      "id": 201600,
+      "iri": "/api/lesson_materials/201600",
+      "relationId": "/api/lesson_material_has_lessons/201600-104311",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Dockerfile reference",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Довідник усіх інструкцій: від FROM до ENTRYPOINT проти CMD.</p>\"}]",
+      "html": "<p>Довідник усіх інструкцій: від FROM до ENTRYPOINT проти CMD.</p>",
+      "markdown": "Довідник усіх інструкцій: від FROM до ENTRYPOINT проти CMD.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/reference/dockerfile/",
+          "cacheKey": "85db08e293f1cb46e2a7e7c6a5e7111c974dfe271ae14cfd3beb89af7e01ef62",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201601,
+      "iri": "/api/lesson_materials/201601",
+      "relationId": "/api/lesson_material_has_lessons/201601-104311",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Multi-stage builds",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Ядро ДЗ: стадія збірки окремо від runtime.</p>\"}]",
+      "html": "<p>Ядро ДЗ: стадія збірки окремо від runtime.</p>",
+      "markdown": "Ядро ДЗ: стадія збірки окремо від runtime.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/build/building/multi-stage/",
+          "cacheKey": "682fb69ab262a9f752071d3ebeef9e940a7e27680a3d576b9b7e8ae0dee276ba",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201602,
+      "iri": "/api/lesson_materials/201602",
+      "relationId": "/api/lesson_material_has_lessons/201602-104311",
+      "position": 3,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Building best practices",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Порядок шарів під кеш: npm ci до копіювання коду.</p>\"}]",
+      "html": "<p>Порядок шарів під кеш: npm ci до копіювання коду.</p>",
+      "markdown": "Порядок шарів під кеш: npm ci до копіювання коду.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/build/building/best-practices/",
+          "cacheKey": "bcb305bd7151f5a9d7b80f18a3038c2fb17355a18bedde0120944d91d14aba6a",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201603,
+      "iri": "/api/lesson_materials/201603",
+      "relationId": "/api/lesson_material_has_lessons/201603-104311",
+      "position": 4,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Node.js — Docker best practices",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Офіційний гайд Node: USER node, npm ci, обробка сигналів.</p>\"}]",
+      "html": "<p>Офіційний гайд Node: USER node, npm ci, обробка сигналів.</p>",
+      "markdown": "Офіційний гайд Node: USER node, npm ci, обробка сигналів.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md",
+          "cacheKey": "6ae4db9a7b8dc559df8e6a48852e43e91ba79afae68788ff3ce0d2f8a051d62e",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201604,
+      "iri": "/api/lesson_materials/201604",
+      "relationId": "/api/lesson_material_has_lessons/201604-104311",
+      "position": 5,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Compose file reference",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>depends_on з service_healthy, іменовані volumes, profiles.</p>\"}]",
+      "html": "<p>depends_on з service_healthy, іменовані volumes, profiles.</p>",
+      "markdown": "depends\\_on з service\\_healthy, іменовані volumes, profiles.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/reference/compose-file/",
+          "cacheKey": "e7f1e499f51846994d299d0a5b2c6aed83c17f301309b2cb57effcfecc5cf03a",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201605,
+      "iri": "/api/lesson_materials/201605",
+      "relationId": "/api/lesson_material_has_lessons/201605-104311",
+      "position": 6,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Compose — Merge та override-файли",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як override підхоплюється в dev і не підхоплюється в CI.</p>\"}]",
+      "html": "<p>Як override підхоплюється в dev і не підхоплюється в CI.</p>",
+      "markdown": "Як override підхоплюється в dev і не підхоплюється в CI.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/",
+          "cacheKey": "86ae84bced64d51a71494a63e2372fd2e5a01da664d16dfb409355cc025c29f1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201606,
+      "iri": "/api/lesson_materials/201606",
+      "relationId": "/api/lesson_material_has_lessons/201606-104311",
+      "position": 7,
+      "type": 0,
+      "typeName": "site",
+      "name": ".dockerignore",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Без нього контекст збірки тягне node_modules і .git.</p>\"}]",
+      "html": "<p>Без нього контекст збірки тягне node_modules і .git.</p>",
+      "markdown": "Без нього контекст збірки тягне node\\_modules і .git.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/build/concepts/context/",
+          "cacheKey": "5e73f90f942e568062c7a51c278b5b318d9202e8259dc45c002a56bda2bafcd5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201607,
+      "iri": "/api/lesson_materials/201607",
+      "relationId": "/api/lesson_material_has_lessons/201607-104311",
+      "position": 8,
+      "type": 0,
+      "typeName": "site",
+      "name": "HEALTHCHECK",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Статус здоровʼя контейнера, на який спирається depends_on.</p>\"}]",
+      "html": "<p>Статус здоровʼя контейнера, на який спирається depends_on.</p>",
+      "markdown": "Статус здоровʼя контейнера, на який спирається depends\\_on.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/reference/dockerfile/",
+          "cacheKey": "2669b91626eeee1138fa91204d3fa59352de64cc98974f03767f4ef1651218e6",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201608,
+      "iri": "/api/lesson_materials/201608",
+      "relationId": "/api/lesson_material_has_lessons/201608-104311",
+      "position": 9,
+      "type": 0,
+      "typeName": "site",
+      "name": "Distroless-образи",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Образ без shell: менша поверхня атаки, складніший дебаг.</p>\"}]",
+      "html": "<p>Образ без shell: менша поверхня атаки, складніший дебаг.</p>",
+      "markdown": "Образ без shell: менша поверхня атаки, складніший дебаг.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/GoogleContainerTools/distroless",
+          "cacheKey": "a0e238f7754485fa2ecb3d077c9493bdb80c535b2c5faac34458563ba26aecf7",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201609,
+      "iri": "/api/lesson_materials/201609",
+      "relationId": "/api/lesson_material_has_lessons/201609-104311",
+      "position": 10,
+      "type": 0,
+      "typeName": "site",
+      "name": "Postgres official image",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>POSTGRES_PASSWORD, initdb.d, вбудований pg_isready для healthcheck.</p>\"}]",
+      "html": "<p>POSTGRES_PASSWORD, initdb.d, вбудований pg_isready для healthcheck.</p>",
+      "markdown": "POSTGRES\\_PASSWORD, initdb.d, вбудований pg\\_isready для healthcheck.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://hub.docker.com/_/postgres",
+          "cacheKey": "cdb20cc14517b2a79af329816975a9db39238f31f3a5ae45ca3cfe82f37aa817",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201610,
+      "iri": "/api/lesson_materials/201610",
+      "relationId": "/api/lesson_material_has_lessons/201610-104311",
+      "position": 11,
+      "type": 0,
+      "typeName": "site",
+      "name": "BuildKit — секрети при збірці",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому ENV TOKEN=... у Dockerfile — витік назавжди.</p>\"}]",
+      "html": "<p>Чому ENV TOKEN=... у Dockerfile — витік назавжди.</p>",
+      "markdown": "Чому ENV TOKEN=... у Dockerfile — витік назавжди.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/build/building/secrets/",
+          "cacheKey": "128e0186870ed6c038cb147498fb25a68a54d2269b9ba5306035b4cf63084564",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201612,
+      "iri": "/api/lesson_materials/201612",
+      "relationId": "/api/lesson_material_has_lessons/201612-104311",
+      "position": 12,
+      "type": 0,
+      "typeName": "site",
+      "name": "Podman",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Daemonless і rootless альтернатива, сумісна з Dockerfile.</p>\"}]",
+      "html": "<p>Daemonless і rootless альтернатива, сумісна з Dockerfile.</p>",
+      "markdown": "Daemonless і rootless альтернатива, сумісна з Dockerfile.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://podman.io/docs",
+          "cacheKey": "505a6ae6b77d9ca07e04c75c2c6248169ba8a426e8ce811fa693991c04cf89fb",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201613,
+      "iri": "/api/lesson_materials/201613",
+      "relationId": "/api/lesson_material_has_lessons/201613-104311",
+      "position": 13,
+      "type": 0,
+      "typeName": "site",
+      "name": "dive — аналіз шарів образу",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Показує вагу кожного шару. Наочно доводить сенс multi-stage.</p>\"}]",
+      "html": "<p>Показує вагу кожного шару. Наочно доводить сенс multi-stage.</p>",
+      "markdown": "Показує вагу кожного шару. Наочно доводить сенс multi-stage.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/wagoodman/dive",
+          "cacheKey": "96d8063d94c482dda0d8a2fd857da1361d96d8462130a13e19b63dddb5e3dba1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201791,
+      "iri": "/api/lesson_materials/201791",
+      "relationId": "/api/lesson_material_has_lessons/201791-104311",
+      "position": 14,
+      "type": 0,
+      "typeName": "site",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1lRQxDARzcM89K0425kfDvw4S06Xw8N_g/view",
+          "cacheKey": "1cfda15aeb971348e20e83de1565963e80977181edc148cca71cd6b118222e84",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/transcript.md",
+          "bytes": 125116,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 07 Aug 2026 12:48:38 GMT",
+          "sha256": "cbdc2d3c9289d07412321ffda48522157367a6e105abe750509def4682cc71df",
+          "fetchedAt": "2026-10-12T13:40:21.228Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:40:21.228Z"
+}

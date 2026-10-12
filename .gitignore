@@ -3,6 +3,13 @@
 /node_modules
 /build
 
+# Standalone tools and downloaded LMS materials
+/tools/lms-client/dist/
+/tools/lms-client/node_modules/
+
+# Lecture videos stay local
+*.mp4
+
 # Logs
 logs
 *.log

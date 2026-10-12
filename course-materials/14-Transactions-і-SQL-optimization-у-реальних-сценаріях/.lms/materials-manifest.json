@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104320,
+    "iri": "/api/lessons/104320",
+    "number": 14,
+    "name": "Transactions і SQL optimization у реальних сценаріях",
+    "translationStatus": "available",
+    "startsAt": "2026-09-10T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104320"
+  },
+  "materials": [
+    {
+      "id": 204331,
+      "iri": "/api/lesson_materials/204331",
+      "relationId": "/api/lesson_material_has_lessons/204331-104320",
+      "position": 0,
+      "type": 0,
+      "typeName": "site",
+      "name": "Презентація до заняття 14",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1Q5tkaPSp8-zIN2qOlFpJaqO4DgQ7BKWTkVhMrRGNBVo/edit",
+          "cacheKey": "621a6b5246aecbc7acf14edb52ce0d477e0ff24d34e591388b1fe924de3ee64c",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/presentation.pdf",
+          "bytes": 1441672,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "761d5ad6c27c178e478a1d72b74b42a2c6fb910117dd16b40fe03642893334dd",
+          "fetchedAt": "2026-10-12T13:42:57.683Z"
+        }
+      ]
+    },
+    {
+      "id": 204332,
+      "iri": "/api/lesson_materials/204332",
+      "relationId": "/api/lesson_material_has_lessons/204332-104320",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/14_TransactionsSqlOpt/additional.md",
+          "cacheKey": "6be9977ed89a129eb9dc6ee519126a147df35bdb0141a68f9b864762ca0a2d1b",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 204516,
+      "iri": "/api/lesson_materials/204516",
+      "relationId": "/api/lesson_material_has_lessons/204516-104320",
+      "position": 2,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1rPOWod0RdAqVp6xQS-qawELU30udhu-f/view",
+          "cacheKey": "6322ad5f9f22bebcd8efa078c9c34e5c2abd117ec7aaf704a5b4743d1b03974b",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/transcript.md",
+          "bytes": 126714,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Mon, 14 Sep 2026 07:52:56 GMT",
+          "sha256": "21a55b2da0cc78572e7e121fb75c7c2c3048cbc735b10c042166ec2914b655ba",
+          "fetchedAt": "2026-10-12T13:42:59.102Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [
+    {
+      "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_140938_6aa431d35dca64.72317729.vtt",
+      "cacheKey": "d89a93602719dee68e172d8b324c167269442b04c79d1f35b033c96ac1fa980b",
+      "kind": "vtt",
+      "role": "transcript",
+      "status": "not_downloaded",
+      "file": null
+    }
+  ],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:42:59.102Z"
+}

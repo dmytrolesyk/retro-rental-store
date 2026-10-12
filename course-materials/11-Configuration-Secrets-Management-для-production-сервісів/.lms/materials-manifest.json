@@ -1,0 +1,540 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104317,
+    "iri": "/api/lessons/104317",
+    "number": 11,
+    "name": "Configuration & Secrets Management для production-сервісів",
+    "translationStatus": "available",
+    "startsAt": "2026-08-27T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104317"
+  },
+  "materials": [
+    {
+      "id": 203195,
+      "iri": "/api/lesson_materials/203195",
+      "relationId": "/api/lesson_material_has_lessons/203195-104317",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 11",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/18zXAnJDJdmebVr5qaKNncf66SoJl5ZKLdguMUAcwd58/edit",
+          "cacheKey": "2bfc4b925a1abd8b76d89c52722e9af18e72e84733839235c23a6c04fac1e3ef",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/11-Configuration-Secrets-Management-для-production-сервісів/presentation.pdf",
+          "bytes": 1492845,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "794fc72e1ebcc78bf1e94e091ddb745dbe861932239aae06ec4cacdcc1d8c1f6",
+          "fetchedAt": "2026-10-12T13:42:03.929Z"
+        }
+      ]
+    },
+    {
+      "id": 203196,
+      "iri": "/api/lesson_materials/203196",
+      "relationId": "/api/lesson_material_has_lessons/203196-104317",
+      "position": 1,
+      "type": 2,
+      "typeName": "file",
+      "name": "Архітектурна записка курсового проєкту",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/document/d/1iyASzcxw2iTwpckF48N1LSTOtlmtd19UQn53x9mpHq0/edit",
+          "cacheKey": "6d4ff57aca2e8ca6076b929054b94957e92c273e99385efe2cde405caea82346",
+          "kind": "unsupported",
+          "role": "material",
+          "status": "unsupported",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203197,
+      "iri": "/api/lesson_materials/203197",
+      "relationId": "/api/lesson_material_has_lessons/203197-104317",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: The Twelve-Factor App — III. Config",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Конфіг живе у змінних середовища, не в коді</p>\"}]",
+      "html": "<p>Конфіг живе у змінних середовища, не в коді</p>",
+      "markdown": "Конфіг живе у змінних середовища, не в коді",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://12factor.net/config",
+          "cacheKey": "1e268a6f0235b00b902ff7a5db1e11170488e8149a6c76d2993f83ba802ad98f",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203198,
+      "iri": "/api/lesson_materials/203198",
+      "relationId": "/api/lesson_material_has_lessons/203198-104317",
+      "position": 3,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: The Twelve-Factor App — V. Build, release, run",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Один білд для всіх середовищ, конфіг окремо</p>\"}]",
+      "html": "<p>Один білд для всіх середовищ, конфіг окремо</p>",
+      "markdown": "Один білд для всіх середовищ, конфіг окремо",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://12factor.net/build-release-run",
+          "cacheKey": "243fbe5a4274c978e5eb5d73f5242e60d56ba376df616180625b908296ef3011",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203199,
+      "iri": "/api/lesson_materials/203199",
+      "relationId": "/api/lesson_material_has_lessons/203199-104317",
+      "position": 4,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: NestJS — Configuration",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ConfigModule.forRoot, опція validate, envFilePath, namespaced конфіги</p>\"}]",
+      "html": "<p>ConfigModule.forRoot, опція validate, envFilePath, namespaced конфіги</p>",
+      "markdown": "ConfigModule.forRoot, опція validate, envFilePath, namespaced конфіги",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.nestjs.com/techniques/configuration",
+          "cacheKey": "5da141e80170ae5189d742564b25144a0d453d919d2858697e4203884ed040f6",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203200,
+      "iri": "/api/lesson_materials/203200",
+      "relationId": "/api/lesson_material_has_lessons/203200-104317",
+      "position": 5,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Zod — довідка API",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Схема валідації env: coerce, default, safeParse</p>\"}]",
+      "html": "<p>Схема валідації env: coerce, default, safeParse</p>",
+      "markdown": "Схема валідації env: coerce, default, safeParse",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://zod.dev/api",
+          "cacheKey": "92b44864f0b6609273d507cf37ce327fa722abac2c2aa1735179dc76d0b76571",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203201,
+      "iri": "/api/lesson_materials/203201",
+      "relationId": "/api/lesson_material_has_lessons/203201-104317",
+      "position": 6,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: dotenv — README",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як працює .env і чому середовище сильніше за файл</p>\"}]",
+      "html": "<p>Як працює .env і чому середовище сильніше за файл</p>",
+      "markdown": "Як працює .env і чому середовище сильніше за файл",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/motdotla/dotenv",
+          "cacheKey": "5e10416dcdabad6cc3ae0fa3379d65628fa305dd7a452f77473cef60cd605a03",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203202,
+      "iri": "/api/lesson_materials/203202",
+      "relationId": "/api/lesson_material_has_lessons/203202-104317",
+      "position": 7,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: node-postgres — Poo",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>password як функція — ротація креденшелів без рестарту</p>\"}]",
+      "html": "<p>password як функція — ротація креденшелів без рестарту</p>",
+      "markdown": "password як функція — ротація креденшелів без рестарту",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://node-postgres.com/apis/pool",
+          "cacheKey": "aced8b52e40afc13c1eb6fa3450876e218e2e5a38c1d4b60ef499406fc82504d",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203203,
+      "iri": "/api/lesson_materials/203203",
+      "relationId": "/api/lesson_material_has_lessons/203203-104317",
+      "position": 8,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: GitHub — Removing sensitive data from a repository",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Скільки кроків коштує вичистити секрет з git-історії</p>\"}]",
+      "html": "<p>Скільки кроків коштує вичистити секрет з git-історії</p>",
+      "markdown": "Скільки кроків коштує вичистити секрет з git-історії",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository",
+          "cacheKey": "106c928bb9772cd0cc892666b16f805a776e4ea58bc4be19c8bb1ba3ceefe90a",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203204,
+      "iri": "/api/lesson_materials/203204",
+      "relationId": "/api/lesson_material_has_lessons/203204-104317",
+      "position": 9,
+      "type": 0,
+      "typeName": "site",
+      "name": "Docker — .dockerignore",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Без нього .env потрапляє в шар образу</p>\"}]",
+      "html": "<p>Без нього .env потрапляє в шар образу</p>",
+      "markdown": "Без нього .env потрапляє в шар образу",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/build/concepts/context/",
+          "cacheKey": "3105ade3406ae37bec8063449c23514e3f83ef5b108a171d75ad45ab086f9b03",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203205,
+      "iri": "/api/lesson_materials/203205",
+      "relationId": "/api/lesson_material_has_lessons/203205-104317",
+      "position": 10,
+      "type": 0,
+      "typeName": "site",
+      "name": "Docker — Build secrets",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>RUN --mount=type=secret: секрет на збірці без сліду</p>\"}]",
+      "html": "<p>RUN --mount=type=secret: секрет на збірці без сліду</p>",
+      "markdown": "RUN --mount=type=secret: секрет на збірці без сліду",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.docker.com/build/building/secrets/",
+          "cacheKey": "128e0186870ed6c038cb147498fb25a68a54d2269b9ba5306035b4cf63084564",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203206,
+      "iri": "/api/lesson_materials/203206",
+      "relationId": "/api/lesson_material_has_lessons/203206-104317",
+      "position": 11,
+      "type": 0,
+      "typeName": "site",
+      "name": "AWS Secrets Manager — Rotation strategies",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Single user проти alternating users; вікно ротації</p>\"}]",
+      "html": "<p>Single user проти alternating users; вікно ротації</p>",
+      "markdown": "Single user проти alternating users; вікно ротації",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets_strategies.html",
+          "cacheKey": "ffa456aee9ecae579a72c0f88c2a11b4b81806385b080120cb466eef091a54e1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203207,
+      "iri": "/api/lesson_materials/203207",
+      "relationId": "/api/lesson_material_has_lessons/203207-104317",
+      "position": 12,
+      "type": 0,
+      "typeName": "site",
+      "name": "Vault — Database secrets engine",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Динамічні креденшели БД на запит із TTL</p>\"}]",
+      "html": "<p>Динамічні креденшели БД на запит із TTL</p>",
+      "markdown": "Динамічні креденшели БД на запит із TTL",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://developer.hashicorp.com/vault/docs/secrets/databases",
+          "cacheKey": "32eda225ff0d9515dd742a2a804e3ab1d338a23af18626d3bc21a340f93c8c5b",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203208,
+      "iri": "/api/lesson_materials/203208",
+      "relationId": "/api/lesson_material_has_lessons/203208-104317",
+      "position": 13,
+      "type": 0,
+      "typeName": "site",
+      "name": "Vault — Lease, renew, revoke",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Механіка lease/TTL і ревокація одним префіксом</p>\"}]",
+      "html": "<p>Механіка lease/TTL і ревокація одним префіксом</p>",
+      "markdown": "Механіка lease/TTL і ревокація одним префіксом",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://developer.hashicorp.com/vault/docs/concepts/lease",
+          "cacheKey": "ff4c5de60640c37ba7a81b46bb8de383ee31a029c4b4fab1f0849dafc21252d6",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203209,
+      "iri": "/api/lesson_materials/203209",
+      "relationId": "/api/lesson_material_has_lessons/203209-104317",
+      "position": 14,
+      "type": 0,
+      "typeName": "site",
+      "name": "Infisical — Getting started",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Open-source менеджер секретів; infisical run інʼєктить значення</p>\"}]",
+      "html": "<p>Open-source менеджер секретів; infisical run інʼєктить значення</p>",
+      "markdown": "Open-source менеджер секретів; infisical run інʼєктить значення",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://infisical.com/docs/documentation/getting-started/introduction",
+          "cacheKey": "737102de8f2b1604acef1f72b2f708e9eeb6ee7808a2f925aeda396f19d23e4e",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203210,
+      "iri": "/api/lesson_materials/203210",
+      "relationId": "/api/lesson_material_has_lessons/203210-104317",
+      "position": 15,
+      "type": 0,
+      "typeName": "site",
+      "name": "gitleaks",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Сканер секретів у робочій копії та git-історії</p>\"}]",
+      "html": "<p>Сканер секретів у робочій копії та git-історії</p>",
+      "markdown": "Сканер секретів у робочій копії та git-історії",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/gitleaks/gitleaks",
+          "cacheKey": "d47e2fe01c187102d60adc36cfe2e2bb071a725d23018e27dd3c340caa743caa",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203211,
+      "iri": "/api/lesson_materials/203211",
+      "relationId": "/api/lesson_material_has_lessons/203211-104317",
+      "position": 16,
+      "type": 0,
+      "typeName": "site",
+      "name": "AWS KMS — Cryptography (envelope encryption)",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Envelope encryption: DEK/KEK і ротація майстер-ключа</p>\"}]",
+      "html": "<p>Envelope encryption: DEK/KEK і ротація майстер-ключа</p>",
+      "markdown": "Envelope encryption: DEK/KEK і ротація майстер-ключа",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.aws.amazon.com/kms/latest/developerguide/kms-cryptography.html",
+          "cacheKey": "57736b3d74f516cb564cc1d809317f19fb441608c740b8b2f6b2001a47af4534",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203212,
+      "iri": "/api/lesson_materials/203212",
+      "relationId": "/api/lesson_material_has_lessons/203212-104317",
+      "position": 17,
+      "type": 0,
+      "typeName": "site",
+      "name": "SOPS",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Шифровані секрети в git з осмисленим diff</p>\"}]",
+      "html": "<p>Шифровані секрети в git з осмисленим diff</p>",
+      "markdown": "Шифровані секрети в git з осмисленим diff",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/getsops/sops",
+          "cacheKey": "8fce19f8927230f46d1fb11dc5f079accd0a4253c81ac7f41631ee35068f2c8f",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203213,
+      "iri": "/api/lesson_materials/203213",
+      "relationId": "/api/lesson_material_has_lessons/203213-104317",
+      "position": 18,
+      "type": 0,
+      "typeName": "site",
+      "name": "Doppler — Docs",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>SaaS-менеджер секретів для малих команд, швидкий онбординг</p>\"}]",
+      "html": "<p>SaaS-менеджер секретів для малих команд, швидкий онбординг</p>",
+      "markdown": "SaaS-менеджер секретів для малих команд, швидкий онбординг",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.doppler.com/docs",
+          "cacheKey": "6889d022e8c6f1c0c58e559a1c8571bbfd76eed3b172ccf36d9c365b5af009a2",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203214,
+      "iri": "/api/lesson_materials/203214",
+      "relationId": "/api/lesson_material_has_lessons/203214-104317",
+      "position": 19,
+      "type": 0,
+      "typeName": "site",
+      "name": "Kubernetes — Secrets",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Секрет-як-файл через volume mount у кластері</p>\"}]",
+      "html": "<p>Секрет-як-файл через volume mount у кластері</p>",
+      "markdown": "Секрет-як-файл через volume mount у кластері",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://kubernetes.io/docs/concepts/configuration/secret/",
+          "cacheKey": "e6dd3a08a75b8b25ce4caf54b4d543fca0aa0a75ea40006bed5ea20770486073",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 203345,
+      "iri": "/api/lesson_materials/203345",
+      "relationId": "/api/lesson_material_has_lessons/203345-104317",
+      "position": 20,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1fcSiJFgcaIOnjm2pdBugpbnhFGyUG3KB/view",
+          "cacheKey": "0225786e32c46fe008aa16cf6acecd1af09dda68a0b95bdba5f3c03d060d633a",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/11-Configuration-Secrets-Management-для-production-сервісів/transcript.md",
+          "bytes": 144068,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Mon, 31 Aug 2026 08:30:10 GMT",
+          "sha256": "cc968684e3e67dbd7215872b94e3fbbe7cbb62e480844090c2bc122e7f1381ea",
+          "fetchedAt": "2026-10-12T13:42:05.396Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/11-Configuration-Secrets-Management-для-production-сервісів",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/11-Configuration-Secrets-Management-для-production-сервісів/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:42:05.396Z"
+}

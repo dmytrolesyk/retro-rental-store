@@ -1,0 +1,444 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104310,
+    "iri": "/api/lessons/104310",
+    "number": 4,
+    "name": "Express, Fastify та IoC: як будуються backend-фреймворки",
+    "translationStatus": "available",
+    "startsAt": "2026-08-04T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104310"
+  },
+  "materials": [
+    {
+      "id": 201451,
+      "iri": "/api/lesson_materials/201451",
+      "relationId": "/api/lesson_material_has_lessons/201451-104310",
+      "position": 0,
+      "type": 0,
+      "typeName": "site",
+      "name": "Презентація до заняття 4",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1_K9GZRst5BfKXfrmwB0tqqaBVEBlz0Qu56e7_SzoYGs/edit",
+          "cacheKey": "acfbd364282cefaee500976ff808766cf00dd98b5484dd468a28015ebee6c799",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/04-Express-Fastify-та-IoC-як-будуються-backend-фреймворки/presentation.pdf",
+          "bytes": 1453486,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "964b285e9064e2d629133b3691076ecd00290b437576e54091c27a93e8c36d76",
+          "fetchedAt": "2026-10-12T13:40:02.998Z"
+        }
+      ]
+    },
+    {
+      "id": 201452,
+      "iri": "/api/lesson_materials/201452",
+      "relationId": "/api/lesson_material_has_lessons/201452-104310",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Migrating to Express 5",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Express 5 сам ловить відхилені проміси — на відміну від 4.</p>\"}]",
+      "html": "<p>Express 5 сам ловить відхилені проміси — на відміну від 4.</p>",
+      "markdown": "Express 5 сам ловить відхилені проміси — на відміну від 4.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://expressjs.com/en/guide/migrating-5.html",
+          "cacheKey": "62f883a6e9f13a53a949b5b898c687c9106fb145b4cf747b19fb7554921c3365",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201453,
+      "iri": "/api/lesson_materials/201453",
+      "relationId": "/api/lesson_material_has_lessons/201453-104310",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Express — Error Handling",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому error-middleware має рівно чотири аргументи.</p>\"}]",
+      "html": "<p>Чому error-middleware має рівно чотири аргументи.</p>",
+      "markdown": "Чому error-middleware має рівно чотири аргументи.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://expressjs.com/en/guide/error-handling.html",
+          "cacheKey": "a3b53583eabf8c18a9ba5375cb98a2b3a698cb45657bf21bde368418c755b157",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201454,
+      "iri": "/api/lesson_materials/201454",
+      "relationId": "/api/lesson_material_has_lessons/201454-104310",
+      "position": 3,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Express — Using middleware",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Порядок реєстрації = порядок виконання. next() проти next(err).</p>\"}]",
+      "html": "<p>Порядок реєстрації = порядок виконання. next() проти next(err).</p>",
+      "markdown": "Порядок реєстрації = порядок виконання. next() проти next(err).",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://expressjs.com/en/guide/using-middleware.html",
+          "cacheKey": "af79591f4ccad9c7f119302e7fb2238b7806ef18c4bb27cb3afacc714582b778",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201455,
+      "iri": "/api/lesson_materials/201455",
+      "relationId": "/api/lesson_material_has_lessons/201455-104310",
+      "position": 4,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: The Fastify Lifecycle",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Схема життєвого циклу запиту: від onRequest до onResponse.</p>\"}]",
+      "html": "<p>Схема життєвого циклу запиту: від onRequest до onResponse.</p>",
+      "markdown": "Схема життєвого циклу запиту: від onRequest до onResponse.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://fastify.dev/docs/latest/Reference/Lifecycle/",
+          "cacheKey": "256ef3ac27d9470ec903e8bacb4edc7ab4b0fee9d88869060fb53fe99b8eb358",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201456,
+      "iri": "/api/lesson_materials/201456",
+      "relationId": "/api/lesson_material_has_lessons/201456-104310",
+      "position": 5,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: Fastify — Hooks",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Іменовані точки входу замість одного плаского конвеєра Express.</p>\"}]",
+      "html": "<p>Іменовані точки входу замість одного плаского конвеєра Express.</p>",
+      "markdown": "Іменовані точки входу замість одного плаского конвеєра Express.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://fastify.dev/docs/latest/Reference/Hooks/",
+          "cacheKey": "07ecb225c65ccfa090ec44cae88ce26af005d99e424c03b140b6281dd862e0b1",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201457,
+      "iri": "/api/lesson_materials/201457",
+      "relationId": "/api/lesson_material_has_lessons/201457-104310",
+      "position": 6,
+      "type": 0,
+      "typeName": "site",
+      "name": "❗️Must-read: InversifyJS — Getting started",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Базовий DI: декоратори, токени, контейнер, обовʼязковий reflect-metadata.</p>\"}]",
+      "html": "<p>Базовий DI: декоратори, токени, контейнер, обовʼязковий reflect-metadata.</p>",
+      "markdown": "Базовий DI: декоратори, токени, контейнер, обовʼязковий reflect-metadata.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://inversify.io/docs/introduction/getting-started/",
+          "cacheKey": "0ee5ef85153673c26bfe100359d1f8a039b0fe1a964b66adcf09f1a37a85908a",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201458,
+      "iri": "/api/lesson_materials/201458",
+      "relationId": "/api/lesson_material_has_lessons/201458-104310",
+      "position": 7,
+      "type": 0,
+      "typeName": "site",
+      "name": "Fastify — Validation and Serialization",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>JSON-схема компілюється в код — звідси перевага у швидкості.</p>\"}]",
+      "html": "<p>JSON-схема компілюється в код — звідси перевага у швидкості.</p>",
+      "markdown": "JSON-схема компілюється в код — звідси перевага у швидкості.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://fastify.dev/docs/latest/Reference/Validation-and-Serialization/",
+          "cacheKey": "53c16be625168107ece7bd2207a85269f32909fbee50c267ad472260c9f44330",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201459,
+      "iri": "/api/lesson_materials/201459",
+      "relationId": "/api/lesson_material_has_lessons/201459-104310",
+      "position": 8,
+      "type": 0,
+      "typeName": "site",
+      "name": "InversifyJS — Migrating from v6",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Ми на 8.x, більшість туторіалів у мережі — застарілі.</p>\"}]",
+      "html": "<p>Ми на 8.x, більшість туторіалів у мережі — застарілі.</p>",
+      "markdown": "Ми на 8.x, більшість туторіалів у мережі — застарілі.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://inversify.io/docs/guides/migrating-from-v6/",
+          "cacheKey": "606b4fcb19e3ee2313c0e836659638bec3b5d6578115d2192860eca69e1e6746",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201460,
+      "iri": "/api/lesson_materials/201460",
+      "relationId": "/api/lesson_material_has_lessons/201460-104310",
+      "position": 9,
+      "type": 0,
+      "typeName": "site",
+      "name": "Fastify — Plugins",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Інкапсуляція плагінів проти глобального app.use в Express.</p>\"}]",
+      "html": "<p>Інкапсуляція плагінів проти глобального app.use в Express.</p>",
+      "markdown": "Інкапсуляція плагінів проти глобального app.use в Express.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://fastify.dev/docs/latest/Reference/Plugins/",
+          "cacheKey": "5e5f8c8de11cc06954e8631919b27bb5dd7cf43c6298a5f0e79deac9f8dc6636",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201461,
+      "iri": "/api/lesson_materials/201461",
+      "relationId": "/api/lesson_material_has_lessons/201461-104310",
+      "position": 10,
+      "type": 0,
+      "typeName": "site",
+      "name": "TypeScript — Decorators",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Що таке декоратор до того, як почнеться Nest.</p>\"}]",
+      "html": "<p>Що таке декоратор до того, як почнеться Nest.</p>",
+      "markdown": "Що таке декоратор до того, як почнеться Nest.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.typescriptlang.org/docs/handbook/decorators.html",
+          "cacheKey": "d99ae3224e53b9d8754a2463c39d9b0751fde359f1cfee63e1acc201c77e3573",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201462,
+      "iri": "/api/lesson_materials/201462",
+      "relationId": "/api/lesson_material_has_lessons/201462-104310",
+      "position": 11,
+      "type": 0,
+      "typeName": "site",
+      "name": "reflect-metadata (npm)",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як типи конструктора стають доступними в рантаймі.</p>\"}]",
+      "html": "<p>Як типи конструктора стають доступними в рантаймі.</p>",
+      "markdown": "Як типи конструктора стають доступними в рантаймі.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.npmjs.com/package/reflect-metadata",
+          "cacheKey": "7867b6ecb7bca66cbcc0b22620c2546f394ccd0dc21bc4fb0679fce3b69944b5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201463,
+      "iri": "/api/lesson_materials/201463",
+      "relationId": "/api/lesson_material_has_lessons/201463-104310",
+      "position": 12,
+      "type": 0,
+      "typeName": "site",
+      "name": "Fastify Benchmarks",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Джерело цифр «2–3× швидше». Читати з поправкою.</p>\"}]",
+      "html": "<p>Джерело цифр «2–3× швидше». Читати з поправкою.</p>",
+      "markdown": "Джерело цифр «2–3× швидше». Читати з поправкою.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://fastify.dev/benchmarks/",
+          "cacheKey": "ff1e84a4288f436f0c09154cef7c7893a4bf8e7715634a4dc24b55b0be5c48e5",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201464,
+      "iri": "/api/lesson_materials/201464",
+      "relationId": "/api/lesson_material_has_lessons/201464-104310",
+      "position": 13,
+      "type": 0,
+      "typeName": "site",
+      "name": "Express 5.x API — Router",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Довідник по роутеру — тому самому, що напишемо руками.</p>\"}]",
+      "html": "<p>Довідник по роутеру — тому самому, що напишемо руками.</p>",
+      "markdown": "Довідник по роутеру — тому самому, що напишемо руками.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://expressjs.com/en/5x/api.html",
+          "cacheKey": "3bc05ef8f5cbfa56e64a2efb7ad47ba2234d3d53463a73dee568edb801d6b075",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201465,
+      "iri": "/api/lesson_materials/201465",
+      "relationId": "/api/lesson_material_has_lessons/201465-104310",
+      "position": 14,
+      "type": 0,
+      "typeName": "site",
+      "name": "Martin Fowler — IoC Containers and the DI pattern",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Першоджерело термінів «IoC», «DI», «Service Locator».</p>\"}]",
+      "html": "<p>Першоджерело термінів «IoC», «DI», «Service Locator».</p>",
+      "markdown": "Першоджерело термінів «IoC», «DI», «Service Locator».",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://martinfowler.com/articles/injection.html",
+          "cacheKey": "fb6a411006c5908fe657c7988487d66c809d57339d063e244c124f71e8b96893",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201466,
+      "iri": "/api/lesson_materials/201466",
+      "relationId": "/api/lesson_material_has_lessons/201466-104310",
+      "position": 15,
+      "type": 0,
+      "typeName": "site",
+      "name": "Awilix (npm)",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Альтернативний DI-контейнер: без декораторів і без reflect-metadata.</p>\"}]",
+      "html": "<p>Альтернативний DI-контейнер: без декораторів і без reflect-metadata.</p>",
+      "markdown": "Альтернативний DI-контейнер: без декораторів і без reflect-metadata.",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://www.npmjs.com/package/awilix",
+          "cacheKey": "aaf910f3328288f7f3b89803e8400181748061529caaee7ca222aa0dc18b51de",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 201584,
+      "iri": "/api/lesson_materials/201584",
+      "relationId": "/api/lesson_material_has_lessons/201584-104310",
+      "position": 16,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1syDM5lDbI6H4RNvLNob_mMe8HongaYz1/view",
+          "cacheKey": "2b407a79f0c97e1e19f38f1e20a6ecb81c8df09b4e9de1210125c072f4a783c3",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/04-Express-Fastify-та-IoC-як-будуються-backend-фреймворки/transcript.md",
+          "bytes": 142073,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Thu, 06 Aug 2026 09:57:15 GMT",
+          "sha256": "01370c48274f4a04cf9902bdc0475bb7668a38141945d723e0ebdb9c8ae44e81",
+          "fetchedAt": "2026-10-12T13:40:04.377Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/04-Express-Fastify-та-IoC-як-будуються-backend-фреймворки",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/04-Express-Fastify-та-IoC-як-будуються-backend-фреймворки/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:40:04.377Z"
+}

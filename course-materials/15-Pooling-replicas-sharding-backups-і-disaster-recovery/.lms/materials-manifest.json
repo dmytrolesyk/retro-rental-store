@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104321,
+    "iri": "/api/lessons/104321",
+    "number": 15,
+    "name": "Pooling, replicas, sharding, backups і disaster recovery",
+    "translationStatus": "available",
+    "startsAt": "2026-09-15T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104321"
+  },
+  "materials": [
+    {
+      "id": 204635,
+      "iri": "/api/lesson_materials/204635",
+      "relationId": "/api/lesson_material_has_lessons/204635-104321",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 15",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/17v46RK_upet8MZqf2QdrW1Imz5EEG0qw00LAqe5oJIE/edit\"}}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [
+        "UNSUPPORTED_DESCRIPTION_BLOCK"
+      ],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/17v46RK_upet8MZqf2QdrW1Imz5EEG0qw00LAqe5oJIE/edit",
+          "cacheKey": "cf2e6acd39d717d9b2192cf452ab99a7943dfc2cd296881e2ec16bad1c99fefa",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/presentation.pdf",
+          "bytes": 2758034,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "cf7ab49018730b5e011289e4cf7a2fe80d5651a7a56f7754ed7a0a9bed067803",
+          "fetchedAt": "2026-10-12T13:43:10.169Z"
+        }
+      ]
+    },
+    {
+      "id": 204636,
+      "iri": "/api/lesson_materials/204636",
+      "relationId": "/api/lesson_material_has_lessons/204636-104321",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/15_PoolingReplicasSharding/additional.md",
+          "cacheKey": "82b28a3ca8bd08e9d1e7ca93347ff9717df86624d46e5ab60332785cb11ac081",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 204746,
+      "iri": "/api/lesson_materials/204746",
+      "relationId": "/api/lesson_material_has_lessons/204746-104321",
+      "position": 2,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1IKYt-zBKHrNR7ZmNf4aRGCnDC83tPulO/view",
+          "cacheKey": "a49bda96651ca6a25d9cbf9e774a93fb741bd4841c2ff4fd4e98d538f0a1c1f9",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/transcript.md",
+          "bytes": 137689,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Wed, 16 Sep 2026 10:22:45 GMT",
+          "sha256": "3f716f5e41c99ac9c089349cdebc18c2e7db0defdb59c1f55a0bc059ce01c563",
+          "fetchedAt": "2026-10-12T13:43:11.466Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [
+    {
+      "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_141073_6aaac26a074199.35743050.vtt",
+      "cacheKey": "5e3c0788e276ecca07f0da93528ad5aa243f4a2d546c1bbecf9268463a98050b",
+      "kind": "vtt",
+      "role": "transcript",
+      "status": "not_downloaded",
+      "file": null
+    }
+  ],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:43:11.466Z"
+}

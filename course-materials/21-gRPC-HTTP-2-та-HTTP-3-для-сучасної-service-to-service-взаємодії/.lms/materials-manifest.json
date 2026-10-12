@@ -1,0 +1,119 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104327,
+    "iri": "/api/lessons/104327",
+    "number": 21,
+    "name": "gRPC, HTTP/2 та HTTP/3 для сучасної service-to-service взаємодії",
+    "translationStatus": "available",
+    "startsAt": "2026-10-06T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104327"
+  },
+  "materials": [
+    {
+      "id": 206462,
+      "iri": "/api/lesson_materials/206462",
+      "relationId": "/api/lesson_material_has_lessons/206462-104327",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 21",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/19FXhdow0NJfQKiC-t_I-c23XS3xgujkf6lGm1_BJoBI/edit\"}}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [
+        "UNSUPPORTED_DESCRIPTION_BLOCK"
+      ],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/19FXhdow0NJfQKiC-t_I-c23XS3xgujkf6lGm1_BJoBI/edit",
+          "cacheKey": "c822fc98010e1480a20389ab3e0b49d316c7258ed76edb00cb7cb5f761767a9d",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/21-gRPC-HTTP-2-та-HTTP-3-для-сучасної-service-to-service-взаємодії/presentation.pdf",
+          "bytes": 1533904,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "ef2180ad1ef4797de37ca6883ccfdb48cdd3a912a75602867ae882bb97a75c2b",
+          "fetchedAt": "2026-10-12T13:44:56.774Z"
+        }
+      ]
+    },
+    {
+      "id": 206463,
+      "iri": "/api/lesson_materials/206463",
+      "relationId": "/api/lesson_material_has_lessons/206463-104327",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/21_Grpc/additional.md",
+          "cacheKey": "0563f61626401ea839360b356bb9600c117ee513b762eb4acffd4d6aaa644f19",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 206792,
+      "iri": "/api/lesson_materials/206792",
+      "relationId": "/api/lesson_material_has_lessons/206792-104327",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1TtRFL4w2p8td5Md1EtQ4FsKVxUV42JQ2/view",
+          "cacheKey": "f7d74ca652c422bcb389c218e521b58773d07f129aba95975e546aa15b79043c",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/21-gRPC-HTTP-2-та-HTTP-3-для-сучасної-service-to-service-взаємодії/transcript.md",
+          "bytes": 115273,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 09 Oct 2026 14:00:33 GMT",
+          "sha256": "ab96e9154ba02a11274cf58cbd78b3788f48c0bbb52651c1cc50ff4f4021a5b0",
+          "fetchedAt": "2026-10-12T13:44:57.993Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [
+    {
+      "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_142091_6ac6620eb8c821.44454171.vtt",
+      "cacheKey": "b98a12b1a4f91de122d8f871492c05ba4b1485564534830ee15c5074af0bd3b0",
+      "kind": "vtt",
+      "role": "transcript",
+      "status": "not_downloaded",
+      "file": null
+    }
+  ],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/21-gRPC-HTTP-2-та-HTTP-3-для-сучасної-service-to-service-взаємодії",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/21-gRPC-HTTP-2-та-HTTP-3-для-сучасної-service-to-service-взаємодії/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:44:57.993Z"
+}

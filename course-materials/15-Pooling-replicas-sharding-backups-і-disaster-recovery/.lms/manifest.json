@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104321,
+    "iri": "/api/lessons/104321",
+    "number": 15,
+    "name": "Pooling, replicas, sharding, backups і disaster recovery",
+    "translationStatus": "available",
+    "startsAt": "2026-09-15T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104321"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:43:20.189Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:43:02.264Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104321,
+        "iri": "/api/lessons/104321",
+        "number": 15,
+        "name": "Pooling, replicas, sharding, backups і disaster recovery",
+        "translationStatus": "available",
+        "startsAt": "2026-09-15T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "in_process",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104321"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54347,
+          "iri": "/api/lesson_homeworks/54347",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><span class=\\\"ql-bg-transparent ql-color-#000000\\\"># ДЗ до Лекції 15: PgBouncer + backup-скрипт + restore-drill для курсового</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Курсовий проєкт: так</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">## Постановка</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">База твого курсового вже має схему (#12), міграції (#13) і транзакції (#14). Тепер ти додаєш їй два атрибути production-системи: пулер зʼєднань на боці БД і бекап, у відновленні якого ти впевнений, бо сам його відновив.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Що робиш:</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">1. PgBouncer перед Postgres курсового. У docker-compose.yml проєкту додаєш сервіс PgBouncer (образ на вибір, на лекції — edoburu/pgbouncer) з конфігом у репозиторії: pool_mode = transaction, default_pool_size — невеликий (5-10), max_client_conn — з запасом (100+), адмін-консоль доступна (admin_users). Застосунок ходить у базу через PgBouncer, не напряму. Нового секрета тут не зʼявляється: змінюється значення рядка підключення у сховищі з ДЗ #11 (оточення dev і prod) — новий env-файл заводити не треба, а в .env.example онови хост/порт у рядку-контракті (пароль там і далі фейковий). У README одним абзацом: чому transaction mode і що він ламає (мінімум три речі з лекції).</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">2. Backup-скрипт. scripts/backup.sh: pg_dump -Fc бази курсового → файл із датою в імені → backup destination на вибір: локальний volume, NFS або S3 (S3 глибоко — у #26, зараз достатньо і локальної теки поза контейнером; якщо все ж береш S3, ключі кладеш у сховище ДЗ #11, а не в новий env-файл). Поруч — рядок розкладу cron (файл backup.cron у репо), який запускає цей скрипт щоночі.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">3. Restore-drill. scripts/restore-drill.sh: бере останній дамп → відновлює його в чистий контейнер (порожній volume! окремий сервіс у compose або docker run) → доводить, що дані повернулись (порівнює контрольні значення до/після: кількість рядків + агрегат по ключовій таблиці) → друкує MATCH або падає з ненульовим кодом. Проганяєш drill один раз і фіксуєш результат у RESTORE-DRILL.md: дата, розмір дампу, час відновлення, виміряний RTO і чесний RPO твого розкладу бекапів (щоночі = до 24 год).</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Стартова точка — репозиторій курсового після ДЗ #14. Референс механіки — код лекції code/15_PoolingReplicasSharding (кроки 4 і 8).</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">## Acceptance criteria</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Грейдер виконує ці команди у корені твого репо — свіжий клон, чиста БД, без доступу до твого сховища.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">🔐 Сховище + грейдер — та сама схема, що на ДЗ #13 і #14. Рядок підключення живе у сховищі з ДЗ #11, і scripts/backup.sh / scripts/restore-drill.sh беруть його звідти тією самою обгорткою: bash scripts/with-secrets.sh dev bash scripts/backup.sh. Це основний шлях. Але сховища у грейдера немає — голий bash scripts/backup.sh на свіжому клоні падає з DATABASE_URL: unbound variable, а через обгортку без креденшелів — з Please either run infisical init to connect to a project…, обидва exit 1. Тому діє те саме правило: грейдер запускає з SKIP_VAULT=1 і бере значення з дев-креденшелів твого docker-compose.yml. Розділ ## Grading у README (заведений ще на ДЗ #13) допиши під це ДЗ — рівно такими рядками, наприклад:</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">docker compose up -d --wait</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">export DATABASE_URL=postgres://shop:shoppass@127.0.0.1:&lt;порт pgbouncer&gt;/shop</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">export SKIP_VAULT=1&nbsp;&nbsp;&nbsp;&nbsp;# у грейдера немає доступу до сховища</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">bash scripts/with-secrets.sh dev bash scripts/backup.sh</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Обидві форми запуску нижче — «через обгортку» і «голий bash scripts/…» — зараховуються: перша під SKIP_VAULT=1 просто виконує другу. Якщо твої скрипти читають DATABASE_URL прямо з оточення (без обгортки всередині), достатньо export вище — але тоді напиши це в ## Grading явно.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- [ ] Стек піднімається однією командою, застосунок ходить через PgBouncer: docker compose up -d --wait → psql -h 127.0.0.1 -p &lt;порт pgbouncer&gt; -U &lt;user&gt; -d &lt;db&gt; -c \\\"SELECT 1\\\" повертає рядок 1. Порт PgBouncer має бути опублікований у compose (ports:) — грейдер ходить із хоста, не з мережі compose. Рядок-контракт у .env.example вказує на PgBouncer: grep -E '^(export[[:space:]]+)?(DATABASE_URL|DB_URL)=' .env.example дає хост/порт того сервісу, який compose піднімає як pgbouncer, а не прямий порт Postgres. Саме значення в репо не шукаємо — після ДЗ #11 воно живе у сховищі; у .env.example реальний тільки хост/порт, пароль фейковий.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- [ ] Transaction mode увімкнено в конфізі з репо: grep -E '^\\\\s*pool_mode\\\\s*=\\\\s*transaction' &lt;шлях до pgbouncer.ini&gt; дає збіг, і psql -p &lt;порт pgbouncer&gt; -U &lt;admin_user&gt; -d pgbouncer -c \\\"SHOW POOLS\\\" показує твою базу з pool_mode = transaction.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- [ ] Backup-скрипт працює і датує артефакти: bash scripts/with-secrets.sh dev bash scripts/backup.sh (під SKIP_VAULT=1, див. рамку вище) завершується кодом 0 і друкує шлях/URI створеного бекапу, а в імені цього артефакта є дата запуску. Формат дати — на твій розсуд, аби читався однозначно: 2026-09-17, 20260917, 2026_09_17, 17.09.2026 (перевірка по імені: grep -E '[0-9]{4}[-_.]?[0-9]{2}[-_.]?[0-9]{2}|[0-9]{2}[-_.][0-9]{2}[-_.][0-9]{4}'). Далі — за обраним destination: для локальної теки/volume pg_restore --list &lt;файл&gt; друкує TOC (доказ валідного -Fc архіву); для S3/NFS достатньо, що обʼєкт видно за надрукованим шляхом (aws s3 ls / ls), а придатність архіву доведе restore-drill нижче. Назва теки для дампів — теж на твій розсуд, грейдер бере шлях із виводу скрипта.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- [ ] Cron-розклад лежить у репо: grep -cE '^(@(reboot|yearly|annually|monthly|weekly|daily|midnight|hourly)|([0-9*/,-]+[[:space:]]+){4}[0-9*/,-]+)[[:space:]]+.*backup' backup.cron виводить число ≥ 1 — тобто пʼять полів розкладу або @daily-скорочення, плюс команда зі словом backup.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- [ ] Restore-drill доводить відновлення: bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh (під SKIP_VAULT=1) завершується кодом 0 і друкує MATCH; відновлення йде у контейнер/volume, якого не існувало до запуску (перевірка: скрипт сам його створює і сам прибирає — повторний запуск теж дає MATCH).</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- [ ] RTO/RPO задокументовані числами: grep -iE 'RTO|RPO' RESTORE-DRILL.md дає обидва терміни, і поруч із кожним стоїть виміряне/розраховане значення з одиницями часу (секунди/хвилини/години), не «швидко».</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">## Формат здачі</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- Той самий репозиторій курсового проєкту, гілка hw-15, Pull Request у main.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- Структура (нове до існуючого проєкту):</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;- docker-compose.yml — + сервіс PgBouncer (і, за бажанням, сервіс для drill)</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;- pgbouncer/pgbouncer.ini (+ userlist.txt) — конфіг у репо, без секретів прод-рівня</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;- scripts/backup.sh · scripts/restore-drill.sh — обидва запускаються з кореня репо і беруть підключення з process.env/$DATABASE_URL, який наповнює обгортка scripts/with-secrets.sh з ДЗ #11 (нового env-файла не заводимо)</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;- backup.cron — рядок розкладу</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;- RESTORE-DRILL.md — протокол drill-у: дата, розмір, час, RTO/RPO</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">&nbsp;&nbsp;- README.md — розділ «Data layer ops»: як підняти, як зробити бекап, як відновитись, чому transaction mode</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- Грейдер має відтворити все трьома командами — docker compose up -d --wait → бекап → drill — без правок файлів, узявши перед ними два export із твого розділу ## Grading (DATABASE_URL дев-рівня + SKIP_VAULT=1).</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- у README.md — оновлений розділ ## Grading з ДЗ #13: docker compose up -d --wait, export DATABASE_URL=… з дев-значеннями твого compose (хост/порт — PgBouncer), export SKIP_VAULT=1 і два рядки запуску бекапу та drill-у. Без цього розділу грейдер на свіжому клоні не виконає ані бекап, ані drill.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- У LMS здаєш посилання на PR.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">## Підказки, які економлять години</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- PgBouncer + SCRAM: найпростіше — плоский userlist.txt (\\\"user\\\" \\\"password\\\") і auth_type = scram-sha-256; пароль у userlist має збігатися з паролем Postgres.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- pg_restore у чисту базу — з --no-owner, інакше впадеш на власниках обʼєктів.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- Контрольна сума з лекції: SELECT count(*) || '|' || sum(&lt;числова колонка&gt;) FROM &lt;ключова таблиця&gt; — одна команда, яку легко порівняти до/після.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- Drill у непорожній volume — головна причина фальшивих duplicate key помилок: завжди зноси volume перед відновленням.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">- ORM/застосунок через PgBouncer у transaction mode: вимкни named prepared statements драйвера або постав max_prepared_statements = 200 у PgBouncer ≥ 1.21.</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">## Зв'язок з курсовим проєктом</span></p><p><br></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це ДЗ додає твоєму Marketplace API (або обраному домену) операційний шар бази: пулер, який переживе ріст числа інстансів у #28 (Kubernetes), і бекап-процедуру, яку #26 (S3) переведе на справжній object storage, а #29 (Observability) навчить моніторити. RESTORE-DRILL.md — перший документ твого проєкту, написаний мовою SRE: далі ці ж RTO/RPO зустрінуться в SLO лекції 29 і на захисті.</span></p><p><br></p>\"}]",
+          "html": "<p><span class=\"ql-bg-transparent ql-color-#000000\"># ДЗ до Лекції 15: PgBouncer + backup-скрипт + restore-drill для курсового</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Курсовий проєкт: так</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">## Постановка</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">База твого курсового вже має схему (#12), міграції (#13) і транзакції (#14). Тепер ти додаєш їй два атрибути production-системи: пулер зʼєднань на боці БД і бекап, у відновленні якого ти впевнений, бо сам його відновив.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Що робиш:</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">1. PgBouncer перед Postgres курсового. У docker-compose.yml проєкту додаєш сервіс PgBouncer (образ на вибір, на лекції — edoburu/pgbouncer) з конфігом у репозиторії: pool_mode = transaction, default_pool_size — невеликий (5-10), max_client_conn — з запасом (100+), адмін-консоль доступна (admin_users). Застосунок ходить у базу через PgBouncer, не напряму. Нового секрета тут не зʼявляється: змінюється значення рядка підключення у сховищі з ДЗ #11 (оточення dev і prod) — новий env-файл заводити не треба, а в .env.example онови хост/порт у рядку-контракті (пароль там і далі фейковий). У README одним абзацом: чому transaction mode і що він ламає (мінімум три речі з лекції).</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">2. Backup-скрипт. scripts/backup.sh: pg_dump -Fc бази курсового → файл із датою в імені → backup destination на вибір: локальний volume, NFS або S3 (S3 глибоко — у #26, зараз достатньо і локальної теки поза контейнером; якщо все ж береш S3, ключі кладеш у сховище ДЗ #11, а не в новий env-файл). Поруч — рядок розкладу cron (файл backup.cron у репо), який запускає цей скрипт щоночі.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">3. Restore-drill. scripts/restore-drill.sh: бере останній дамп → відновлює його в чистий контейнер (порожній volume! окремий сервіс у compose або docker run) → доводить, що дані повернулись (порівнює контрольні значення до/після: кількість рядків + агрегат по ключовій таблиці) → друкує MATCH або падає з ненульовим кодом. Проганяєш drill один раз і фіксуєш результат у RESTORE-DRILL.md: дата, розмір дампу, час відновлення, виміряний RTO і чесний RPO твого розкладу бекапів (щоночі = до 24 год).</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Стартова точка — репозиторій курсового після ДЗ #14. Референс механіки — код лекції code/15_PoolingReplicasSharding (кроки 4 і 8).</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">## Acceptance criteria</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Грейдер виконує ці команди у корені твого репо — свіжий клон, чиста БД, без доступу до твого сховища.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">🔐 Сховище + грейдер — та сама схема, що на ДЗ #13 і #14. Рядок підключення живе у сховищі з ДЗ #11, і scripts/backup.sh / scripts/restore-drill.sh беруть його звідти тією самою обгорткою: bash scripts/with-secrets.sh dev bash scripts/backup.sh. Це основний шлях. Але сховища у грейдера немає — голий bash scripts/backup.sh на свіжому клоні падає з DATABASE_URL: unbound variable, а через обгортку без креденшелів — з Please either run infisical init to connect to a project…, обидва exit 1. Тому діє те саме правило: грейдер запускає з SKIP_VAULT=1 і бере значення з дев-креденшелів твого docker-compose.yml. Розділ ## Grading у README (заведений ще на ДЗ #13) допиши під це ДЗ — рівно такими рядками, наприклад:</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">docker compose up -d --wait</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">export DATABASE_URL=postgres://shop:shoppass@127.0.0.1:&lt;порт pgbouncer&gt;/shop</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">export SKIP_VAULT=1&nbsp;&nbsp;&nbsp;&nbsp;# у грейдера немає доступу до сховища</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">bash scripts/with-secrets.sh dev bash scripts/backup.sh</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Обидві форми запуску нижче — «через обгортку» і «голий bash scripts/…» — зараховуються: перша під SKIP_VAULT=1 просто виконує другу. Якщо твої скрипти читають DATABASE_URL прямо з оточення (без обгортки всередині), достатньо export вище — але тоді напиши це в ## Grading явно.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- [ ] Стек піднімається однією командою, застосунок ходить через PgBouncer: docker compose up -d --wait → psql -h 127.0.0.1 -p &lt;порт pgbouncer&gt; -U &lt;user&gt; -d &lt;db&gt; -c \"SELECT 1\" повертає рядок 1. Порт PgBouncer має бути опублікований у compose (ports:) — грейдер ходить із хоста, не з мережі compose. Рядок-контракт у .env.example вказує на PgBouncer: grep -E '^(export[[:space:]]+)?(DATABASE_URL|DB_URL)=' .env.example дає хост/порт того сервісу, який compose піднімає як pgbouncer, а не прямий порт Postgres. Саме значення в репо не шукаємо — після ДЗ #11 воно живе у сховищі; у .env.example реальний тільки хост/порт, пароль фейковий.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- [ ] Transaction mode увімкнено в конфізі з репо: grep -E '^\\s*pool_mode\\s*=\\s*transaction' &lt;шлях до pgbouncer.ini&gt; дає збіг, і psql -p &lt;порт pgbouncer&gt; -U &lt;admin_user&gt; -d pgbouncer -c \"SHOW POOLS\" показує твою базу з pool_mode = transaction.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- [ ] Backup-скрипт працює і датує артефакти: bash scripts/with-secrets.sh dev bash scripts/backup.sh (під SKIP_VAULT=1, див. рамку вище) завершується кодом 0 і друкує шлях/URI створеного бекапу, а в імені цього артефакта є дата запуску. Формат дати — на твій розсуд, аби читався однозначно: 2026-09-17, 20260917, 2026_09_17, 17.09.2026 (перевірка по імені: grep -E '[0-9]{4}[-_.]?[0-9]{2}[-_.]?[0-9]{2}|[0-9]{2}[-_.][0-9]{2}[-_.][0-9]{4}'). Далі — за обраним destination: для локальної теки/volume pg_restore --list &lt;файл&gt; друкує TOC (доказ валідного -Fc архіву); для S3/NFS достатньо, що обʼєкт видно за надрукованим шляхом (aws s3 ls / ls), а придатність архіву доведе restore-drill нижче. Назва теки для дампів — теж на твій розсуд, грейдер бере шлях із виводу скрипта.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- [ ] Cron-розклад лежить у репо: grep -cE '^(@(reboot|yearly|annually|monthly|weekly|daily|midnight|hourly)|([0-9*/,-]+[[:space:]]+){4}[0-9*/,-]+)[[:space:]]+.*backup' backup.cron виводить число ≥ 1 — тобто пʼять полів розкладу або @daily-скорочення, плюс команда зі словом backup.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- [ ] Restore-drill доводить відновлення: bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh (під SKIP_VAULT=1) завершується кодом 0 і друкує MATCH; відновлення йде у контейнер/volume, якого не існувало до запуску (перевірка: скрипт сам його створює і сам прибирає — повторний запуск теж дає MATCH).</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- [ ] RTO/RPO задокументовані числами: grep -iE 'RTO|RPO' RESTORE-DRILL.md дає обидва терміни, і поруч із кожним стоїть виміряне/розраховане значення з одиницями часу (секунди/хвилини/години), не «швидко».</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">## Формат здачі</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- Той самий репозиторій курсового проєкту, гілка hw-15, Pull Request у main.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- Структура (нове до існуючого проєкту):</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;- docker-compose.yml — + сервіс PgBouncer (і, за бажанням, сервіс для drill)</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;- pgbouncer/pgbouncer.ini (+ userlist.txt) — конфіг у репо, без секретів прод-рівня</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;- scripts/backup.sh · scripts/restore-drill.sh — обидва запускаються з кореня репо і беруть підключення з process.env/$DATABASE_URL, який наповнює обгортка scripts/with-secrets.sh з ДЗ #11 (нового env-файла не заводимо)</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;- backup.cron — рядок розкладу</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;- RESTORE-DRILL.md — протокол drill-у: дата, розмір, час, RTO/RPO</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">&nbsp;&nbsp;- README.md — розділ «Data layer ops»: як підняти, як зробити бекап, як відновитись, чому transaction mode</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- Грейдер має відтворити все трьома командами — docker compose up -d --wait → бекап → drill — без правок файлів, узявши перед ними два export із твого розділу ## Grading (DATABASE_URL дев-рівня + SKIP_VAULT=1).</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- у README.md — оновлений розділ ## Grading з ДЗ #13: docker compose up -d --wait, export DATABASE_URL=… з дев-значеннями твого compose (хост/порт — PgBouncer), export SKIP_VAULT=1 і два рядки запуску бекапу та drill-у. Без цього розділу грейдер на свіжому клоні не виконає ані бекап, ані drill.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- У LMS здаєш посилання на PR.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">## Підказки, які економлять години</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- PgBouncer + SCRAM: найпростіше — плоский userlist.txt (\"user\" \"password\") і auth_type = scram-sha-256; пароль у userlist має збігатися з паролем Postgres.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- pg_restore у чисту базу — з --no-owner, інакше впадеш на власниках обʼєктів.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- Контрольна сума з лекції: SELECT count(*) || '|' || sum(&lt;числова колонка&gt;) FROM &lt;ключова таблиця&gt; — одна команда, яку легко порівняти до/після.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- Drill у непорожній volume — головна причина фальшивих duplicate key помилок: завжди зноси volume перед відновленням.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">- ORM/застосунок через PgBouncer у transaction mode: вимкни named prepared statements драйвера або постав max_prepared_statements = 200 у PgBouncer ≥ 1.21.</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">## Зв'язок з курсовим проєктом</span></p><p><br></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це ДЗ додає твоєму Marketplace API (або обраному домену) операційний шар бази: пулер, який переживе ріст числа інстансів у #28 (Kubernetes), і бекап-процедуру, яку #26 (S3) переведе на справжній object storage, а #29 (Observability) навчить моніторити. RESTORE-DRILL.md — перший документ твого проєкту, написаний мовою SRE: далі ці ж RTO/RPO зустрінуться в SLO лекції 29 і на захисті.</span></p><p><br></p>",
+          "markdown": "\\# ДЗ до Лекції 15: PgBouncer + backup-скрипт + restore-drill для курсового\n\nКурсовий проєкт: так\n\n  \n\n\\## Постановка\n\n  \n\nБаза твого курсового вже має схему (#12), міграції (#13) і транзакції (#14). Тепер ти додаєш їй два атрибути production-системи: пулер зʼєднань на боці БД і бекап, у відновленні якого ти впевнений, бо сам його відновив.\n\n  \n\nЩо робиш:\n\n1\\. PgBouncer перед Postgres курсового. У docker-compose.yml проєкту додаєш сервіс PgBouncer (образ на вибір, на лекції — edoburu/pgbouncer) з конфігом у репозиторії: pool\\_mode = transaction, default\\_pool\\_size — невеликий (5-10), max\\_client\\_conn — з запасом (100+), адмін-консоль доступна (admin\\_users). Застосунок ходить у базу через PgBouncer, не напряму. Нового секрета тут не зʼявляється: змінюється значення рядка підключення у сховищі з ДЗ #11 (оточення dev і prod) — новий env-файл заводити не треба, а в .env.example онови хост/порт у рядку-контракті (пароль там і далі фейковий). У README одним абзацом: чому transaction mode і що він ламає (мінімум три речі з лекції).\n\n  \n\n2\\. Backup-скрипт. scripts/backup.sh: pg\\_dump -Fc бази курсового → файл із датою в імені → backup destination на вибір: локальний volume, NFS або S3 (S3 глибоко — у #26, зараз достатньо і локальної теки поза контейнером; якщо все ж береш S3, ключі кладеш у сховище ДЗ #11, а не в новий env-файл). Поруч — рядок розкладу cron (файл backup.cron у репо), який запускає цей скрипт щоночі.\n\n  \n\n3\\. Restore-drill. scripts/restore-drill.sh: бере останній дамп → відновлює його в чистий контейнер (порожній volume! окремий сервіс у compose або docker run) → доводить, що дані повернулись (порівнює контрольні значення до/після: кількість рядків + агрегат по ключовій таблиці) → друкує MATCH або падає з ненульовим кодом. Проганяєш drill один раз і фіксуєш результат у RESTORE-DRILL.md: дата, розмір дампу, час відновлення, виміряний RTO і чесний RPO твого розкладу бекапів (щоночі = до 24 год).\n\n  \n\nСтартова точка — репозиторій курсового після ДЗ #14. Референс механіки — код лекції code/15\\_PoolingReplicasSharding (кроки 4 і 8).\n\n  \n\n\\## Acceptance criteria\n\n  \n\nГрейдер виконує ці команди у корені твого репо — свіжий клон, чиста БД, без доступу до твого сховища.\n\n  \n\n🔐 Сховище + грейдер — та сама схема, що на ДЗ #13 і #14. Рядок підключення живе у сховищі з ДЗ #11, і scripts/backup.sh / scripts/restore-drill.sh беруть його звідти тією самою обгорткою: bash scripts/with-secrets.sh dev bash scripts/backup.sh. Це основний шлях. Але сховища у грейдера немає — голий bash scripts/backup.sh на свіжому клоні падає з DATABASE\\_URL: unbound variable, а через обгортку без креденшелів — з Please either run infisical init to connect to a project…, обидва exit 1. Тому діє те саме правило: грейдер запускає з SKIP\\_VAULT=1 і бере значення з дев-креденшелів твого docker-compose.yml. Розділ ## Grading у README (заведений ще на ДЗ #13) допиши під це ДЗ — рівно такими рядками, наприклад:\n\n  \n\ndocker compose up -d --wait\n\nexport DATABASE\\_URL=postgres://shop:shoppass@127.0.0.1:<порт pgbouncer>/shop\n\nexport SKIP\\_VAULT=1    # у грейдера немає доступу до сховища\n\nbash scripts/with-secrets.sh dev bash scripts/backup.sh\n\nbash scripts/with-secrets.sh dev bash scripts/restore-drill.sh\n\n  \n\nОбидві форми запуску нижче — «через обгортку» і «голий bash scripts/…» — зараховуються: перша під SKIP\\_VAULT=1 просто виконує другу. Якщо твої скрипти читають DATABASE\\_URL прямо з оточення (без обгортки всередині), достатньо export вище — але тоді напиши це в ## Grading явно.\n\n  \n\n\\- \\[ \\] Стек піднімається однією командою, застосунок ходить через PgBouncer: docker compose up -d --wait → psql -h 127.0.0.1 -p <порт pgbouncer> -U <user> -d <db> -c \"SELECT 1\" повертає рядок 1. Порт PgBouncer має бути опублікований у compose (ports:) — грейдер ходить із хоста, не з мережі compose. Рядок-контракт у .env.example вказує на PgBouncer: grep -E '^(export\\[\\[:space:\\]\\]+)?(DATABASE\\_URL|DB\\_URL)=' .env.example дає хост/порт того сервісу, який compose піднімає як pgbouncer, а не прямий порт Postgres. Саме значення в репо не шукаємо — після ДЗ #11 воно живе у сховищі; у .env.example реальний тільки хост/порт, пароль фейковий.\n\n\\- \\[ \\] Transaction mode увімкнено в конфізі з репо: grep -E '^\\\\s\\*pool\\_mode\\\\s\\*=\\\\s\\*transaction' <шлях до pgbouncer.ini> дає збіг, і psql -p <порт pgbouncer> -U <admin\\_user> -d pgbouncer -c \"SHOW POOLS\" показує твою базу з pool\\_mode = transaction.\n\n\\- \\[ \\] Backup-скрипт працює і датує артефакти: bash scripts/with-secrets.sh dev bash scripts/backup.sh (під SKIP\\_VAULT=1, див. рамку вище) завершується кодом 0 і друкує шлях/URI створеного бекапу, а в імені цього артефакта є дата запуску. Формат дати — на твій розсуд, аби читався однозначно: 2026-09-17, 20260917, 2026\\_09\\_17, 17.09.2026 (перевірка по імені: grep -E '\\[0-9\\]{4}\\[-\\_.\\]?\\[0-9\\]{2}\\[-\\_.\\]?\\[0-9\\]{2}|\\[0-9\\]{2}\\[-\\_.\\]\\[0-9\\]{2}\\[-\\_.\\]\\[0-9\\]{4}'). Далі — за обраним destination: для локальної теки/volume pg\\_restore --list <файл> друкує TOC (доказ валідного -Fc архіву); для S3/NFS достатньо, що обʼєкт видно за надрукованим шляхом (aws s3 ls / ls), а придатність архіву доведе restore-drill нижче. Назва теки для дампів — теж на твій розсуд, грейдер бере шлях із виводу скрипта.\n\n\\- \\[ \\] Cron-розклад лежить у репо: grep -cE '^(@(reboot|yearly|annually|monthly|weekly|daily|midnight|hourly)|(\\[0-9\\*/,-\\]+\\[\\[:space:\\]\\]+){4}\\[0-9\\*/,-\\]+)\\[\\[:space:\\]\\]+.\\*backup' backup.cron виводить число ≥ 1 — тобто пʼять полів розкладу або @daily-скорочення, плюс команда зі словом backup.\n\n\\- \\[ \\] Restore-drill доводить відновлення: bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh (під SKIP\\_VAULT=1) завершується кодом 0 і друкує MATCH; відновлення йде у контейнер/volume, якого не існувало до запуску (перевірка: скрипт сам його створює і сам прибирає — повторний запуск теж дає MATCH).\n\n\\- \\[ \\] RTO/RPO задокументовані числами: grep -iE 'RTO|RPO' RESTORE-DRILL.md дає обидва терміни, і поруч із кожним стоїть виміряне/розраховане значення з одиницями часу (секунди/хвилини/години), не «швидко».\n\n  \n\n\\## Формат здачі\n\n  \n\n\\- Той самий репозиторій курсового проєкту, гілка hw-15, Pull Request у main.\n\n\\- Структура (нове до існуючого проєкту):\n\n  - docker-compose.yml — + сервіс PgBouncer (і, за бажанням, сервіс для drill)\n\n  - pgbouncer/pgbouncer.ini (+ userlist.txt) — конфіг у репо, без секретів прод-рівня\n\n  - scripts/backup.sh · scripts/restore-drill.sh — обидва запускаються з кореня репо і беруть підключення з process.env/$DATABASE\\_URL, який наповнює обгортка scripts/with-secrets.sh з ДЗ #11 (нового env-файла не заводимо)\n\n  - backup.cron — рядок розкладу\n\n  - RESTORE-DRILL.md — протокол drill-у: дата, розмір, час, RTO/RPO\n\n  - README.md — розділ «Data layer ops»: як підняти, як зробити бекап, як відновитись, чому transaction mode\n\n\\- Грейдер має відтворити все трьома командами — docker compose up -d --wait → бекап → drill — без правок файлів, узявши перед ними два export із твого розділу ## Grading (DATABASE\\_URL дев-рівня + SKIP\\_VAULT=1).\n\n\\- у README.md — оновлений розділ ## Grading з ДЗ #13: docker compose up -d --wait, export DATABASE\\_URL=… з дев-значеннями твого compose (хост/порт — PgBouncer), export SKIP\\_VAULT=1 і два рядки запуску бекапу та drill-у. Без цього розділу грейдер на свіжому клоні не виконає ані бекап, ані drill.\n\n\\- У LMS здаєш посилання на PR.\n\n  \n\n\\## Підказки, які економлять години\n\n  \n\n\\- PgBouncer + SCRAM: найпростіше — плоский userlist.txt (\"user\" \"password\") і auth\\_type = scram-sha-256; пароль у userlist має збігатися з паролем Postgres.\n\n\\- pg\\_restore у чисту базу — з --no-owner, інакше впадеш на власниках обʼєктів.\n\n\\- Контрольна сума з лекції: SELECT count(\\*) || '|' || sum(<числова колонка>) FROM <ключова таблиця> — одна команда, яку легко порівняти до/після.\n\n\\- Drill у непорожній volume — головна причина фальшивих duplicate key помилок: завжди зноси volume перед відновленням.\n\n\\- ORM/застосунок через PgBouncer у transaction mode: вимкни named prepared statements драйвера або постав max\\_prepared\\_statements = 200 у PgBouncer ≥ 1.21.\n\n  \n\n\\## Зв'язок з курсовим проєктом\n\n  \n\nЦе ДЗ додає твоєму Marketplace API (або обраному домену) операційний шар бази: пулер, який переживе ріст числа інстансів у #28 (Kubernetes), і бекап-процедуру, яку #26 (S3) переведе на справжній object storage, а #29 (Observability) навчить моніторити. RESTORE-DRILL.md — перший документ твого проєкту, написаний мовою SRE: далі ці ж RTO/RPO зустрінуться в SLO лекції 29 і на захисті.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104321/homework/54347"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:43:02.264Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:43:11.466Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104321,
+        "iri": "/api/lessons/104321",
+        "number": 15,
+        "name": "Pooling, replicas, sharding, backups і disaster recovery",
+        "translationStatus": "available",
+        "startsAt": "2026-09-15T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "in_process",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104321"
+      },
+      "materials": [
+        {
+          "id": 204635,
+          "iri": "/api/lesson_materials/204635",
+          "relationId": "/api/lesson_material_has_lessons/204635-104321",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 15",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/17v46RK_upet8MZqf2QdrW1Imz5EEG0qw00LAqe5oJIE/edit\"}}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [
+            "UNSUPPORTED_DESCRIPTION_BLOCK"
+          ],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/17v46RK_upet8MZqf2QdrW1Imz5EEG0qw00LAqe5oJIE/edit",
+              "cacheKey": "cf2e6acd39d717d9b2192cf452ab99a7943dfc2cd296881e2ec16bad1c99fefa",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/presentation.pdf",
+              "bytes": 2758034,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "cf7ab49018730b5e011289e4cf7a2fe80d5651a7a56f7754ed7a0a9bed067803",
+              "fetchedAt": "2026-10-12T13:43:10.169Z"
+            }
+          ]
+        },
+        {
+          "id": 204636,
+          "iri": "/api/lesson_materials/204636",
+          "relationId": "/api/lesson_material_has_lessons/204636-104321",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "Перелік додаткових матеріалів",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+          "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+          "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/15_PoolingReplicasSharding/additional.md",
+              "cacheKey": "82b28a3ca8bd08e9d1e7ca93347ff9717df86624d46e5ab60332785cb11ac081",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 204746,
+          "iri": "/api/lesson_materials/204746",
+          "relationId": "/api/lesson_material_has_lessons/204746-104321",
+          "position": 2,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1IKYt-zBKHrNR7ZmNf4aRGCnDC83tPulO/view",
+              "cacheKey": "a49bda96651ca6a25d9cbf9e774a93fb741bd4841c2ff4fd4e98d538f0a1c1f9",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/transcript.md",
+              "bytes": 137689,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Wed, 16 Sep 2026 10:22:45 GMT",
+              "sha256": "3f716f5e41c99ac9c089349cdebc18c2e7db0defdb59c1f55a0bc059ce01c563",
+              "fetchedAt": "2026-10-12T13:43:11.466Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [
+        {
+          "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_141073_6aaac26a074199.35743050.vtt",
+          "cacheKey": "5e3c0788e276ecca07f0da93528ad5aa243f4a2d546c1bbecf9268463a98050b",
+          "kind": "vtt",
+          "role": "transcript",
+          "status": "not_downloaded",
+          "file": null
+        }
+      ],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:43:11.466Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:43:20.189Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104321,
+        "iri": "/api/lessons/104321",
+        "number": 15,
+        "name": "Pooling, replicas, sharding, backups і disaster recovery",
+        "translationStatus": "available",
+        "startsAt": "2026-09-15T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "in_process",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104321"
+      },
+      "recordings": [
+        {
+          "id": 141073,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 141073,
+      "resolutionId": 661993,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/lecture.mp4",
+      "bytes": 397475642,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:43:20.189Z"
+    }
+  }
+}

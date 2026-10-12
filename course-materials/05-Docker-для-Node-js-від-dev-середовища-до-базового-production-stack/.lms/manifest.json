@@ -1,0 +1,510 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104311,
+    "iri": "/api/lessons/104311",
+    "number": 5,
+    "name": "Docker для Node.js: від dev-середовища до базового production-stack",
+    "translationStatus": "available",
+    "startsAt": "2026-08-06T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104311"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:40:27.848Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:14.925Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104311,
+        "iri": "/api/lessons/104311",
+        "number": 5,
+        "name": "Docker для Node.js: від dev-середовища до базового production-stack",
+        "translationStatus": "available",
+        "startsAt": "2026-08-06T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104311"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54338,
+          "iri": "/api/lesson_homeworks/54338",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Постановка</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Ви пакуєте у контейнер той самий сервіс, який писали на Лекції 4 (Express або Fastify — байдуже), і піднімаєте його разом із Postgres однією командою.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Мета — не «навчитися Docker», а зрозуміти три речі, через які реальні образи важать 1.2 ГБ замість 180 МБ і падають у проді: як працює </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">кеш шарів</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, навіщо </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">multi-stage</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і чому контейнер </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">не повинен ходити під root</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що потрібно зробити</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">1. Dockerfile з multi-stage build</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Мінімум дві стадії:</span></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Стадія</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що містить</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">builder</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">dev-залежності, збірка</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">runner</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">тільки production-залежності + артефакт збірки</span></td></tr></tbody></table><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">У фінальний образ не потрапляють ні dev-залежності, ні вихідні </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.ts</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">/тести.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">2. Порядок шарів під кеш</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#188038\\\">package*.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> копіюються й </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm ci</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виконується </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">до</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> копіювання решти коду. Зміна одного рядка в </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не повинна перезапускати встановлення залежностей.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">3. Non-root</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Фінальна стадія перемикається на непривілейованого користувача (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">USER node</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> в офіційному образі або власний через </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">adduser</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">). Процес у контейнері працює не від uid 0.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">4. .dockerignore</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Мінімум: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node_modules</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.git</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Dockerfile</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">*.md</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.env</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Без нього контекст збірки тягне сотні мегабайтів.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">5. HEALTHCHECK</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">У Dockerfile, б'є у ваш </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">/health</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> ендпойнт.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">6. docker-compose.yml</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Два сервіси: ваш </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">api</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">postgres:17</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Postgres із іменованим volume (дані переживають </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose down</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">), </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">api</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> чекає на готовність БД через </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">depends_on</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> + </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">condition: service_healthy</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">7. docker-compose.override.yml для dev</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Пробрасує код у контейнер (bind mount), вмикає hot-reload, відкриває порт назовні. Базовий </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker-compose.yml</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> має лишатися придатним для CI </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">без</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> override.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">8. README.md</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Команди запуску і — обов'язково — </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">розмір фінального образу</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker images</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) поруч із розміром образу, зібраного «в лоб» з однієї стадії. Різницю поясніть одним реченням.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Стартова точка.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Ваш сервіс із ДЗ/демо Лекції 4. Якщо його немає — підійде будь-який мінімальний Express/Fastify із двома ендпойнтами: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /health</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">GET /users</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Підказки, які економлять години.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Базовий образ — </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:22-slim</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:24-slim</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: без суфікса це ~1.1 ГБ, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">slim</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — ~200 МБ (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">alpine</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> менший, але musl іноді ламає нативні модулі). </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm ci</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а не </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm install</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — він читає </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">package-lock.json</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і не переписує його. </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">depends_on</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">condition: service_healthy</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не чекає готовності Postgres. Секрети не через </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">ENV</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — вони лишаються в шарах образу назавжди.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Acceptance criteria</strong></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Multi-stage реальний.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -c '^FROM' Dockerfile</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виводить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">2</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або більше, і у фінальній стадії немає </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm ci</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">--omit=dev</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -n 'npm ci' Dockerfile</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — у runner-стадії рядок містить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">--omit=dev</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> або </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">--only=production</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Кеш шарів не ламається.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> У Dockerfile рядок </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">COPY package</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> стоїть раніше за </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">COPY . .</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -n 'COPY' Dockerfile</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> дає менший номер рядка для </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">package</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Non-root.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker run --rm &lt;image&gt; id -u</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виводить значення ≠ 0. У Dockerfile присутній </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">USER</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">.dockerignore існує</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і містить щонайменше </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node_modules</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> та </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.git</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -E 'node_modules|\\\\.git' .dockerignore</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> дає збіги.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Healthcheck працює.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Після </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose up -d</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> команда </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker inspect --format '{{.State.Health.Status}}' &lt;api-container&gt;</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> через ~30 с виводить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">healthy</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Стек піднімається однією командою.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose up -d</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -s -o /dev/null -w \\\"%{http_code}\\\\n\\\" </span><a href=\\\"http://localhost:3000/health\\\" rel=\\\"noopener noreferrer\\\" target=\\\"_blank\\\" class=\\\"ql-bg-transparent ql-color-#188038\\\">http://localhost:3000/health</a><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виводить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">200</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Дані Postgres переживають перезапуск.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Створили таблицю → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose down</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">-v</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose up -d</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → таблиця на місці. У README опишіть, якою командою це перевіряли.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Override не потрібен для CI.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose -f docker-compose.yml config</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> відпрацьовує без помилок і не містить bind-mount на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">./src</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose -f docker-compose.yml config | grep -c 'source: ./src'</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> виводить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">0</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">README містить обидва розміри образу</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і речення-пояснення різниці.</span></li></ol><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Формат здачі</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Репозиторій:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> публічний GitHub-репозиторій (або гілка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">hw-05</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> у наявному навчальному репо) + Pull Request.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Структура:</strong></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Файл</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Dockerfile</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">multi-stage, non-root, healthcheck</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.dockerignore</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">виключає </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node_modules</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.git</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">.env</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> тощо</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker-compose.yml</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">база, придатна для CI</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker-compose.override.yml</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">dev-режим: bind mount, hot-reload, порт</span></td></tr><tr><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/</span></td><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">сервіс із Лекції 4</span></td></tr><tr><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span></td><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">команди запуску, розміри образів, як перевіряли persistence</span></td></tr></tbody></table><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Вимога до README:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> грейдер має підняти все командою </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose up -d</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — без правок файлів.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">У LMS здаєте посилання на PR</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, не на головну гілку.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Зв'язок з курсовим проєктом</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">foundation-ДЗ поза курсовим проєктом</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, але артефакт із нього ви носитимете через увесь курс.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Починаючи з Лекції 6 весь NestJS-код виконується </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">всередині цього контейнера</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">; на Лекціях 12–16 до compose додасться Postgres із міграціями, на 19–20 — черги, на 23 — Redis. Чим охайніше зробите зараз, тим менше переробок далі.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Production-grade Docker (BuildKit secrets, сканування, підпис образів) і Kubernetes — Лекція 28.</span></p>\"}]",
+          "html": "<p><strong class=\"ql-bg-transparent ql-color-#000000\">Постановка</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Ви пакуєте у контейнер той самий сервіс, який писали на Лекції 4 (Express або Fastify — байдуже), і піднімаєте його разом із Postgres однією командою.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Мета — не «навчитися Docker», а зрозуміти три речі, через які реальні образи важать 1.2 ГБ замість 180 МБ і падають у проді: як працює </span><strong class=\"ql-bg-transparent ql-color-#000000\">кеш шарів</strong><span class=\"ql-bg-transparent ql-color-#000000\">, навіщо </span><strong class=\"ql-bg-transparent ql-color-#000000\">multi-stage</strong><span class=\"ql-bg-transparent ql-color-#000000\"> і чому контейнер </span><strong class=\"ql-bg-transparent ql-color-#000000\">не повинен ходити під root</strong><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Що потрібно зробити</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">1. Dockerfile з multi-stage build</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Мінімум дві стадії:</span></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Стадія</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Що містить</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">builder</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">dev-залежності, збірка</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">runner</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">тільки production-залежності + артефакт збірки</span></td></tr></tbody></table><p><span class=\"ql-bg-transparent ql-color-#000000\">У фінальний образ не потрапляють ні dev-залежності, ні вихідні </span><span class=\"ql-bg-transparent ql-color-#188038\">.ts</span><span class=\"ql-bg-transparent ql-color-#000000\">/тести.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">2. Порядок шарів під кеш</strong></p><p><span class=\"ql-bg-transparent ql-color-#188038\">package*.json</span><span class=\"ql-bg-transparent ql-color-#000000\"> копіюються й </span><span class=\"ql-bg-transparent ql-color-#188038\">npm ci</span><span class=\"ql-bg-transparent ql-color-#000000\"> виконується </span><strong class=\"ql-bg-transparent ql-color-#000000\">до</strong><span class=\"ql-bg-transparent ql-color-#000000\"> копіювання решти коду. Зміна одного рядка в </span><span class=\"ql-bg-transparent ql-color-#188038\">src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> не повинна перезапускати встановлення залежностей.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">3. Non-root</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Фінальна стадія перемикається на непривілейованого користувача (</span><span class=\"ql-bg-transparent ql-color-#188038\">USER node</span><span class=\"ql-bg-transparent ql-color-#000000\"> в офіційному образі або власний через </span><span class=\"ql-bg-transparent ql-color-#188038\">adduser</span><span class=\"ql-bg-transparent ql-color-#000000\">). Процес у контейнері працює не від uid 0.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">4. .dockerignore</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Мінімум: </span><span class=\"ql-bg-transparent ql-color-#188038\">node_modules</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">.git</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">Dockerfile</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">*.md</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">.env</span><span class=\"ql-bg-transparent ql-color-#000000\">. Без нього контекст збірки тягне сотні мегабайтів.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">5. HEALTHCHECK</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">У Dockerfile, б'є у ваш </span><span class=\"ql-bg-transparent ql-color-#188038\">/health</span><span class=\"ql-bg-transparent ql-color-#000000\"> ендпойнт.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">6. docker-compose.yml</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Два сервіси: ваш </span><span class=\"ql-bg-transparent ql-color-#188038\">api</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">postgres:17</span><span class=\"ql-bg-transparent ql-color-#000000\">. Postgres із іменованим volume (дані переживають </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose down</span><span class=\"ql-bg-transparent ql-color-#000000\">), </span><span class=\"ql-bg-transparent ql-color-#188038\">api</span><span class=\"ql-bg-transparent ql-color-#000000\"> чекає на готовність БД через </span><span class=\"ql-bg-transparent ql-color-#188038\">depends_on</span><span class=\"ql-bg-transparent ql-color-#000000\"> + </span><span class=\"ql-bg-transparent ql-color-#188038\">condition: service_healthy</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">7. docker-compose.override.yml для dev</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Пробрасує код у контейнер (bind mount), вмикає hot-reload, відкриває порт назовні. Базовий </span><span class=\"ql-bg-transparent ql-color-#188038\">docker-compose.yml</span><span class=\"ql-bg-transparent ql-color-#000000\"> має лишатися придатним для CI </span><strong class=\"ql-bg-transparent ql-color-#000000\">без</strong><span class=\"ql-bg-transparent ql-color-#000000\"> override.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">8. README.md</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Команди запуску і — обов'язково — </span><strong class=\"ql-bg-transparent ql-color-#000000\">розмір фінального образу</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><span class=\"ql-bg-transparent ql-color-#188038\">docker images</span><span class=\"ql-bg-transparent ql-color-#000000\">) поруч із розміром образу, зібраного «в лоб» з однієї стадії. Різницю поясніть одним реченням.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Стартова точка.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Ваш сервіс із ДЗ/демо Лекції 4. Якщо його немає — підійде будь-який мінімальний Express/Fastify із двома ендпойнтами: </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /health</span><span class=\"ql-bg-transparent ql-color-#000000\"> і </span><span class=\"ql-bg-transparent ql-color-#188038\">GET /users</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Підказки, які економлять години.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Базовий образ — </span><span class=\"ql-bg-transparent ql-color-#188038\">node:22-slim</span><span class=\"ql-bg-transparent ql-color-#000000\"> або </span><span class=\"ql-bg-transparent ql-color-#188038\">node:24-slim</span><span class=\"ql-bg-transparent ql-color-#000000\">: без суфікса це ~1.1 ГБ, </span><span class=\"ql-bg-transparent ql-color-#188038\">slim</span><span class=\"ql-bg-transparent ql-color-#000000\"> — ~200 МБ (</span><span class=\"ql-bg-transparent ql-color-#188038\">alpine</span><span class=\"ql-bg-transparent ql-color-#000000\"> менший, але musl іноді ламає нативні модулі). </span><span class=\"ql-bg-transparent ql-color-#188038\">npm ci</span><span class=\"ql-bg-transparent ql-color-#000000\">, а не </span><span class=\"ql-bg-transparent ql-color-#188038\">npm install</span><span class=\"ql-bg-transparent ql-color-#000000\"> — він читає </span><span class=\"ql-bg-transparent ql-color-#188038\">package-lock.json</span><span class=\"ql-bg-transparent ql-color-#000000\"> і не переписує його. </span><span class=\"ql-bg-transparent ql-color-#188038\">depends_on</span><span class=\"ql-bg-transparent ql-color-#000000\"> без </span><span class=\"ql-bg-transparent ql-color-#188038\">condition: service_healthy</span><span class=\"ql-bg-transparent ql-color-#000000\"> не чекає готовності Postgres. Секрети не через </span><span class=\"ql-bg-transparent ql-color-#188038\">ENV</span><span class=\"ql-bg-transparent ql-color-#000000\"> — вони лишаються в шарах образу назавжди.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Acceptance criteria</strong></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Multi-stage реальний.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -c '^FROM' Dockerfile</span><span class=\"ql-bg-transparent ql-color-#000000\"> виводить </span><span class=\"ql-bg-transparent ql-color-#188038\">2</span><span class=\"ql-bg-transparent ql-color-#000000\"> або більше, і у фінальній стадії немає </span><span class=\"ql-bg-transparent ql-color-#188038\">npm ci</span><span class=\"ql-bg-transparent ql-color-#000000\"> без </span><span class=\"ql-bg-transparent ql-color-#188038\">--omit=dev</span><span class=\"ql-bg-transparent ql-color-#000000\">: </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -n 'npm ci' Dockerfile</span><span class=\"ql-bg-transparent ql-color-#000000\"> — у runner-стадії рядок містить </span><span class=\"ql-bg-transparent ql-color-#188038\">--omit=dev</span><span class=\"ql-bg-transparent ql-color-#000000\"> або </span><span class=\"ql-bg-transparent ql-color-#188038\">--only=production</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Кеш шарів не ламається.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> У Dockerfile рядок </span><span class=\"ql-bg-transparent ql-color-#188038\">COPY package</span><span class=\"ql-bg-transparent ql-color-#000000\"> стоїть раніше за </span><span class=\"ql-bg-transparent ql-color-#188038\">COPY . .</span><span class=\"ql-bg-transparent ql-color-#000000\"> — </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -n 'COPY' Dockerfile</span><span class=\"ql-bg-transparent ql-color-#000000\"> дає менший номер рядка для </span><span class=\"ql-bg-transparent ql-color-#188038\">package</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Non-root.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">docker run --rm &lt;image&gt; id -u</span><span class=\"ql-bg-transparent ql-color-#000000\"> виводить значення ≠ 0. У Dockerfile присутній </span><span class=\"ql-bg-transparent ql-color-#188038\">USER</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">.dockerignore існує</strong><span class=\"ql-bg-transparent ql-color-#000000\"> і містить щонайменше </span><span class=\"ql-bg-transparent ql-color-#188038\">node_modules</span><span class=\"ql-bg-transparent ql-color-#000000\"> та </span><span class=\"ql-bg-transparent ql-color-#188038\">.git</span><span class=\"ql-bg-transparent ql-color-#000000\">: </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -E 'node_modules|\\.git' .dockerignore</span><span class=\"ql-bg-transparent ql-color-#000000\"> дає збіги.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Healthcheck працює.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Після </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose up -d</span><span class=\"ql-bg-transparent ql-color-#000000\"> команда </span><span class=\"ql-bg-transparent ql-color-#188038\">docker inspect --format '{{.State.Health.Status}}' &lt;api-container&gt;</span><span class=\"ql-bg-transparent ql-color-#000000\"> через ~30 с виводить </span><span class=\"ql-bg-transparent ql-color-#188038\">healthy</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Стек піднімається однією командою.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose up -d</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -s -o /dev/null -w \"%{http_code}\\n\" </span><a href=\"http://localhost:3000/health\" rel=\"noopener noreferrer\" target=\"_blank\" class=\"ql-bg-transparent ql-color-#188038\">http://localhost:3000/health</a><span class=\"ql-bg-transparent ql-color-#000000\"> виводить </span><span class=\"ql-bg-transparent ql-color-#188038\">200</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Дані Postgres переживають перезапуск.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Створили таблицю → </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose down</span><span class=\"ql-bg-transparent ql-color-#000000\"> (без </span><span class=\"ql-bg-transparent ql-color-#188038\">-v</span><span class=\"ql-bg-transparent ql-color-#000000\">) → </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose up -d</span><span class=\"ql-bg-transparent ql-color-#000000\"> → таблиця на місці. У README опишіть, якою командою це перевіряли.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Override не потрібен для CI.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose -f docker-compose.yml config</span><span class=\"ql-bg-transparent ql-color-#000000\"> відпрацьовує без помилок і не містить bind-mount на </span><span class=\"ql-bg-transparent ql-color-#188038\">./src</span><span class=\"ql-bg-transparent ql-color-#000000\">: </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose -f docker-compose.yml config | grep -c 'source: ./src'</span><span class=\"ql-bg-transparent ql-color-#000000\"> виводить </span><span class=\"ql-bg-transparent ql-color-#188038\">0</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">README містить обидва розміри образу</strong><span class=\"ql-bg-transparent ql-color-#000000\"> і речення-пояснення різниці.</span></li></ol><p><strong class=\"ql-bg-transparent ql-color-#000000\">Формат здачі</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Репозиторій:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> публічний GitHub-репозиторій (або гілка </span><span class=\"ql-bg-transparent ql-color-#188038\">hw-05</span><span class=\"ql-bg-transparent ql-color-#000000\"> у наявному навчальному репо) + Pull Request.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Структура:</strong></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">Dockerfile</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">multi-stage, non-root, healthcheck</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">.dockerignore</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">виключає </span><span class=\"ql-bg-transparent ql-color-#188038\">node_modules</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">.git</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">.env</span><span class=\"ql-bg-transparent ql-color-#000000\"> тощо</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">docker-compose.yml</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">база, придатна для CI</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">docker-compose.override.yml</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">dev-режим: bind mount, hot-reload, порт</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">src/</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">сервіс із Лекції 4</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">команди запуску, розміри образів, як перевіряли persistence</span></td></tr></tbody></table><p><strong class=\"ql-bg-transparent ql-color-#000000\">Вимога до README:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> грейдер має підняти все командою </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose up -d</span><span class=\"ql-bg-transparent ql-color-#000000\"> — без правок файлів.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">У LMS здаєте посилання на PR</strong><span class=\"ql-bg-transparent ql-color-#000000\">, не на головну гілку.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Зв'язок з курсовим проєктом</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це </span><strong class=\"ql-bg-transparent ql-color-#000000\">foundation-ДЗ поза курсовим проєктом</strong><span class=\"ql-bg-transparent ql-color-#000000\">, але артефакт із нього ви носитимете через увесь курс.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Починаючи з Лекції 6 весь NestJS-код виконується </span><strong class=\"ql-bg-transparent ql-color-#000000\">всередині цього контейнера</strong><span class=\"ql-bg-transparent ql-color-#000000\">; на Лекціях 12–16 до compose додасться Postgres із міграціями, на 19–20 — черги, на 23 — Redis. Чим охайніше зробите зараз, тим менше переробок далі.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Production-grade Docker (BuildKit secrets, сканування, підпис образів) і Kubernetes — Лекція 28.</span></p>",
+          "markdown": "**Постановка**\n\nВи пакуєте у контейнер той самий сервіс, який писали на Лекції 4 (Express або Fastify — байдуже), і піднімаєте його разом із Postgres однією командою.\n\nМета — не «навчитися Docker», а зрозуміти три речі, через які реальні образи важать 1.2 ГБ замість 180 МБ і падають у проді: як працює **кеш шарів**, навіщо **multi-stage** і чому контейнер **не повинен ходити під root**.\n\n**Що потрібно зробити**\n\n**1\\. Dockerfile з multi-stage build**\n\nМінімум дві стадії:\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Стадія</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Що містить</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">builder</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">dev-залежності, збірка</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">runner</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">тільки production-залежності + артефакт збірки</span></td></tr></tbody></table>\n\nУ фінальний образ не потрапляють ні dev-залежності, ні вихідні .ts/тести.\n\n**2\\. Порядок шарів під кеш**\n\npackage\\*.json копіюються й npm ci виконується **до** копіювання решти коду. Зміна одного рядка в src/ не повинна перезапускати встановлення залежностей.\n\n**3\\. Non-root**\n\nФінальна стадія перемикається на непривілейованого користувача (USER node в офіційному образі або власний через adduser). Процес у контейнері працює не від uid 0.\n\n**4\\. .dockerignore**\n\nМінімум: node\\_modules, .git, Dockerfile, \\*.md, .env. Без нього контекст збірки тягне сотні мегабайтів.\n\n**5\\. HEALTHCHECK**\n\nУ Dockerfile, б'є у ваш /health ендпойнт.\n\n**6\\. docker-compose.yml**\n\nДва сервіси: ваш api і postgres:17. Postgres із іменованим volume (дані переживають docker compose down), api чекає на готовність БД через depends\\_on + condition: service\\_healthy.\n\n**7\\. docker-compose.override.yml для dev**\n\nПробрасує код у контейнер (bind mount), вмикає hot-reload, відкриває порт назовні. Базовий docker-compose.yml має лишатися придатним для CI **без** override.\n\n**8\\. README.md**\n\nКоманди запуску і — обов'язково — **розмір фінального образу** (docker images) поруч із розміром образу, зібраного «в лоб» з однієї стадії. Різницю поясніть одним реченням.\n\n**Стартова точка.** Ваш сервіс із ДЗ/демо Лекції 4. Якщо його немає — підійде будь-який мінімальний Express/Fastify із двома ендпойнтами: GET /health і GET /users.\n\n**Підказки, які економлять години.** Базовий образ — node:22-slim або node:24-slim: без суфікса це ~1.1 ГБ, slim — ~200 МБ (alpine менший, але musl іноді ламає нативні модулі). npm ci, а не npm install — він читає package-lock.json і не переписує його. depends\\_on без condition: service\\_healthy не чекає готовності Postgres. Секрети не через ENV — вони лишаються в шарах образу назавжди.\n\n**Acceptance criteria**\n\n1.  \\[ \\] **Multi-stage реальний.** grep -c '^FROM' Dockerfile виводить 2 або більше, і у фінальній стадії немає npm ci без \\--omit=dev: grep -n 'npm ci' Dockerfile — у runner-стадії рядок містить \\--omit=dev або \\--only=production.\n2.  \\[ \\] **Кеш шарів не ламається.** У Dockerfile рядок COPY package стоїть раніше за COPY . . — grep -n 'COPY' Dockerfile дає менший номер рядка для package.\n3.  \\[ \\] **Non-root.** docker run --rm <image> id -u виводить значення ≠ 0. У Dockerfile присутній USER.\n4.  \\[ \\] **.dockerignore існує** і містить щонайменше node\\_modules та .git: grep -E 'node\\_modules|\\\\.git' .dockerignore дає збіги.\n5.  \\[ \\] **Healthcheck працює.** Після docker compose up -d команда docker inspect --format '{{.State.Health.Status}}' <api-container> через ~30 с виводить healthy.\n6.  \\[ \\] **Стек піднімається однією командою.** docker compose up -d → curl -s -o /dev/null -w \"%{http\\_code}\\\\n\" [http://localhost:3000/health](http://localhost:3000/health) виводить 200.\n7.  \\[ \\] **Дані Postgres переживають перезапуск.** Створили таблицю → docker compose down (без \\-v) → docker compose up -d → таблиця на місці. У README опишіть, якою командою це перевіряли.\n8.  \\[ \\] **Override не потрібен для CI.** docker compose -f docker-compose.yml config відпрацьовує без помилок і не містить bind-mount на ./src: docker compose -f docker-compose.yml config | grep -c 'source: ./src' виводить 0.\n9.  \\[ \\] **README містить обидва розміри образу** і речення-пояснення різниці.\n\n**Формат здачі**\n\n**Репозиторій:** публічний GitHub-репозиторій (або гілка hw-05 у наявному навчальному репо) + Pull Request.\n\n**Структура:**\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">Dockerfile</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">multi-stage, non-root, healthcheck</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">.dockerignore</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">виключає </span><span class=\"ql-bg-transparent ql-color-#188038\">node_modules</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">.git</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">.env</span><span class=\"ql-bg-transparent ql-color-#000000\"> тощо</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">docker-compose.yml</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">база, придатна для CI</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">docker-compose.override.yml</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">dev-режим: bind mount, hot-reload, порт</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">src/</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">сервіс із Лекції 4</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">команди запуску, розміри образів, як перевіряли persistence</span></td></tr></tbody></table>\n\n**Вимога до README:** грейдер має підняти все командою docker compose up -d — без правок файлів.\n\n**У LMS здаєте посилання на PR**, не на головну гілку.\n\n**Зв'язок з курсовим проєктом**\n\nЦе **foundation-ДЗ поза курсовим проєктом**, але артефакт із нього ви носитимете через увесь курс.\n\nПочинаючи з Лекції 6 весь NestJS-код виконується **всередині цього контейнера**; на Лекціях 12–16 до compose додасться Postgres із міграціями, на 19–20 — черги, на 23 — Redis. Чим охайніше зробите зараз, тим менше переробок далі.\n\nProduction-grade Docker (BuildKit secrets, сканування, підпис образів) і Kubernetes — Лекція 28.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104311/homework/54338"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:40:14.925Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:21.228Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104311,
+        "iri": "/api/lessons/104311",
+        "number": 5,
+        "name": "Docker для Node.js: від dev-середовища до базового production-stack",
+        "translationStatus": "available",
+        "startsAt": "2026-08-06T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104311"
+      },
+      "materials": [
+        {
+          "id": 201599,
+          "iri": "/api/lesson_materials/201599",
+          "relationId": "/api/lesson_material_has_lessons/201599-104311",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 5",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/1TPfGhUrYNbqeUZkxCB0-nu41amhb5ndGKkfiRpKIkvY/edit",
+              "cacheKey": "f84df15bd18a322f408ff823e715e9775680e160c993db20849cc289be612d1b",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/presentation.pdf",
+              "bytes": 1418037,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "7bed5affa15920724f164f5a6d8b2299f1655866bb5f169fccb7800f769b39e6",
+              "fetchedAt": "2026-10-12T13:40:19.751Z"
+            }
+          ]
+        },
+        {
+          "id": 201600,
+          "iri": "/api/lesson_materials/201600",
+          "relationId": "/api/lesson_material_has_lessons/201600-104311",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Dockerfile reference",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Довідник усіх інструкцій: від FROM до ENTRYPOINT проти CMD.</p>\"}]",
+          "html": "<p>Довідник усіх інструкцій: від FROM до ENTRYPOINT проти CMD.</p>",
+          "markdown": "Довідник усіх інструкцій: від FROM до ENTRYPOINT проти CMD.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/reference/dockerfile/",
+              "cacheKey": "85db08e293f1cb46e2a7e7c6a5e7111c974dfe271ae14cfd3beb89af7e01ef62",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201601,
+          "iri": "/api/lesson_materials/201601",
+          "relationId": "/api/lesson_material_has_lessons/201601-104311",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Multi-stage builds",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Ядро ДЗ: стадія збірки окремо від runtime.</p>\"}]",
+          "html": "<p>Ядро ДЗ: стадія збірки окремо від runtime.</p>",
+          "markdown": "Ядро ДЗ: стадія збірки окремо від runtime.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/build/building/multi-stage/",
+              "cacheKey": "682fb69ab262a9f752071d3ebeef9e940a7e27680a3d576b9b7e8ae0dee276ba",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201602,
+          "iri": "/api/lesson_materials/201602",
+          "relationId": "/api/lesson_material_has_lessons/201602-104311",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Building best practices",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Порядок шарів під кеш: npm ci до копіювання коду.</p>\"}]",
+          "html": "<p>Порядок шарів під кеш: npm ci до копіювання коду.</p>",
+          "markdown": "Порядок шарів під кеш: npm ci до копіювання коду.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/build/building/best-practices/",
+              "cacheKey": "bcb305bd7151f5a9d7b80f18a3038c2fb17355a18bedde0120944d91d14aba6a",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201603,
+          "iri": "/api/lesson_materials/201603",
+          "relationId": "/api/lesson_material_has_lessons/201603-104311",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Node.js — Docker best practices",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Офіційний гайд Node: USER node, npm ci, обробка сигналів.</p>\"}]",
+          "html": "<p>Офіційний гайд Node: USER node, npm ci, обробка сигналів.</p>",
+          "markdown": "Офіційний гайд Node: USER node, npm ci, обробка сигналів.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md",
+              "cacheKey": "6ae4db9a7b8dc559df8e6a48852e43e91ba79afae68788ff3ce0d2f8a051d62e",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201604,
+          "iri": "/api/lesson_materials/201604",
+          "relationId": "/api/lesson_material_has_lessons/201604-104311",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Compose file reference",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>depends_on з service_healthy, іменовані volumes, profiles.</p>\"}]",
+          "html": "<p>depends_on з service_healthy, іменовані volumes, profiles.</p>",
+          "markdown": "depends\\_on з service\\_healthy, іменовані volumes, profiles.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/reference/compose-file/",
+              "cacheKey": "e7f1e499f51846994d299d0a5b2c6aed83c17f301309b2cb57effcfecc5cf03a",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201605,
+          "iri": "/api/lesson_materials/201605",
+          "relationId": "/api/lesson_material_has_lessons/201605-104311",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: Compose — Merge та override-файли",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Як override підхоплюється в dev і не підхоплюється в CI.</p>\"}]",
+          "html": "<p>Як override підхоплюється в dev і не підхоплюється в CI.</p>",
+          "markdown": "Як override підхоплюється в dev і не підхоплюється в CI.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/compose/how-tos/multiple-compose-files/merge/",
+              "cacheKey": "86ae84bced64d51a71494a63e2372fd2e5a01da664d16dfb409355cc025c29f1",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201606,
+          "iri": "/api/lesson_materials/201606",
+          "relationId": "/api/lesson_material_has_lessons/201606-104311",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": ".dockerignore",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Без нього контекст збірки тягне node_modules і .git.</p>\"}]",
+          "html": "<p>Без нього контекст збірки тягне node_modules і .git.</p>",
+          "markdown": "Без нього контекст збірки тягне node\\_modules і .git.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/build/concepts/context/",
+              "cacheKey": "5e73f90f942e568062c7a51c278b5b318d9202e8259dc45c002a56bda2bafcd5",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201607,
+          "iri": "/api/lesson_materials/201607",
+          "relationId": "/api/lesson_material_has_lessons/201607-104311",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "HEALTHCHECK",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Статус здоровʼя контейнера, на який спирається depends_on.</p>\"}]",
+          "html": "<p>Статус здоровʼя контейнера, на який спирається depends_on.</p>",
+          "markdown": "Статус здоровʼя контейнера, на який спирається depends\\_on.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/reference/dockerfile/",
+              "cacheKey": "2669b91626eeee1138fa91204d3fa59352de64cc98974f03767f4ef1651218e6",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201608,
+          "iri": "/api/lesson_materials/201608",
+          "relationId": "/api/lesson_material_has_lessons/201608-104311",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "Distroless-образи",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Образ без shell: менша поверхня атаки, складніший дебаг.</p>\"}]",
+          "html": "<p>Образ без shell: менша поверхня атаки, складніший дебаг.</p>",
+          "markdown": "Образ без shell: менша поверхня атаки, складніший дебаг.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/GoogleContainerTools/distroless",
+              "cacheKey": "a0e238f7754485fa2ecb3d077c9493bdb80c535b2c5faac34458563ba26aecf7",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201609,
+          "iri": "/api/lesson_materials/201609",
+          "relationId": "/api/lesson_material_has_lessons/201609-104311",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "Postgres official image",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>POSTGRES_PASSWORD, initdb.d, вбудований pg_isready для healthcheck.</p>\"}]",
+          "html": "<p>POSTGRES_PASSWORD, initdb.d, вбудований pg_isready для healthcheck.</p>",
+          "markdown": "POSTGRES\\_PASSWORD, initdb.d, вбудований pg\\_isready для healthcheck.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://hub.docker.com/_/postgres",
+              "cacheKey": "cdb20cc14517b2a79af329816975a9db39238f31f3a5ae45ca3cfe82f37aa817",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201610,
+          "iri": "/api/lesson_materials/201610",
+          "relationId": "/api/lesson_material_has_lessons/201610-104311",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "BuildKit — секрети при збірці",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Чому ENV TOKEN=... у Dockerfile — витік назавжди.</p>\"}]",
+          "html": "<p>Чому ENV TOKEN=... у Dockerfile — витік назавжди.</p>",
+          "markdown": "Чому ENV TOKEN=... у Dockerfile — витік назавжди.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.docker.com/build/building/secrets/",
+              "cacheKey": "128e0186870ed6c038cb147498fb25a68a54d2269b9ba5306035b4cf63084564",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201612,
+          "iri": "/api/lesson_materials/201612",
+          "relationId": "/api/lesson_material_has_lessons/201612-104311",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "Podman",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Daemonless і rootless альтернатива, сумісна з Dockerfile.</p>\"}]",
+          "html": "<p>Daemonless і rootless альтернатива, сумісна з Dockerfile.</p>",
+          "markdown": "Daemonless і rootless альтернатива, сумісна з Dockerfile.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://podman.io/docs",
+              "cacheKey": "505a6ae6b77d9ca07e04c75c2c6248169ba8a426e8ce811fa693991c04cf89fb",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201613,
+          "iri": "/api/lesson_materials/201613",
+          "relationId": "/api/lesson_material_has_lessons/201613-104311",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "dive — аналіз шарів образу",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Показує вагу кожного шару. Наочно доводить сенс multi-stage.</p>\"}]",
+          "html": "<p>Показує вагу кожного шару. Наочно доводить сенс multi-stage.</p>",
+          "markdown": "Показує вагу кожного шару. Наочно доводить сенс multi-stage.",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/wagoodman/dive",
+              "cacheKey": "96d8063d94c482dda0d8a2fd857da1361d96d8462130a13e19b63dddb5e3dba1",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 201791,
+          "iri": "/api/lesson_materials/201791",
+          "relationId": "/api/lesson_material_has_lessons/201791-104311",
+          "position": 14,
+          "type": 0,
+          "typeName": "site",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/1lRQxDARzcM89K0425kfDvw4S06Xw8N_g/view",
+              "cacheKey": "1cfda15aeb971348e20e83de1565963e80977181edc148cca71cd6b118222e84",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/transcript.md",
+              "bytes": 125116,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Fri, 07 Aug 2026 12:48:38 GMT",
+              "sha256": "cbdc2d3c9289d07412321ffda48522157367a6e105abe750509def4682cc71df",
+              "fetchedAt": "2026-10-12T13:40:21.228Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:40:21.228Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:40:27.848Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104311,
+        "iri": "/api/lessons/104311",
+        "number": 5,
+        "name": "Docker для Node.js: від dev-середовища до базового production-stack",
+        "translationStatus": "available",
+        "startsAt": "2026-08-06T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104311"
+      },
+      "recordings": [
+        {
+          "id": 139252,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 139252,
+      "resolutionId": 652087,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/lecture.mp4",
+      "bytes": 275161521,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/05-Docker-для-Node-js-від-dev-середовища-до-базового-production-stack/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:40:27.848Z"
+    }
+  }
+}

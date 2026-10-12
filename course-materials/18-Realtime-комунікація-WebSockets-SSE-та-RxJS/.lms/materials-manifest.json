@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104324,
+    "iri": "/api/lessons/104324",
+    "number": 18,
+    "name": "Realtime-комунікація: WebSockets, SSE та RxJS",
+    "translationStatus": "available",
+    "startsAt": "2026-09-24T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104324"
+  },
+  "materials": [
+    {
+      "id": 205534,
+      "iri": "/api/lesson_materials/205534",
+      "relationId": "/api/lesson_material_has_lessons/205534-104324",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 18",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"},{\"type\":\"file\",\"content\":{\"src\":\"https://docs.google.com/presentation/d/1mc1PDDWhUkS6JdrW1o7Qjy0jtrevzGTx-nsERlKxKbY/edit\"}}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [
+        "UNSUPPORTED_DESCRIPTION_BLOCK"
+      ],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1mc1PDDWhUkS6JdrW1o7Qjy0jtrevzGTx-nsERlKxKbY/edit",
+          "cacheKey": "a5d15093930b0c441f2a20500237484a9b47213b36a579e9ea042e07cf0bb746",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/presentation.pdf",
+          "bytes": 1602541,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "880a99910fb455a2a0f897637135736649d0fd71c6958a39dcce35fc8f38b3f7",
+          "fetchedAt": "2026-10-12T13:44:06.251Z"
+        }
+      ]
+    },
+    {
+      "id": 205535,
+      "iri": "/api/lesson_materials/205535",
+      "relationId": "/api/lesson_material_has_lessons/205535-104324",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/18_Realtime/additional.md",
+          "cacheKey": "75720ec745d828d2700e4e524123a9b2176c10ad706203f63b3920a1c890328c",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 205666,
+      "iri": "/api/lesson_materials/205666",
+      "relationId": "/api/lesson_material_has_lessons/205666-104324",
+      "position": 2,
+      "type": 2,
+      "typeName": "file",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1acCnc9NuNk13FucmMGVL_1qmE8_MxGRA/view",
+          "cacheKey": "6d84b39e196763be8ea0f8855fd3c2b1359acc1227ee929ff835bf85b2f50629",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/transcript.md",
+          "bytes": 113702,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Fri, 25 Sep 2026 10:45:34 GMT",
+          "sha256": "2ff7a1a7fd460fe863ab3c575e4df686fda53a37cbf28390f4b1b709a5ba0381",
+          "fetchedAt": "2026-10-12T13:44:08.155Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:44:08.156Z"
+}

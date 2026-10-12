@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "courseId": 5467,
+  "courseName": "Node.js PRO",
+  "lesson": {
+    "id": 104325,
+    "iri": "/api/lessons/104325",
+    "number": 19,
+    "name": "RabbitMQ та альтернативи: NATS і SQS",
+    "translationStatus": "available",
+    "startsAt": "2026-09-29T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "in_process",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104325"
+  },
+  "materials": [
+    {
+      "id": 205837,
+      "iri": "/api/lesson_materials/205837",
+      "relationId": "/api/lesson_material_has_lessons/205837-104325",
+      "position": 0,
+      "type": 2,
+      "typeName": "file",
+      "name": "Презентація до заняття 19",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://docs.google.com/presentation/d/1V5JaDtyLaEl55UTdS6YaPgmEWyPc1_ppV0ylOKGi_-g/edit",
+          "cacheKey": "4633c8c1b0f7a054941a57ce5acc1b7144035f864dba855a3b3683705bec1acd",
+          "kind": "slides",
+          "role": "material",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/19-RabbitMQ-та-альтернативи-NATS-і-SQS/presentation.pdf",
+          "bytes": 1470369,
+          "contentType": "application/pdf",
+          "etag": null,
+          "lastModified": null,
+          "sha256": "0d03c37cfefb026440097b2a051f015f1473cab7ce4abc8627a22012e08ab577",
+          "fetchedAt": "2026-10-12T13:44:22.563Z"
+        }
+      ]
+    },
+    {
+      "id": 205838,
+      "iri": "/api/lesson_materials/205838",
+      "relationId": "/api/lesson_material_has_lessons/205838-104325",
+      "position": 1,
+      "type": 0,
+      "typeName": "site",
+      "name": "Перелік додаткових матеріалів",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \\\"lectures\\\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>\"}]",
+      "html": "<p>Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу [Team name: NODE-JS-PRO-2]</p>",
+      "markdown": "Усі додаткові матеріали зібрані в репозиторії курсу в папці \"lectures\" у відповідній лекції. Репозиторій курсу \\[Team name: NODE-JS-PRO-2\\]",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://github.com/robot-dreams-code/NODE-JS-PRO-2/blob/main/lectures/19_Rabbitmq/additional.md",
+          "cacheKey": "3393a2ba980be1b705feb6b08a2e0648eaf2dd5afea474cebb12cae356e234f2",
+          "kind": "external",
+          "role": "material",
+          "status": "link",
+          "file": null
+        }
+      ]
+    },
+    {
+      "id": 206075,
+      "iri": "/api/lesson_materials/206075",
+      "relationId": "/api/lesson_material_has_lessons/206075-104325",
+      "position": 2,
+      "type": 0,
+      "typeName": "site",
+      "name": "Транскрипція лекції",
+      "translationStatus": "available",
+      "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+      "html": "",
+      "markdown": "",
+      "warnings": [],
+      "sources": [
+        {
+          "url": "https://drive.google.com/file/d/1YHWaFTd3oCMdZ5qvV9sWgGBJzJJtYdgS/view",
+          "cacheKey": "f5bfa71dba4576d3e18f0eb9cd956a989396c5137057e34f7f350ca97422c18d",
+          "kind": "drive",
+          "role": "transcript",
+          "status": "downloaded",
+          "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/19-RabbitMQ-та-альтернативи-NATS-і-SQS/transcript.md",
+          "bytes": 120479,
+          "contentType": "text/markdown",
+          "etag": null,
+          "lastModified": "Thu, 01 Oct 2026 09:18:52 GMT",
+          "sha256": "e2bf1a025bd622d656ff548a22acc7cc57aabbc1a51cf1ea81574d8e331c655c",
+          "fetchedAt": "2026-10-12T13:44:23.985Z"
+        }
+      ]
+    }
+  ],
+  "subtitles": [],
+  "transcriptStatus": "available",
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/19-RabbitMQ-та-альтернативи-NATS-і-SQS",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/19-RabbitMQ-та-альтернативи-NATS-і-SQS/.lms/materials-manifest.json",
+  "fetchedAt": "2026-10-12T13:44:23.985Z"
+}

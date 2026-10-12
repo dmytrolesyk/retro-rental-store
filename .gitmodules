@@ -1,0 +1,3 @@
+[submodule "reference/node-js-pro"]
+	path = reference/node-js-pro
+	url = git@github.com:robot-dreams-code/NODE-JS-PRO-2.git

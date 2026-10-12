@@ -1,0 +1,510 @@
+{
+  "version": 1,
+  "course": {
+    "id": 5467,
+    "name": "Node.js PRO"
+  },
+  "lesson": {
+    "id": 104314,
+    "iri": "/api/lessons/104314",
+    "number": 8,
+    "name": "Повний lifecycle запиту в NestJS",
+    "translationStatus": "available",
+    "startsAt": "2026-08-18T15:30:00+00:00",
+    "hidden": false,
+    "accessStatus": "done",
+    "available": true,
+    "url": "https://lms.robotdreams.cc/course/5467/lesson/104314"
+  },
+  "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS",
+  "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/.lms/manifest.json",
+  "fetchedAt": "2026-10-12T13:41:21.307Z",
+  "status": "complete",
+  "homework": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:06.656Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/homework.md"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104314,
+        "iri": "/api/lessons/104314",
+        "number": 8,
+        "name": "Повний lifecycle запиту в NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-18T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104314"
+      },
+      "status": "available",
+      "homeworks": [
+        {
+          "id": 54341,
+          "iri": "/api/lesson_homeworks/54341",
+          "name": "Домашнє завдання",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Курсовий проєкт:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> ні (фінал training-артефакту)</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Постановка</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Фінальна частина mini-Nest. Ви добудовуєте </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">повний життєвий цикл запиту</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — той самий, через який у NestJS проходить кожен HTTP-виклик:</span></p><p><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Middleware → Guard → Interceptor (before) → Pipe → Handler</span></p><p><span class=\\\"ql-bg-transparent ql-color-#188038\\\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Interceptor (after) → Exception Filter</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Після цього ДЗ питання «чим guard відрізняється від interceptor» перестане існувати: ви знатимете, що вони відрізняються </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">місцем виклику у вашому власному циклі</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> і тим, що кожен може повернути.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Стартова точка — гілка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">part-2-http</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Що потрібно зробити</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">1. Guard</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Виконується </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">до</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> обробника й до валідації. Повертає </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">boolean</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">false</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">403</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, обробник не викликається. Реалізуйте </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">AuthGuard</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, що перевіряє заголовок </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Authorization</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">2. Interceptor</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Обгортає виклик обробника: код </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">до</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, виклик, код </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">після</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Реалізуйте </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">LoggingInterceptor</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, який міряє тривалість і логує </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">METHOD /path — 12.3 ms</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">3. Pipe</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Трансформує/валідує аргумент </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">безпосередньо перед</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> передачею в обробник. Перепишіть валідацію з ДЗ #7 на </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Zod</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (</span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">zod@4</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">) і залиште її саме як pipe.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">4. Exception Filter</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Ловить </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">будь-яку</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> помилку з ланцюга й перетворює на HTTP-відповідь:</span></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Помилка</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Відповідь</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">NotFoundError</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">404</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з осмисленим повідомленням</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">ValidationError</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">400</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> зі списком полів</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">будь-що інше</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">500</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">без</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> стек-трейсу назовні</span></td></tr></tbody></table><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">5. AsyncLocalStorage + request-id</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">На вході генеруєте </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">requestId</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (або берете із заголовка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">X-Request-Id</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">), кладете у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">AsyncLocalStorage</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">будь-який</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> код глибоко в стеку — сервіс, репозиторій, логер — дістає його </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">без передачі параметром</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">. Той самий id повертається клієнту в заголовку відповіді.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">6. Порядок доведено тестом</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Тест, що фіксує реальну послідовність викликів — масив рядків </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">['middleware','guard','interceptor:before','pipe','handler','interceptor:after']</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">7. Тести обов'язкові</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Обмеження.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Дозволено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">reflect-metadata</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">zod@4</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">node:async_hooks</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, тест-раннер. Заборонено: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@nestjs/*</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">express</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">fastify</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Підказки, які економлять години.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Чому не глобальна змінна: поки один запит чекає на </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">await</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, event loop встигає обробити наступний і перезаписати глобал — до моменту логування там уже чужий id (та сама помилка, що на Лекції 2). </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">als.run(store, callback)</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> має обгортати </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">весь</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> обробник запиту, інакше глибокі виклики сховища не побачать. Guard проти interceptor одним реченням: guard відповідає «пускати чи ні» до всього і не може змінити відповідь, interceptor обгортає виклик і бачить і вхід, і вихід. Zod 4 має інший API помилок, ніж Zod 3: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">error.issues</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> замість </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">error.errors</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — більшість прикладів у мережі про третю версію. Exception filter має бути останнім у ланцюгу й ловити навіть те, що кинув interceptor: обгорніть весь цикл у </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">try/catch</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> на найвищому рівні. Тест на порядок пишіть першим — він задасть архітектуру й одразу покаже, якщо етап викликається не там.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Acceptance criteria</strong></p><ol><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Фреймворків немає.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -RE \\\"@nestjs|express|fastify\\\" package.json src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не дає збігів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Порядок циклу зафіксовано тестом.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Є тест, що збирає масив міток і порівнює з очікуваною послідовністю </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">шести</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> етапів. Не «щось викликалось», а точний порядок.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Guard блокує до обробника.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Запит без </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Authorization</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">403</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і тест доводить, що обробник </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">не</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> викликався (лічильник/спай).</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Interceptor міряє час.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> У логах рядок із назвою маршруту й числом мілісекунд: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -E \\\"[0-9]+(\\\\.[0-9]+)? ?ms\\\"</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> по захопленому виводу.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Pipe на Zod.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -rn \\\"from 'zod'\\\" src/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> дає збіг; невалідне тіло → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">400</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> зі списком полів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Exception filter ловить неочікуване.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Обробник кидає </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">new Error('boom')</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → відповідь </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">500</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і тіло не містить слова </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">boom</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> та стек-трейсу: відповідь не матчить </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">/boom|at .*\\\\.ts:/</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Доменна помилка мапиться.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">NotFoundError</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> → </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">404</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> з осмисленим повідомленням.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">AsyncLocalStorage</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> реально працює.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Сервіс, викликаний </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">на два рівні глибше</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> обробника, друкує той самий </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">requestId</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, і в його сигнатурі немає параметра з id: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">grep -n \\\"requestId\\\" src/services/*.ts</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — тільки читання зі сховища.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#188038\\\">X-Request-Id</strong><strong class=\\\"ql-bg-transparent ql-color-#000000\\\"> у відповіді.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">curl -si localhost:3000/users/1 | grep -i x-request-id</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> дає рядок; якщо клієнт надіслав свій — повертається саме він.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Паралельні запити не змішують контексти.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> Тест, що шле 10 одночасних запитів і перевіряє: жоден </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">requestId</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> не протік у чужу відповідь.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Тести проходять.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">npm test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — код 0, щонайменше 10 пройдених тестів.</span></li><li data-list=\\\"bullet\\\"><span class=\\\"ql-ui\\\" contenteditable=\\\"false\\\"></span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">[ ] </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Працює в Docker.</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">docker compose run --rm api npm test</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> проходить.</span></li></ol><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Формат здачі</strong></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Репозиторій:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> той самий </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">mini-nest</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, Pull Request із гілки </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">part-3-lifecycle</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Структура</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> (додається до частини 2):</span></p><table><tbody><tr><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Файл</strong></td><td data-row=\\\"1\\\" class=\\\"ql-align-center\\\"><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Призначення</strong></td></tr><tr><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/guards/auth.guard.ts</span></td><td data-row=\\\"2\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">перевірка </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">Authorization</span></td></tr><tr><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/interceptors/logging.interceptor.ts</span></td><td data-row=\\\"3\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">вимірювання тривалості</span></td></tr><tr><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/pipes/zod-validation.pipe.ts</span></td><td data-row=\\\"4\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">валідація на Zod 4</span></td></tr><tr><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/filters/exception.filter.ts</span></td><td data-row=\\\"5\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">мапінг помилок у HTTP</span></td></tr><tr><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">src/context/request-context.ts</span></td><td data-row=\\\"6\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">обгортка над </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">AsyncLocalStorage</span></td></tr><tr><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">test/lifecycle-order.test.ts</span></td><td data-row=\\\"7\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">тест на порядок етапів</span></td></tr><tr><td data-row=\\\"8\\\"><span class=\\\"ql-bg-transparent ql-color-#188038\\\">README.md</span></td><td data-row=\\\"8\\\"><span class=\\\"ql-bg-transparent ql-color-#000000\\\">діаграма циклу + абзац «чому ALS, а не глобальна змінна»</span></td></tr></tbody></table><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Вимога до README:</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> діаграма життєвого циклу (можна ASCII) і абзац із поясненням, чому </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">AsyncLocalStorage</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, а не глобальна змінна.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">У LMS здаєте посилання на PR</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, не на головну гілку.</span></p><p><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">Зв'язок з курсовим проєктом</strong></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Це </span><strong class=\\\"ql-bg-transparent ql-color-#000000\\\">фінальна форма training-артефакту</strong><span class=\\\"ql-bg-transparent ql-color-#000000\\\">, поза курсовим проєктом. Готовий mini-Nest — це ~600 рядків, які пояснюють увесь NestJS.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#000000\\\">Далі по курсу ви працюватимете вже зі справжнім Nest, але дивитиметеся на нього зсередини: </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@UseGuards</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — це ваш масив guard'ів, </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">@UseInterceptors</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> — ваша обгортка, exception filter — ваш </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">try/catch</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> на вершині.</span></p><p><span class=\\\"ql-bg-transparent ql-color-#188038\\\">AsyncLocalStorage</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> із цього ДЗ прямо перевикористовується у Лекції 29 (Observability), де до </span><span class=\\\"ql-bg-transparent ql-color-#188038\\\">requestId</span><span class=\\\"ql-bg-transparent ql-color-#000000\\\"> додасться OpenTelemetry-трасування.</span></p>\"}]",
+          "html": "<p><strong class=\"ql-bg-transparent ql-color-#000000\">Курсовий проєкт:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> ні (фінал training-артефакту)</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Постановка</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Фінальна частина mini-Nest. Ви добудовуєте </span><strong class=\"ql-bg-transparent ql-color-#000000\">повний життєвий цикл запиту</strong><span class=\"ql-bg-transparent ql-color-#000000\"> — той самий, через який у NestJS проходить кожен HTTP-виклик:</span></p><p><span class=\"ql-bg-transparent ql-color-#188038\">Middleware → Guard → Interceptor (before) → Pipe → Handler</span></p><p><span class=\"ql-bg-transparent ql-color-#188038\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Interceptor (after) → Exception Filter</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Після цього ДЗ питання «чим guard відрізняється від interceptor» перестане існувати: ви знатимете, що вони відрізняються </span><strong class=\"ql-bg-transparent ql-color-#000000\">місцем виклику у вашому власному циклі</strong><span class=\"ql-bg-transparent ql-color-#000000\"> і тим, що кожен може повернути.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Стартова точка — гілка </span><span class=\"ql-bg-transparent ql-color-#188038\">part-2-http</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Що потрібно зробити</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">1. Guard</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Виконується </span><strong class=\"ql-bg-transparent ql-color-#000000\">до</strong><span class=\"ql-bg-transparent ql-color-#000000\"> обробника й до валідації. Повертає </span><span class=\"ql-bg-transparent ql-color-#188038\">boolean</span><span class=\"ql-bg-transparent ql-color-#000000\">: </span><span class=\"ql-bg-transparent ql-color-#188038\">false</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">403</span><span class=\"ql-bg-transparent ql-color-#000000\">, обробник не викликається. Реалізуйте </span><span class=\"ql-bg-transparent ql-color-#188038\">AuthGuard</span><span class=\"ql-bg-transparent ql-color-#000000\">, що перевіряє заголовок </span><span class=\"ql-bg-transparent ql-color-#188038\">Authorization</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">2. Interceptor</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Обгортає виклик обробника: код </span><strong class=\"ql-bg-transparent ql-color-#000000\">до</strong><span class=\"ql-bg-transparent ql-color-#000000\">, виклик, код </span><strong class=\"ql-bg-transparent ql-color-#000000\">після</strong><span class=\"ql-bg-transparent ql-color-#000000\">. Реалізуйте </span><span class=\"ql-bg-transparent ql-color-#188038\">LoggingInterceptor</span><span class=\"ql-bg-transparent ql-color-#000000\">, який міряє тривалість і логує </span><span class=\"ql-bg-transparent ql-color-#188038\">METHOD /path — 12.3 ms</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">3. Pipe</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Трансформує/валідує аргумент </span><strong class=\"ql-bg-transparent ql-color-#000000\">безпосередньо перед</strong><span class=\"ql-bg-transparent ql-color-#000000\"> передачею в обробник. Перепишіть валідацію з ДЗ #7 на </span><strong class=\"ql-bg-transparent ql-color-#000000\">Zod</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (</span><span class=\"ql-bg-transparent ql-color-#188038\">zod@4</span><span class=\"ql-bg-transparent ql-color-#000000\">) і залиште її саме як pipe.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">4. Exception Filter</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Ловить </span><strong class=\"ql-bg-transparent ql-color-#000000\">будь-яку</strong><span class=\"ql-bg-transparent ql-color-#000000\"> помилку з ланцюга й перетворює на HTTP-відповідь:</span></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Помилка</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Відповідь</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">NotFoundError</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">404</span><span class=\"ql-bg-transparent ql-color-#000000\"> з осмисленим повідомленням</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">ValidationError</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> зі списком полів</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">будь-що інше</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">500</span><span class=\"ql-bg-transparent ql-color-#000000\"> </span><strong class=\"ql-bg-transparent ql-color-#000000\">без</strong><span class=\"ql-bg-transparent ql-color-#000000\"> стек-трейсу назовні</span></td></tr></tbody></table><p><strong class=\"ql-bg-transparent ql-color-#000000\">5. AsyncLocalStorage + request-id</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">На вході генеруєте </span><span class=\"ql-bg-transparent ql-color-#188038\">requestId</span><span class=\"ql-bg-transparent ql-color-#000000\"> (або берете із заголовка </span><span class=\"ql-bg-transparent ql-color-#188038\">X-Request-Id</span><span class=\"ql-bg-transparent ql-color-#000000\">), кладете у </span><span class=\"ql-bg-transparent ql-color-#188038\">AsyncLocalStorage</span><span class=\"ql-bg-transparent ql-color-#000000\">, і </span><strong class=\"ql-bg-transparent ql-color-#000000\">будь-який</strong><span class=\"ql-bg-transparent ql-color-#000000\"> код глибоко в стеку — сервіс, репозиторій, логер — дістає його </span><strong class=\"ql-bg-transparent ql-color-#000000\">без передачі параметром</strong><span class=\"ql-bg-transparent ql-color-#000000\">. Той самий id повертається клієнту в заголовку відповіді.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">6. Порядок доведено тестом</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Тест, що фіксує реальну послідовність викликів — масив рядків </span><span class=\"ql-bg-transparent ql-color-#188038\">['middleware','guard','interceptor:before','pipe','handler','interceptor:after']</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">7. Тести обов'язкові</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Обмеження.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Дозволено: </span><span class=\"ql-bg-transparent ql-color-#188038\">reflect-metadata</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">zod@4</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">node:async_hooks</span><span class=\"ql-bg-transparent ql-color-#000000\">, тест-раннер. Заборонено: </span><span class=\"ql-bg-transparent ql-color-#188038\">@nestjs/*</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">express</span><span class=\"ql-bg-transparent ql-color-#000000\">, </span><span class=\"ql-bg-transparent ql-color-#188038\">fastify</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Підказки, які економлять години.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Чому не глобальна змінна: поки один запит чекає на </span><span class=\"ql-bg-transparent ql-color-#188038\">await</span><span class=\"ql-bg-transparent ql-color-#000000\">, event loop встигає обробити наступний і перезаписати глобал — до моменту логування там уже чужий id (та сама помилка, що на Лекції 2). </span><span class=\"ql-bg-transparent ql-color-#188038\">als.run(store, callback)</span><span class=\"ql-bg-transparent ql-color-#000000\"> має обгортати </span><strong class=\"ql-bg-transparent ql-color-#000000\">весь</strong><span class=\"ql-bg-transparent ql-color-#000000\"> обробник запиту, інакше глибокі виклики сховища не побачать. Guard проти interceptor одним реченням: guard відповідає «пускати чи ні» до всього і не може змінити відповідь, interceptor обгортає виклик і бачить і вхід, і вихід. Zod 4 має інший API помилок, ніж Zod 3: </span><span class=\"ql-bg-transparent ql-color-#188038\">error.issues</span><span class=\"ql-bg-transparent ql-color-#000000\"> замість </span><span class=\"ql-bg-transparent ql-color-#188038\">error.errors</span><span class=\"ql-bg-transparent ql-color-#000000\"> — більшість прикладів у мережі про третю версію. Exception filter має бути останнім у ланцюгу й ловити навіть те, що кинув interceptor: обгорніть весь цикл у </span><span class=\"ql-bg-transparent ql-color-#188038\">try/catch</span><span class=\"ql-bg-transparent ql-color-#000000\"> на найвищому рівні. Тест на порядок пишіть першим — він задасть архітектуру й одразу покаже, якщо етап викликається не там.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Acceptance criteria</strong></p><ol><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Фреймворків немає.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -RE \"@nestjs|express|fastify\" package.json src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> не дає збігів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Порядок циклу зафіксовано тестом.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Є тест, що збирає масив міток і порівнює з очікуваною послідовністю </span><strong class=\"ql-bg-transparent ql-color-#000000\">шести</strong><span class=\"ql-bg-transparent ql-color-#000000\"> етапів. Не «щось викликалось», а точний порядок.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Guard блокує до обробника.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Запит без </span><span class=\"ql-bg-transparent ql-color-#188038\">Authorization</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">403</span><span class=\"ql-bg-transparent ql-color-#000000\">, і тест доводить, що обробник </span><strong class=\"ql-bg-transparent ql-color-#000000\">не</strong><span class=\"ql-bg-transparent ql-color-#000000\"> викликався (лічильник/спай).</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Interceptor міряє час.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> У логах рядок із назвою маршруту й числом мілісекунд: </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -E \"[0-9]+(\\.[0-9]+)? ?ms\"</span><span class=\"ql-bg-transparent ql-color-#000000\"> по захопленому виводу.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Pipe на Zod.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -rn \"from 'zod'\" src/</span><span class=\"ql-bg-transparent ql-color-#000000\"> дає збіг; невалідне тіло → </span><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> зі списком полів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Exception filter ловить неочікуване.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Обробник кидає </span><span class=\"ql-bg-transparent ql-color-#188038\">new Error('boom')</span><span class=\"ql-bg-transparent ql-color-#000000\"> → відповідь </span><span class=\"ql-bg-transparent ql-color-#188038\">500</span><span class=\"ql-bg-transparent ql-color-#000000\">, і тіло не містить слова </span><span class=\"ql-bg-transparent ql-color-#188038\">boom</span><span class=\"ql-bg-transparent ql-color-#000000\"> та стек-трейсу: відповідь не матчить </span><span class=\"ql-bg-transparent ql-color-#188038\">/boom|at .*\\.ts:/</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Доменна помилка мапиться.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">NotFoundError</span><span class=\"ql-bg-transparent ql-color-#000000\"> → </span><span class=\"ql-bg-transparent ql-color-#188038\">404</span><span class=\"ql-bg-transparent ql-color-#000000\"> з осмисленим повідомленням.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">AsyncLocalStorage</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> реально працює.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Сервіс, викликаний </span><strong class=\"ql-bg-transparent ql-color-#000000\">на два рівні глибше</strong><span class=\"ql-bg-transparent ql-color-#000000\"> обробника, друкує той самий </span><span class=\"ql-bg-transparent ql-color-#188038\">requestId</span><span class=\"ql-bg-transparent ql-color-#000000\">, і в його сигнатурі немає параметра з id: </span><span class=\"ql-bg-transparent ql-color-#188038\">grep -n \"requestId\" src/services/*.ts</span><span class=\"ql-bg-transparent ql-color-#000000\"> — тільки читання зі сховища.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#188038\">X-Request-Id</strong><strong class=\"ql-bg-transparent ql-color-#000000\"> у відповіді.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">curl -si localhost:3000/users/1 | grep -i x-request-id</span><span class=\"ql-bg-transparent ql-color-#000000\"> дає рядок; якщо клієнт надіслав свій — повертається саме він.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Паралельні запити не змішують контексти.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> Тест, що шле 10 одночасних запитів і перевіряє: жоден </span><span class=\"ql-bg-transparent ql-color-#188038\">requestId</span><span class=\"ql-bg-transparent ql-color-#000000\"> не протік у чужу відповідь.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Тести проходять.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">npm test</span><span class=\"ql-bg-transparent ql-color-#000000\"> — код 0, щонайменше 10 пройдених тестів.</span></li><li data-list=\"bullet\"><span class=\"ql-ui\" contenteditable=\"false\"></span><span class=\"ql-bg-transparent ql-color-#000000\">[ ] </span><strong class=\"ql-bg-transparent ql-color-#000000\">Працює в Docker.</strong><span class=\"ql-bg-transparent ql-color-#000000\"> </span><span class=\"ql-bg-transparent ql-color-#188038\">docker compose run --rm api npm test</span><span class=\"ql-bg-transparent ql-color-#000000\"> проходить.</span></li></ol><p><strong class=\"ql-bg-transparent ql-color-#000000\">Формат здачі</strong></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Репозиторій:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> той самий </span><span class=\"ql-bg-transparent ql-color-#188038\">mini-nest</span><span class=\"ql-bg-transparent ql-color-#000000\">, Pull Request із гілки </span><span class=\"ql-bg-transparent ql-color-#188038\">part-3-lifecycle</span><span class=\"ql-bg-transparent ql-color-#000000\">.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Структура</strong><span class=\"ql-bg-transparent ql-color-#000000\"> (додається до частини 2):</span></p><table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">src/guards/auth.guard.ts</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">перевірка </span><span class=\"ql-bg-transparent ql-color-#188038\">Authorization</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">src/interceptors/logging.interceptor.ts</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">вимірювання тривалості</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">src/pipes/zod-validation.pipe.ts</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">валідація на Zod 4</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">src/filters/exception.filter.ts</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">мапінг помилок у HTTP</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">src/context/request-context.ts</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">обгортка над </span><span class=\"ql-bg-transparent ql-color-#188038\">AsyncLocalStorage</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">test/lifecycle-order.test.ts</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">тест на порядок етапів</span></td></tr><tr><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#000000\">діаграма циклу + абзац «чому ALS, а не глобальна змінна»</span></td></tr></tbody></table><p><strong class=\"ql-bg-transparent ql-color-#000000\">Вимога до README:</strong><span class=\"ql-bg-transparent ql-color-#000000\"> діаграма життєвого циклу (можна ASCII) і абзац із поясненням, чому </span><span class=\"ql-bg-transparent ql-color-#188038\">AsyncLocalStorage</span><span class=\"ql-bg-transparent ql-color-#000000\">, а не глобальна змінна.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">У LMS здаєте посилання на PR</strong><span class=\"ql-bg-transparent ql-color-#000000\">, не на головну гілку.</span></p><p><strong class=\"ql-bg-transparent ql-color-#000000\">Зв'язок з курсовим проєктом</strong></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Це </span><strong class=\"ql-bg-transparent ql-color-#000000\">фінальна форма training-артефакту</strong><span class=\"ql-bg-transparent ql-color-#000000\">, поза курсовим проєктом. Готовий mini-Nest — це ~600 рядків, які пояснюють увесь NestJS.</span></p><p><span class=\"ql-bg-transparent ql-color-#000000\">Далі по курсу ви працюватимете вже зі справжнім Nest, але дивитиметеся на нього зсередини: </span><span class=\"ql-bg-transparent ql-color-#188038\">@UseGuards</span><span class=\"ql-bg-transparent ql-color-#000000\"> — це ваш масив guard'ів, </span><span class=\"ql-bg-transparent ql-color-#188038\">@UseInterceptors</span><span class=\"ql-bg-transparent ql-color-#000000\"> — ваша обгортка, exception filter — ваш </span><span class=\"ql-bg-transparent ql-color-#188038\">try/catch</span><span class=\"ql-bg-transparent ql-color-#000000\"> на вершині.</span></p><p><span class=\"ql-bg-transparent ql-color-#188038\">AsyncLocalStorage</span><span class=\"ql-bg-transparent ql-color-#000000\"> із цього ДЗ прямо перевикористовується у Лекції 29 (Observability), де до </span><span class=\"ql-bg-transparent ql-color-#188038\">requestId</span><span class=\"ql-bg-transparent ql-color-#000000\"> додасться OpenTelemetry-трасування.</span></p>",
+          "markdown": "**Курсовий проєкт:** ні (фінал training-артефакту)\n\n**Постановка**\n\nФінальна частина mini-Nest. Ви добудовуєте **повний життєвий цикл запиту** — той самий, через який у NestJS проходить кожен HTTP-виклик:\n\nMiddleware → Guard → Interceptor (before) → Pipe → Handler\n\n                → Interceptor (after) → Exception Filter\n\nПісля цього ДЗ питання «чим guard відрізняється від interceptor» перестане існувати: ви знатимете, що вони відрізняються **місцем виклику у вашому власному циклі** і тим, що кожен може повернути.\n\nСтартова точка — гілка part-2-http.\n\n**Що потрібно зробити**\n\n**1\\. Guard**\n\nВиконується **до** обробника й до валідації. Повертає boolean: false → 403, обробник не викликається. Реалізуйте AuthGuard, що перевіряє заголовок Authorization.\n\n**2\\. Interceptor**\n\nОбгортає виклик обробника: код **до**, виклик, код **після**. Реалізуйте LoggingInterceptor, який міряє тривалість і логує METHOD /path — 12.3 ms.\n\n**3\\. Pipe**\n\nТрансформує/валідує аргумент **безпосередньо перед** передачею в обробник. Перепишіть валідацію з ДЗ #7 на **Zod** (zod@4) і залиште її саме як pipe.\n\n**4\\. Exception Filter**\n\nЛовить **будь-яку** помилку з ланцюга й перетворює на HTTP-відповідь:\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Помилка</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Відповідь</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">NotFoundError</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">404</span><span class=\"ql-bg-transparent ql-color-#000000\"> з осмисленим повідомленням</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">ValidationError</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">400</span><span class=\"ql-bg-transparent ql-color-#000000\"> зі списком полів</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">будь-що інше</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">500</span><span class=\"ql-bg-transparent ql-color-#000000\"> </span><strong class=\"ql-bg-transparent ql-color-#000000\">без</strong><span class=\"ql-bg-transparent ql-color-#000000\"> стек-трейсу назовні</span></td></tr></tbody></table>\n\n**5\\. AsyncLocalStorage + request-id**\n\nНа вході генеруєте requestId (або берете із заголовка X-Request-Id), кладете у AsyncLocalStorage, і **будь-який** код глибоко в стеку — сервіс, репозиторій, логер — дістає його **без передачі параметром**. Той самий id повертається клієнту в заголовку відповіді.\n\n**6\\. Порядок доведено тестом**\n\nТест, що фіксує реальну послідовність викликів — масив рядків \\['middleware','guard','interceptor:before','pipe','handler','interceptor:after'\\].\n\n**7\\. Тести обов'язкові**\n\n**Обмеження.** Дозволено: reflect-metadata, zod@4, node:async\\_hooks, тест-раннер. Заборонено: @nestjs/\\*, express, fastify.\n\n**Підказки, які економлять години.** Чому не глобальна змінна: поки один запит чекає на await, event loop встигає обробити наступний і перезаписати глобал — до моменту логування там уже чужий id (та сама помилка, що на Лекції 2). als.run(store, callback) має обгортати **весь** обробник запиту, інакше глибокі виклики сховища не побачать. Guard проти interceptor одним реченням: guard відповідає «пускати чи ні» до всього і не може змінити відповідь, interceptor обгортає виклик і бачить і вхід, і вихід. Zod 4 має інший API помилок, ніж Zod 3: error.issues замість error.errors — більшість прикладів у мережі про третю версію. Exception filter має бути останнім у ланцюгу й ловити навіть те, що кинув interceptor: обгорніть весь цикл у try/catch на найвищому рівні. Тест на порядок пишіть першим — він задасть архітектуру й одразу покаже, якщо етап викликається не там.\n\n**Acceptance criteria**\n\n1.  \\[ \\] **Фреймворків немає.** grep -RE \"@nestjs|express|fastify\" package.json src/ не дає збігів.\n2.  \\[ \\] **Порядок циклу зафіксовано тестом.** Є тест, що збирає масив міток і порівнює з очікуваною послідовністю **шести** етапів. Не «щось викликалось», а точний порядок.\n3.  \\[ \\] **Guard блокує до обробника.** Запит без Authorization → 403, і тест доводить, що обробник **не** викликався (лічильник/спай).\n4.  \\[ \\] **Interceptor міряє час.** У логах рядок із назвою маршруту й числом мілісекунд: grep -E \"\\[0-9\\]+(\\\\.\\[0-9\\]+)? ?ms\" по захопленому виводу.\n5.  \\[ \\] **Pipe на Zod.** grep -rn \"from 'zod'\" src/ дає збіг; невалідне тіло → 400 зі списком полів.\n6.  \\[ \\] **Exception filter ловить неочікуване.** Обробник кидає new Error('boom') → відповідь 500, і тіло не містить слова boom та стек-трейсу: відповідь не матчить /boom|at .\\*\\\\.ts:/.\n7.  \\[ \\] **Доменна помилка мапиться.** NotFoundError → 404 з осмисленим повідомленням.\n8.  \\[ \\] **AsyncLocalStorage** **реально працює.** Сервіс, викликаний **на два рівні глибше** обробника, друкує той самий requestId, і в його сигнатурі немає параметра з id: grep -n \"requestId\" src/services/\\*.ts — тільки читання зі сховища.\n9.  \\[ \\] **X-Request-Id** **у відповіді.** curl -si localhost:3000/users/1 | grep -i x-request-id дає рядок; якщо клієнт надіслав свій — повертається саме він.\n10.  \\[ \\] **Паралельні запити не змішують контексти.** Тест, що шле 10 одночасних запитів і перевіряє: жоден requestId не протік у чужу відповідь.\n11.  \\[ \\] **Тести проходять.** npm test — код 0, щонайменше 10 пройдених тестів.\n12.  \\[ \\] **Працює в Docker.** docker compose run --rm api npm test проходить.\n\n**Формат здачі**\n\n**Репозиторій:** той самий mini-nest, Pull Request із гілки part-3-lifecycle.\n\n**Структура** (додається до частини 2):\n\n<table><tbody><tr><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Файл</strong></td><td data-row=\"1\" class=\"ql-align-center\"><strong class=\"ql-bg-transparent ql-color-#000000\">Призначення</strong></td></tr><tr><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#188038\">src/guards/auth.guard.ts</span></td><td data-row=\"2\"><span class=\"ql-bg-transparent ql-color-#000000\">перевірка </span><span class=\"ql-bg-transparent ql-color-#188038\">Authorization</span></td></tr><tr><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#188038\">src/interceptors/logging.interceptor.ts</span></td><td data-row=\"3\"><span class=\"ql-bg-transparent ql-color-#000000\">вимірювання тривалості</span></td></tr><tr><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#188038\">src/pipes/zod-validation.pipe.ts</span></td><td data-row=\"4\"><span class=\"ql-bg-transparent ql-color-#000000\">валідація на Zod 4</span></td></tr><tr><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#188038\">src/filters/exception.filter.ts</span></td><td data-row=\"5\"><span class=\"ql-bg-transparent ql-color-#000000\">мапінг помилок у HTTP</span></td></tr><tr><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#188038\">src/context/request-context.ts</span></td><td data-row=\"6\"><span class=\"ql-bg-transparent ql-color-#000000\">обгортка над </span><span class=\"ql-bg-transparent ql-color-#188038\">AsyncLocalStorage</span></td></tr><tr><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#188038\">test/lifecycle-order.test.ts</span></td><td data-row=\"7\"><span class=\"ql-bg-transparent ql-color-#000000\">тест на порядок етапів</span></td></tr><tr><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#188038\">README.md</span></td><td data-row=\"8\"><span class=\"ql-bg-transparent ql-color-#000000\">діаграма циклу + абзац «чому ALS, а не глобальна змінна»</span></td></tr></tbody></table>\n\n**Вимога до README:** діаграма життєвого циклу (можна ASCII) і абзац із поясненням, чому AsyncLocalStorage, а не глобальна змінна.\n\n**У LMS здаєте посилання на PR**, не на головну гілку.\n\n**Зв'язок з курсовим проєктом**\n\nЦе **фінальна форма training-артефакту**, поза курсовим проєктом. Готовий mini-Nest — це ~600 рядків, які пояснюють увесь NestJS.\n\nДалі по курсу ви працюватимете вже зі справжнім Nest, але дивитиметеся на нього зсередини: @UseGuards — це ваш масив guard'ів, @UseInterceptors — ваша обгортка, exception filter — ваш try/catch на вершині.\n\nAsyncLocalStorage із цього ДЗ прямо перевикористовується у Лекції 29 (Observability), де до requestId додасться OpenTelemetry-трасування.",
+          "warnings": [],
+          "url": "https://lms.robotdreams.cc/course/5467/lesson/104314/homework/54341"
+        }
+      ],
+      "fetchedAt": "2026-10-12T13:41:06.656Z"
+    }
+  },
+  "materials": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:12.424Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/additional-materials.md",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/presentation.pdf",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/transcript.md"
+    ],
+    "data": {
+      "version": 1,
+      "courseId": 5467,
+      "courseName": "Node.js PRO",
+      "lesson": {
+        "id": 104314,
+        "iri": "/api/lessons/104314",
+        "number": 8,
+        "name": "Повний lifecycle запиту в NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-18T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104314"
+      },
+      "materials": [
+        {
+          "id": 202574,
+          "iri": "/api/lesson_materials/202574",
+          "relationId": "/api/lesson_material_has_lessons/202574-104314",
+          "position": 0,
+          "type": 2,
+          "typeName": "file",
+          "name": "Презентація до заняття 8",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.google.com/presentation/d/18EosMfh-l1ZUPVvJ2tAHWEENsqeGKE6nVoJ1YQuH86M/edit",
+              "cacheKey": "449550c3e3256954d43795dac842c77e05126a7b12e78149e08fb8c83c772528",
+              "kind": "slides",
+              "role": "material",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/presentation.pdf",
+              "bytes": 1000774,
+              "contentType": "application/pdf",
+              "etag": null,
+              "lastModified": null,
+              "sha256": "84ac0c96a26c6a355ef26445c20b836c48d5f16d74e22e5d1963f158e379ce5a",
+              "fetchedAt": "2026-10-12T13:41:11.098Z"
+            }
+          ]
+        },
+        {
+          "id": 202575,
+          "iri": "/api/lesson_materials/202575",
+          "relationId": "/api/lesson_material_has_lessons/202575-104314",
+          "position": 1,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Request lifecycle",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>очний порядок: middleware → guard → interceptor → pipe → handler</p>\"}]",
+          "html": "<p>очний порядок: middleware → guard → interceptor → pipe → handler</p>",
+          "markdown": "очний порядок: middleware → guard → interceptor → pipe → handler",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/faq/request-lifecycle",
+              "cacheKey": "52363923151097b8fc2c9efbf43ca336ee61ce0fed4b04e087998289effcd112",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202576,
+          "iri": "/api/lesson_materials/202576",
+          "relationId": "/api/lesson_material_has_lessons/202576-104314",
+          "position": 2,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Guards",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Пускати чи ні. Виконуються до interceptor'ів і pipe'ів</p>\"}]",
+          "html": "<p>Пускати чи ні. Виконуються до interceptor'ів і pipe'ів</p>",
+          "markdown": "Пускати чи ні. Виконуються до interceptor'ів і pipe'ів",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/guards",
+              "cacheKey": "926487236ffa6ad5acca6c475da6a818f5530764099313613aceed5ea9dd2282",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202577,
+          "iri": "/api/lesson_materials/202577",
+          "relationId": "/api/lesson_material_has_lessons/202577-104314",
+          "position": 3,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Exception filters",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Останній рубіж: доменні помилки → коди, решта → 500</p>\"}]",
+          "html": "<p>Останній рубіж: доменні помилки → коди, решта → 500</p>",
+          "markdown": "Останній рубіж: доменні помилки → коди, решта → 500",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/exception-filters",
+              "cacheKey": "7372df676eb3bc84180d2730ce947576c7bdae717020ddb71b045136030c9a26",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202578,
+          "iri": "/api/lesson_materials/202578",
+          "relationId": "/api/lesson_material_has_lessons/202578-104314",
+          "position": 4,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: AsyncLocalStorage (nodejs.org)",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>run() і getStore(): сховище, прив'язане до async-контексту</p>\"}]",
+          "html": "<p>run() і getStore(): сховище, прив'язане до async-контексту</p>",
+          "markdown": "run() і getStore(): сховище, прив'язане до async-контексту",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/async_context.html",
+              "cacheKey": "088e8423bab7707769f733c34e29c9eb28048c9c504ea4e0ff5a04abcee625b7",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202579,
+          "iri": "/api/lesson_materials/202579",
+          "relationId": "/api/lesson_material_has_lessons/202579-104314",
+          "position": 5,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Middleware",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Працює з сирими req/res. Місце ініціалізації ALS</p>\"}]",
+          "html": "<p>Працює з сирими req/res. Місце ініціалізації ALS</p>",
+          "markdown": "Працює з сирими req/res. Місце ініціалізації ALS",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/middleware",
+              "cacheKey": "ebc645d012eae70d6c80274263f7aa4eea755422604760e6c2225e768aacd6e2",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202580,
+          "iri": "/api/lesson_materials/202580",
+          "relationId": "/api/lesson_material_has_lessons/202580-104314",
+          "position": 6,
+          "type": 0,
+          "typeName": "site",
+          "name": "❗️Must-read: NestJS — Execution context",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>ExecutionContext і Reflector: guard читає метадані поточного handler'а</p>\"}]",
+          "html": "<p>ExecutionContext і Reflector: guard читає метадані поточного handler'а</p>",
+          "markdown": "ExecutionContext і Reflector: guard читає метадані поточного handler'а",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/fundamentals/execution-context",
+              "cacheKey": "41a890bd889814505fd112a86ca40413fa728a2b06fcf86e12ad088274440821",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202581,
+          "iri": "/api/lesson_materials/202581",
+          "relationId": "/api/lesson_material_has_lessons/202581-104314",
+          "position": 7,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Custom decorators + metadata",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>SetMetadata + Reflector — механізм за @Roles('admin'); applyDecorators</p>\"}]",
+          "html": "<p>SetMetadata + Reflector — механізм за @Roles('admin'); applyDecorators</p>",
+          "markdown": "SetMetadata + Reflector — механізм за @Roles('admin'); applyDecorators",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/custom-decorators",
+              "cacheKey": "4b48becb20a7763b9d4a9d7e428fde9ed527af28cf20031c8e34caebba3ccd30",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202582,
+          "iri": "/api/lesson_materials/202582",
+          "relationId": "/api/lesson_material_has_lessons/202582-104314",
+          "position": 8,
+          "type": 0,
+          "typeName": "site",
+          "name": "nestjs-cls",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Готова обгортка над ALS. Дивитись після власної реалізації</p>\"}]",
+          "html": "<p>Готова обгортка над ALS. Дивитись після власної реалізації</p>",
+          "markdown": "Готова обгортка над ALS. Дивитись після власної реалізації",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://papooch.github.io/nestjs-cls/",
+              "cacheKey": "4dc7143d28895920356b64bc36e380d0049298027305ac96b4dece16b4e371b0",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202583,
+          "iri": "/api/lesson_materials/202583",
+          "relationId": "/api/lesson_material_has_lessons/202583-104314",
+          "position": 9,
+          "type": 0,
+          "typeName": "site",
+          "name": "Zod 4 — Error handling",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>error.issues і кастомні повідомлення. Потрібно для pipe у ДЗ</p>\"}]",
+          "html": "<p>error.issues і кастомні повідомлення. Потрібно для pipe у ДЗ</p>",
+          "markdown": "error.issues і кастомні повідомлення. Потрібно для pipe у ДЗ",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://zod.dev/error-customization",
+              "cacheKey": "fc0c63ccc5d5a5d23506f5f91cc5e00d4ecb261db036047cc6c89135c2da59e9",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202584,
+          "iri": "/api/lesson_materials/202584",
+          "relationId": "/api/lesson_material_has_lessons/202584-104314",
+          "position": 10,
+          "type": 0,
+          "typeName": "site",
+          "name": "pino + request-id",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>requestId зі сховища автоматично потрапляє в кожен лог</p>\"}]",
+          "html": "<p>requestId зі сховища автоматично потрапляє в кожен лог</p>",
+          "markdown": "requestId зі сховища автоматично потрапляє в кожен лог",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://github.com/pinojs/pino/blob/main/docs/web.md",
+              "cacheKey": "90e1bf0391d9ecfdd50feccb2f498b914dfb7b11f3e12e0e4c0ab4f8b4e4212d",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202585,
+          "iri": "/api/lesson_materials/202585",
+          "relationId": "/api/lesson_material_has_lessons/202585-104314",
+          "position": 11,
+          "type": 0,
+          "typeName": "site",
+          "name": "node:async_hooks — Async context tracking",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Що під капотом ALS: як контекст переживає await</p>\"}]",
+          "html": "<p>Що під капотом ALS: як контекст переживає await</p>",
+          "markdown": "Що під капотом ALS: як контекст переживає await",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://nodejs.org/api/async_hooks.html",
+              "cacheKey": "4da1f964b31808372436be23f53c4a0646b0e05574c40e7a04d800646ea5b243",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202586,
+          "iri": "/api/lesson_materials/202586",
+          "relationId": "/api/lesson_material_has_lessons/202586-104314",
+          "position": 12,
+          "type": 0,
+          "typeName": "site",
+          "name": "W3C Trace Context",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>Стандарт traceparent. Наступний крок після власного X-Request-Id</p>\"}]",
+          "html": "<p>Стандарт traceparent. Наступний крок після власного X-Request-Id</p>",
+          "markdown": "Стандарт traceparent. Наступний крок після власного X-Request-Id",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://www.w3.org/TR/trace-context/",
+              "cacheKey": "ce376cc2a8164dfba7c293fb2613ee46c61e6a5b90a03e2f98f9ed92b475c5ba",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202587,
+          "iri": "/api/lesson_materials/202587",
+          "relationId": "/api/lesson_material_has_lessons/202587-104314",
+          "position": 13,
+          "type": 0,
+          "typeName": "site",
+          "name": "NestJS — Interceptors: RxJS operators",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"<p>map, tap, catchError, timeout. Імпорт із кореня 'rxjs'</p>\"}]",
+          "html": "<p>map, tap, catchError, timeout. Імпорт із кореня 'rxjs'</p>",
+          "markdown": "map, tap, catchError, timeout. Імпорт із кореня 'rxjs'",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://docs.nestjs.com/interceptors",
+              "cacheKey": "e7fbc37ec62e7bbb98607bd7e83b198e29df701c84560ad06f355030c32abe7a",
+              "kind": "external",
+              "role": "material",
+              "status": "link",
+              "file": null
+            }
+          ]
+        },
+        {
+          "id": 202680,
+          "iri": "/api/lesson_materials/202680",
+          "relationId": "/api/lesson_material_has_lessons/202680-104314",
+          "position": 14,
+          "type": 2,
+          "typeName": "file",
+          "name": "Транскрипція лекції",
+          "translationStatus": "available",
+          "descriptionRaw": "[{\"type\":\"text\",\"content\":\"\"}]",
+          "html": "",
+          "markdown": "",
+          "warnings": [],
+          "sources": [
+            {
+              "url": "https://drive.google.com/file/d/19NrIbid4HhI32NW4q0zg6gfgGuBcXH_3/view",
+              "cacheKey": "9211c02cd14819dceb08d2d5ad1d3a4ae5c23f0b927a19ad4b0bc38a7f25a7a4",
+              "kind": "drive",
+              "role": "transcript",
+              "status": "downloaded",
+              "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/transcript.md",
+              "bytes": 121101,
+              "contentType": "text/markdown",
+              "etag": null,
+              "lastModified": "Wed, 19 Aug 2026 12:27:04 GMT",
+              "sha256": "807d2b84f746c3a3a8c868a5253e395cf374cdeddfce66a60c8455dc391ecbab",
+              "fetchedAt": "2026-10-12T13:41:12.423Z"
+            }
+          ]
+        }
+      ],
+      "subtitles": [],
+      "transcriptStatus": "available",
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS",
+      "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/.lms/materials-manifest.json",
+      "fetchedAt": "2026-10-12T13:41:12.424Z"
+    }
+  },
+  "video": {
+    "status": "fresh",
+    "fetchedAt": "2026-10-12T13:41:21.307Z",
+    "files": [
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/lecture.mp4",
+      "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/.lms/lecture.mp4.json"
+    ],
+    "data": {
+      "courseId": 5467,
+      "lesson": {
+        "id": 104314,
+        "iri": "/api/lessons/104314",
+        "number": 8,
+        "name": "Повний lifecycle запиту в NestJS",
+        "translationStatus": "available",
+        "startsAt": "2026-08-18T15:30:00+00:00",
+        "hidden": false,
+        "accessStatus": "done",
+        "available": true,
+        "url": "https://lms.robotdreams.cc/course/5467/lesson/104314"
+      },
+      "recordings": [
+        {
+          "id": 139694,
+          "name": null,
+          "qualities": [
+            240,
+            360,
+            480,
+            720,
+            1080
+          ]
+        }
+      ],
+      "mediaId": 139694,
+      "resolutionId": 654263,
+      "quality": 1080,
+      "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS",
+      "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/lecture.mp4",
+      "bytes": 387680925,
+      "status": "downloaded",
+      "metadata": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/08-Повний-lifecycle-запиту-в-NestJS/.lms/lecture.mp4.json",
+      "fetchedAt": "2026-10-12T13:41:21.307Z"
+    }
+  }
+}
