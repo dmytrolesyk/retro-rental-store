@@ -1,17 +1,25 @@
 services:
+  init-secrets:
+    build:
+      context: .
+      dockerfile: bootstrap.Dockerfile
+    volumes:
+      - app_credentials:/run/secrets
+
   node:
-    image: nestjs
+    profiles: [app]
     build:
       context: .
       dockerfile: node.Dockerfile
     environment:
       PORT: ${PORT:-3000}
-      PG_HOST: ${PG_HOST}
-      PG_PORT: 5432
-      PG_USER: ${PG_USER}
-      PG_DB: ${PG_DB}
-      PG_PASSWORD_FILE: /run/secrets/app_pg_password
-    secrets: [app_pg_password]
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_APP_USER:-db_app}
+      DB_NAME: rental
+      DB_PASSWORD_FILE: ${DB_APP_PASSWORD_FILE:-/run/secrets/db_app_password}
+    volumes:
+      - app_credentials:/run/secrets:ro
     ports:
       - ${PORT:-3000}:${PORT:-3000}
     depends_on:
@@ -23,20 +31,26 @@ services:
       context: .
       dockerfile: pg.Dockerfile
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD_FILE: /run/secrets/admin_pg_password
+      POSTGRES_USER: ${DB_ADMIN_USER:-db_admin}
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin_dev}
       POSTGRES_DB: rental
-    secrets: [admin_pg_password, app_pg_password]
+      DB_MIGRATION_USER: ${DB_MIGRATION_USER:-db_migrator}
+      DB_APP_USER: ${DB_APP_USER:-db_app}
+      DB_MIGRATION_PASSWORD: ${DB_MIGRATION_PASSWORD:-migration_dev}
     ports:
-      - ${PG_PORT:-5432}:5432
+      - ${DB_PORT:-5432}:5432
     volumes:
-      - data_sql:/var/lib/postgresql
+      - data_typeorm:/var/lib/postgresql
+      - app_credentials:/run/secrets:ro
       - ./db/fixtures/retronian:/fixtures/retronian:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U admin -d rental']
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 2s
       timeout: 3s
       retries: 15
+    depends_on:
+      init-secrets:
+        condition: service_completed_successfully
 
   rotator:
     build:
@@ -44,21 +58,17 @@ services:
       dockerfile: rotator.Dockerfile
     environment:
       PGHOST: db
-      PGUSER: admin
+      PGUSER: ${DB_ADMIN_USER:-db_admin}
       PGDATABASE: rental
+      PGPASSWORD: ${DB_ADMIN_PASSWORD:-admin_dev}
+      DB_APP_USER: ${DB_APP_USER:-db_app}
       ROTATE_INTERVAL: ${ROTATE_INTERVAL:-86400}
-    secrets: [admin_pg_password]
     volumes:
-      - ./secrets:/secrets
+      - app_credentials:/run/secrets
     depends_on:
       db:
         condition: service_healthy
 
-secrets:
-  admin_pg_password:
-    file: ./secrets/admin_pg_password
-  app_pg_password:
-    file: ./secrets/app_pg_password
-
 volumes:
-  data_sql:
+  data_typeorm:
+  app_credentials:

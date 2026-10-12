@@ -19,7 +19,7 @@ project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 echo "sql> EXPLAIN (ANALYZE, BUFFERS) ${query}"
 
 cd "${project_root}"
-docker compose exec -T db psql -U admin -d rental \
+docker compose exec -T db psql -U "${DB_ADMIN_USER:-db_admin}" -d rental \
   -P pager=off \
   -v ON_ERROR_STOP=1 \
   -c "EXPLAIN (ANALYZE, BUFFERS) ${query}"
