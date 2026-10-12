@@ -9,8 +9,7 @@ import { test } from 'node:test';
 import { CookieJar } from 'tough-cookie';
 
 let tokenSequence = 0;
-const token = seconds =>
-  `e30.${Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + seconds, nonce: ++tokenSequence })).toString('base64url')}.signature`;
+const token = () => `opaque-test-token-${++tokenSequence}`;
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), 'lms-auth-test-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
@@ -19,7 +18,8 @@ async function fixture(t) {
     readStatus = 200,
     loginStatus = 200,
     graphqlErrors = false,
-    loginCookies = true;
+    loginCookies = true,
+    expiry = Math.floor(Date.now() / 1000) + 3600;
   const server = createServer(async (req, res) => {
     let raw = '';
     for await (const chunk of req) raw += chunk;
@@ -40,19 +40,19 @@ async function fixture(t) {
       res.end(
         JSON.stringify(
           loginStatus === 200
-            ? { access_token: token(3600), expires_in_seconds: 3600 }
+            ? { access_token: token(), expires_in_seconds: expiry }
             : { message: 'secret-response' },
         ),
       );
     } else if (req.url === '/api/token/refresh') {
       res.statusCode = req.headers.cookie?.includes('REMEMBERME=') ? refreshStatus : 401;
       res.setHeader('set-cookie', 'REMEMBERME=rotated-session; Path=/; HttpOnly; Max-Age=604800');
-      res.end(JSON.stringify({ access_token: token(3600), expires_in_seconds: 3600 }));
+      res.end(JSON.stringify({ access_token: token(), expires_in_seconds: expiry }));
     } else {
       res.statusCode = readStatus;
       res.end(
         JSON.stringify(
-          graphqlErrors
+          graphqlErrors || JSON.parse(raw).variables.id !== '/api/courses/5467'
             ? { errors: [{ message: 'private-server-error' }] }
             : {
                 data: {
@@ -85,6 +85,7 @@ async function fixture(t) {
     setLoginStatus: s => (loginStatus = s),
     setGraphqlErrors: value => (graphqlErrors = value),
     setLoginCookies: value => (loginCookies = value),
+    setExpiry: value => (expiry = value),
   };
 }
 
@@ -104,6 +105,42 @@ test('login persists only token and cookie jar with private permissions', async 
   assert.match(await jar.getCookieString(f.origin + '/api/token/refresh'), /REMEMBERME/);
   assert.doesNotMatch(await jar.getCookieString(f.origin + '/api/token/refresh'), /scoped/);
   assert.equal(await jar.getCookieString('https://example.org/'), '');
+});
+
+test('opaque token uses the absolute server expiry without adding it to Date.now', async t => {
+  const f = await fixture(t);
+  const expiry = Math.floor(Date.now() / 1000) + 7200;
+  f.setExpiry(expiry);
+  const result = await f.client.login({ email: 'a@b.test', password: 'p' });
+  assert.equal(result.expiresAt, new Date(expiry * 1000).toISOString());
+  await f.client.readCourse();
+  assert.equal(f.calls.filter(c => c.path === '/api/token/refresh').length, 0);
+  assert.match(f.calls.at(-1).bearer, /^Bearer opaque-test-token-/);
+});
+
+test('invalid login and refresh expiry never overwrite an existing session', async t => {
+  const f = await fixture(t);
+  await f.client.login({ email: 'a@b.test', password: 'p' });
+  const before = await readFile(join(f.directory, 'session.json'), 'utf8');
+  for (const expiry of [
+    undefined,
+    null,
+    'tomorrow',
+    '2000000000',
+    0,
+    -1,
+    1.5,
+    3600,
+    Math.floor(Date.now() / 1000) - 1,
+    Number.MAX_SAFE_INTEGER,
+  ]) {
+    f.setExpiry(expiry);
+    await assert.rejects(f.client.login({ email: 'a@b.test', password: 'p' }), {
+      code: 'API_RESPONSE_INVALID',
+    });
+    await assert.rejects(f.client.checkSession(), { code: 'API_RESPONSE_INVALID' });
+    assert.equal(await readFile(join(f.directory, 'session.json'), 'utf8'), before);
+  }
 });
 
 test('login without refresh cookies does not claim a persistent session', async t => {
@@ -174,7 +211,6 @@ test('expired token refreshes in advance, persistent 401 retries only once', asy
   await f.client.login({ email: 'a@b.test', password: 'p' });
   await f.store.transaction(async tx => {
     const s = await tx.read();
-    s.accessToken = token(-1);
     s.expiresAt = Date.now() - 1000;
     await tx.write(s);
   });

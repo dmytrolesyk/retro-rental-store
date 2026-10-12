@@ -110,14 +110,17 @@ pnpm --silent run lms logout
 `login --check` не питає пароль: завжди оновлює токен через cookie jar,
 читає ID та перекладену назву курсу 5467 і повертає їх із `expiresAt`.
 Це мінімальна перевірка авторизації, а не реалізація переліку лекцій.
+GraphQL очікує ID курсу у форматі `/api/courses/5467`, а не лише `5467`.
 
 REST: `https://lms.robotdreams.cc/api/login` і `/api/token/refresh`.
 Login використовує JSON `email`, `password`, `_remember_me: true` та
 параметр `_remember_me_=true`, який використовує frontend LMS.
-Токен береться з `access_token`; `exp` JWT визначає момент оновлення.
+Токен береться з `access_token` і використовується як непрозорий рядок.
+Строк дії береться з `expires_in_seconds`: попри назву, frontend LMS
+трактує його як абсолютний Unix timestamp у секундах. Множимо на 1000
+і зберігаємо в `expiresAt` для планування оновлення.
 GraphQL: `https://lms.academius.io/api/graphql`, Bearer token.
-Підпис токена перевіряє LMS: локальне читання `exp` лише планує refresh,
-воно не доводить чинності чи автентичності токена.
+Авторизацію перевіряє LMS; локальний строк дії лише планує refresh.
 
 Перед читанням прострочений токен або токен із залишком ≤60 секунд оновлюється.
 Після HTTP 401 виконується один refresh і один повтор читання; повторний 401

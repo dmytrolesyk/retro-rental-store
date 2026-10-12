@@ -8,41 +8,34 @@ export const AUTH_ORIGIN = 'https://lms.robotdreams.cc';
 export const GRAPHQL_URL = 'https://lms.academius.io/api/graphql';
 const REFRESH_MARGIN_MS = 60_000;
 
-export function tokenExpiry(token: string): number {
-  try {
-    const parts = token.split('.');
-    const segment = parts[1];
-    if (parts.length !== 3 || !segment) throw new Error();
-    const payload: unknown = JSON.parse(Buffer.from(segment, 'base64url').toString('utf8'));
-    if (
-      !isRecord(payload) ||
-      typeof payload.exp !== 'number' ||
-      !Number.isSafeInteger(payload.exp) ||
-      payload.exp <= 0
-    )
-      throw new Error();
-    // exp is only a refresh scheduling hint; authentication is decided by LMS.
-    return payload.exp * 1000;
-  } catch {
+function responseExpiry(value: unknown): number {
+  // Despite its name, LMS uses expires_in_seconds as an absolute Unix timestamp.
+  // Treat the access token as opaque; LMS decides whether it is valid.
+  if (
+    typeof value !== 'number' ||
+    !Number.isSafeInteger(value) ||
+    value <= 0 ||
+    value > 8_640_000_000_000
+  ) {
     throw new ClientError(
       'API_RESPONSE_INVALID',
-      'LMS повернула токен без коректного строку дії.',
+      'LMS не повернула коректний expires_in_seconds.',
       5,
     );
   }
+  return value * 1000;
 }
 
 function sessionFrom(body: unknown, jar: CookieJar): Session {
   if (
-    !body ||
-    typeof body !== 'object' ||
-    !('access_token' in body) ||
+    !isRecord(body) ||
     typeof body.access_token !== 'string' ||
+    !body.access_token.trim() ||
     body.access_token.length > 65_536
   ) {
     throw new ClientError('API_RESPONSE_INVALID', 'LMS не повернула access_token.', 5);
   }
-  const expiresAt = tokenExpiry(body.access_token);
+  const expiresAt = responseExpiry(body.expires_in_seconds);
   if (expiresAt <= Date.now())
     throw new ClientError('API_RESPONSE_INVALID', 'LMS повернула вже прострочений токен.', 5);
   return { version: 1, accessToken: body.access_token, expiresAt, cookieJar: serializeJar(jar) };
@@ -149,9 +142,8 @@ export class AuthClient {
         session = sessionFrom(await jsonBody(response), jar);
         await tx.write(session);
       };
-      // Derive from the token rather than trusting expiresAt in a file.
-      if (forceRefresh || tokenExpiry(session.accessToken) <= Date.now() + REFRESH_MARGIN_MS)
-        await refresh();
+      // The stored server expiry schedules refresh; a 401 still triggers one retry.
+      if (forceRefresh || session.expiresAt <= Date.now() + REFRESH_MARGIN_MS) await refresh();
       const read = () =>
         this.http.request(this.graphqlUrl, jar, {
           method: 'POST',
@@ -162,7 +154,7 @@ export class AuthClient {
           body: JSON.stringify({
             query:
               'query SessionCourseCheck($id: ID!) { course(id: $id) { id translations(locale: "uk") { edges { node { name } } } } }',
-            variables: { id: String(DEFAULT_COURSE) },
+            variables: { id: `/api/courses/${String(DEFAULT_COURSE)}` },
           }),
         });
       let response = await read();
