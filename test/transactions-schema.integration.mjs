@@ -60,7 +60,7 @@ test('balance and job migration enforces constraints and preserves existing rent
     assert.equal(applied.length, 1, 'A new migration must extend the existing homework schema');
     const existingId = '20000000-0000-4000-8000-000000000001';
     assert.equal(
-      (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balanceKopecks,
+      (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
       0,
     );
 
@@ -69,8 +69,8 @@ test('balance and job migration enforces constraints and preserves existing rent
       email: 'new@example.test',
       phoneNumber: '+380000000002',
     });
-    assert.equal(renter.balanceKopecks, 0);
-    await db.getRepository(Renter).update(renter.renterId, { balanceKopecks: 10000 });
+    assert.equal(renter.balance, 0);
+    await db.getRepository(Renter).update(renter.renterId, { balance: 10000 });
     await assert.rejects(
       db.query('UPDATE renters SET balance = -1 WHERE renter_id = $1', [renter.renterId]),
       { code: '23514' },
@@ -141,7 +141,7 @@ test('balance and job migration enforces constraints and preserves existing rent
 
     assert.equal((await db.runMigrations()).length, 1);
     assert.equal(
-      (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balanceKopecks,
+      (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
       0,
     );
     assert.equal(await jobs.count(), 0);

@@ -228,7 +228,7 @@ Verified on 2026-10-06 from a fresh local clone and a separate empty
 PostgreSQL volume, without `.env` or host credential files.
 Submit the PR URL in the LMS after committing and pushing the homework.
 
-## Homework 14: balance and job queue
+## Homework 14: transactional rentals
 
 The first step adds `renters.balance` (integer kopecks, default 0, `CHECK >= 0`)
 and the `RentalJob` entity / `rental_jobs` table through
@@ -240,7 +240,7 @@ status, a nonnegative `processed` counter, an optional worker name, and a
 timezone-aware creation timestamp. The counter may exceed 1 so the worker demo
 can detect duplicate processing. A partial index on `(created_at, job_id)` for
 new jobs supports ordered queue selection; a separate index covers `rental_id`.
-Checkout, workers, and retry demos are subsequent steps.
+Workers and the race/retry demos are subsequent steps.
 
 Use the existing `DB_*` connection settings from Grading and run `pnpm run build`
 then `pnpm run migrate` to apply the schema. The teacher-approved variant without
@@ -266,9 +266,74 @@ docker run --detach --rm --name retro-hw14-schema-test \
 docker inspect --format '{{.State.Health.Status}}' retro-hw14-schema-test
 TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_schema \
   pnpm run test:db:transactions
+# Checkout tests require their own empty database:
+docker exec retro-hw14-schema-test createdb -U hw14_test retro_hw14_test_checkout
+TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_checkout \
+  pnpm run test:db:checkout
 # Remove only this temporary container and its anonymous data volume:
 docker rm --force --volumes retro-hw14-schema-test
 ```
+
+### Transactional checkout
+
+`RentalsModule` is imported by `AppModule` and exports the injectable
+`RentalsService`. Call `rentalsService.checkout({ renterId, gameId, platformId })`;
+Nest supplies the configured DataSource. The service delegates to the same
+transactional `checkout(dataSource, request)` function in `src/rentals/checkout.ts`,
+which can also be called directly with an initialized DataSource in integration
+tests. The operation rents one physical copy for one day and returns
+`rentalId`, `gameCopyId`, `jobId`, `chargedAmount`, and the remaining
+`balance`. All monetary values are integer minor units of UAH: `2500` means
+25 UAH. This is a reusable business operation; no HTTP route is added.
+
+The operation explicitly uses READ COMMITTED and the callback's transaction
+manager for every query. Its orchestration calls `ensureRenterExists`,
+`findAvailableCopyForUpdate`, and `debitRenterBalance`, then inserts the rental,
+item, and confirmation job. The early renter lookup uses TypeORM's
+`for_key_share` lock so the renter cannot be deleted or have its key changed
+between validation and payment; concurrent non-key balance updates are still
+allowed. This is a transactional business check, not HTTP pipe validation.
+
+The copy helper selects an available copy with `FOR UPDATE`, then
+checks active rental items again in a separate statement after acquiring the
+lock. The second statement gets a fresh snapshot: the first statement may have
+waited while another transaction rented that copy. If it is now occupied, the
+helper tries the next copy in ascending UUID order. Its `do...while` repeats
+while `isCopyRented` finds an active rental in the fresh snapshot. UUID order
+is used as a cursor, not as creation-time order. It waits for locked
+copies rather than treating them as unavailable with SKIP LOCKED. The locking
+protocol must be followed by other code that reserves physical copies; the
+existing partial unique index remains the database's final guard against two
+active rentals of one copy.
+
+Row locking fits our individual cartridges better than a second, aggregate
+stock counter that would need to stay synchronized with their rental history.
+Payment uses an atomic `UPDATE ... SET balance = balance - price WHERE
+balance >= price RETURNING balance`, so concurrent payments cannot overwrite
+one another or overdraw the account. Rental, rental item (with its price
+snapshot), and confirmation job are inserted before the same transaction
+commits. The confirmation is only queued here, not sent within checkout.
+
+Expected refusals throw `CheckoutError` with one of these codes:
+`INVALID_INPUT`, `COPY_UNAVAILABLE`, `RENTER_NOT_FOUND`, or
+`INSUFFICIENT_BALANCE`. Unexpected SQL/connection errors propagate to the caller;
+the operation rolls back rather than reporting them as normal refusals. If
+several conditions fail, input format is checked first, then renter existence,
+copy availability, and sufficient balance. The key-share lock keeps the renter
+present, so a zero-row debit result means insufficient funds. Retry handling
+will be added separately.
+
+`pnpm run test:db:checkout` runs twelve integration cases on an empty
+`retro_hw14_test_*` database: success and price snapshot, insufficient funds,
+unavailable copies, invalid input/missing renter, rollback on an actual SQL
+failure during job insertion, concurrent requests for the same copy, concurrent
+payments from one account for different games, and lock waits followed by
+commit/rollback. It also checks early renter validation, concurrent renter
+deletion, and resolving/calling RentalsService from a real AppModule application
+context without starting an HTTP server. Lock-wait tests observe
+`pg_stat_activity` before releasing the other transaction rather than depending
+on a fixed sleep. Both database test
+suites leave their fixtures in place, so use new empty databases for reruns.
 
 ## ORM seed
 
@@ -463,7 +528,7 @@ loading, lazy promises, or automatic ORM save/remove cascades.
 The new schema uses integer kopecks: `125.50 UAH` is `12550`.
 SQL column names remain `game_copies.price_per_day` and
 `rental_items.cost_per_day`; their TypeScript properties are
-`pricePerDayKopecks` and `costPerDayKopecks`. Both retain a `CHECK >= 0`.
+`pricePerDay` and `costPerDay`. Both retain a `CHECK >= 0`.
 The rental item's price is a snapshot, independent of later copy price changes.
 
 This differs from homework 12's `numeric(10,2)` major-unit columns.

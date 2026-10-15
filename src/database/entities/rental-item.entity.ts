@@ -25,7 +25,7 @@ export class RentalItem {
 
   // Snapshot in kopecks: changing the copy's current price must not rewrite history.
   @Column({ name: 'cost_per_day', type: 'integer' })
-  costPerDayKopecks: number;
+  costPerDay: number;
 
   @ManyToOne(() => Rental, rental => rental.items, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({

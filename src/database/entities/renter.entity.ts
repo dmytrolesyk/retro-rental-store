@@ -21,7 +21,7 @@ export class Renter {
 
   // Internal balance in kopecks, matching the integer price snapshots on rental items.
   @Column({ name: 'balance', type: 'integer', default: 0 })
-  balanceKopecks: number;
+  balance: number;
 
   @OneToMany(() => Rental, rental => rental.renter)
   rentals: Relation<Rental[]>;

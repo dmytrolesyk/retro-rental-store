@@ -39,7 +39,7 @@ export class GameCopy {
 
   // Current price, in kopecks. RentalItem stores its own historical snapshot.
   @Column({ name: 'price_per_day', type: 'integer' })
-  pricePerDayKopecks: number;
+  pricePerDay: number;
 
   @ManyToOne(() => Game, game => game.copies, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({
