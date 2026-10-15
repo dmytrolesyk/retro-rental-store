@@ -1,7 +1,10 @@
 import { IsNull } from 'typeorm';
 import type { DataSource, EntityManager } from 'typeorm';
 import { z } from 'zod';
-import { Rental, RentalItem, RentalJob, Renter } from '../database/entities';
+import { Rental } from './entities/rental.entity';
+import { RentalItem } from './entities/rental-item.entity';
+import { RentalJob } from '../jobs/entities/rental-job.entity';
+import { Renter } from '../renters/entities/renter.entity';
 
 export interface CheckoutRequest {
   renterId: string;
@@ -48,7 +51,7 @@ export async function checkout(
   const { renterId, gameId, platformId } = parsed.data;
 
   return dataSource.transaction('READ COMMITTED', async manager => {
-    await ensureRenterExists(manager, renterId);
+    const renter = await ensureRenterExists(manager, renterId);
     const copy = await findAvailableCopyForUpdate(manager, gameId, platformId);
     const balance = await debitRenterBalance(manager, renterId, copy.pricePerDay);
 
@@ -58,7 +61,7 @@ export async function checkout(
       gameCopyId: copy.gameCopyId,
       costPerDay: copy.pricePerDay,
     });
-    const job = await manager.save(RentalJob, { rentalId: rental.rentalId });
+    const job = await manager.save(RentalJob, { rentalId: rental.rentalId, emailTo: renter.email });
 
     return {
       rentalId: rental.rentalId,
@@ -70,17 +73,18 @@ export async function checkout(
   });
 }
 
-async function ensureRenterExists(manager: EntityManager, renterId: string): Promise<void> {
+async function ensureRenterExists(manager: EntityManager, renterId: string): Promise<Renter> {
   // Keep the renter from being deleted after validation. KEY SHARE still allows
   // non-key updates, including concurrent atomic balance deductions.
   const renter = await manager.findOne(Renter, {
-    select: { renterId: true },
+    select: { renterId: true, email: true },
     where: { renterId },
     lock: { mode: 'for_key_share' },
   });
   if (!renter) {
     throw new CheckoutError('RENTER_NOT_FOUND', 'Renter does not exist');
   }
+  return renter;
 }
 
 async function findAvailableCopyForUpdate(

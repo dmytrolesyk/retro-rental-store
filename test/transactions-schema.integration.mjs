@@ -57,7 +57,7 @@ test('balance and job migration enforces constraints and preserves existing rent
   await db.initialize();
   try {
     const applied = await db.runMigrations();
-    assert.equal(applied.length, 1, 'A new migration must extend the existing homework schema');
+    assert.equal(applied.length, 2, 'A new migration must extend the existing homework schema');
     const existingId = '20000000-0000-4000-8000-000000000001';
     assert.equal(
       (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
@@ -83,7 +83,7 @@ test('balance and job migration enforces constraints and preserves existing rent
     const { RentalJob } = require('../dist/database/entities');
     const rentalId = '30000000-0000-4000-8000-000000000001';
     const jobs = db.getRepository(RentalJob);
-    const job = await jobs.save({ rentalId });
+    const job = await jobs.save({ rentalId, emailTo: 'existing@example.test' });
     assert.equal(job.status, 'new');
     assert.equal(job.processed, 0);
     assert.equal(job.worker, null);
@@ -93,7 +93,9 @@ test('balance and job migration enforces constraints and preserves existing rent
         .rental.rentalId,
       rentalId,
     );
-    await assert.rejects(jobs.insert({ rentalId: randomUUID() }), { code: '23503' });
+    await assert.rejects(jobs.insert({ rentalId: randomUUID(), emailTo: 'delivered@resend.dev' }), {
+      code: '23503',
+    });
     await assert.rejects(
       db.query("UPDATE rental_jobs SET status = 'invalid' WHERE job_id = $1", [job.jobId]),
       { code: '23514' },
@@ -124,6 +126,16 @@ test('balance and job migration enforces constraints and preserves existing rent
     );
 
     await db.undoLastMigration();
+    await db.query("UPDATE renters SET email = 'backfill@example.test' WHERE renter_id = $1", [
+      existingId,
+    ]);
+    assert.equal((await db.runMigrations()).length, 1);
+    assert.equal(
+      (await jobs.findOneByOrFail({ jobId: job.jobId })).emailTo,
+      'backfill@example.test',
+    );
+    await db.undoLastMigration();
+    await db.undoLastMigration();
     assert.equal((await db.query('SELECT count(*)::int AS n FROM rentals'))[0].n, 1);
     assert.equal((await db.query('SELECT count(*)::int AS n FROM renters'))[0].n, 2);
     assert.equal(
@@ -139,7 +151,7 @@ test('balance and job migration enforces constraints and preserves existing rent
       0,
     );
 
-    assert.equal((await db.runMigrations()).length, 1);
+    assert.equal((await db.runMigrations()).length, 2);
     assert.equal(
       (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
       0,

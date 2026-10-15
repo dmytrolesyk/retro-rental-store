@@ -1,6 +1,6 @@
 import { Check, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import type { Relation } from 'typeorm';
-import { GameCopy } from './game-copy.entity';
+import { GameCopy } from '../../catalog/entities/game-copy.entity';
 import { Rental } from './rental.entity';
 
 @Entity('rental_items')

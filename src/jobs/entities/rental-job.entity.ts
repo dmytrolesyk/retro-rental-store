@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
-import { Rental } from './rental.entity';
+import { Rental } from '../../rentals/entities/rental.entity';
 
 @Entity('rental_jobs')
 @Check('rental_jobs_status_check', "\"status\" IN ('new', 'done')")
@@ -21,6 +21,10 @@ export class RentalJob {
 
   @Column({ name: 'rental_id', type: 'uuid' })
   rentalId: string;
+
+  // Recipient snapshot: changing a renter profile must not change a retry payload.
+  @Column({ name: 'email_to', type: 'varchar', length: 120 })
+  emailTo: string;
 
   @Column({ type: 'text', default: 'new' })
   status: 'new' | 'done';

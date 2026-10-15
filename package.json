@@ -35,7 +35,11 @@
     "report": "node dist/scripts/report.js",
     "course:init": "git submodule update --init --recursive reference/node-js-pro",
     "course:update": "git submodule update --init --remote reference/node-js-pro",
-    "course:diff": "git diff --submodule -- reference/node-js-pro"
+    "course:diff": "git diff --submodule -- reference/node-js-pro",
+    "demo:workers": "node dist/scripts/demo-workers.js",
+    "test:db:workers": "pnpm run build && node --test test/workers.integration.mjs",
+    "start:worker": "node dist/worker/main.js",
+    "demo:email": "node dist/scripts/demo-email.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",
@@ -46,6 +50,7 @@
     "csv-parse": "^7.0.3",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
+    "resend": "^6.33.0",
     "rxjs": "^7.8.2",
     "typeorm": "0.3.31",
     "zod": "^4.6.2"

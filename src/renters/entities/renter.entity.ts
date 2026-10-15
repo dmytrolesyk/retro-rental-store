@@ -1,6 +1,6 @@
 import { Check, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import type { Relation } from 'typeorm';
-import { Rental } from './rental.entity';
+import { Rental } from '../../rentals/entities/rental.entity';
 
 @Entity('renters')
 @Unique('renters_email_key', ['email'])

@@ -184,6 +184,7 @@ pnpm run seed
 pnpm run demo:nplus1
 pnpm run report
 pnpm run demo:race
+pnpm run demo:workers
 ```
 
 `DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
@@ -850,3 +851,118 @@ pnpm run test --runInBand
 ```
 
 Database behavior is verified through the fresh-database workflow above.
+
+### Rental confirmation workers and Resend (homework 14)
+
+After exporting the `DB_*` CLI credentials from Grading:
+
+```bash
+pnpm run build
+pnpm run migrate
+pnpm run demo:workers
+```
+
+`demo:workers` creates ten rental tasks and starts two async workers. Each uses
+TypeORM QueryBuilder's `pessimistic_write` + `skip_locked` to claim one task;
+processing, `processed + 1`, `worker` and `done` stay in the same transaction.
+The demo handler waits 500 ms and needs no email credentials. It only consumes
+its own task IDs, preserving unrelated tasks. A locked `new` task is still pending:
+a worker rechecks the queue instead of exiting on the first empty claim.
+A handler failure rolls back the task so a subsequent run can pick it up.
+Verified PostgreSQL 18 run: 10 tasks, distribution 5 + 5, duplicates 0,
+2617 ms elapsed versus 5000 ms sequential handler time (machine-specific).
+The script prints distribution, duplicate count and elapsed/sequential time,
+and exits nonzero if its invariants fail.
+
+Real email uses the same `JobsService` with a Nest `EmailService` backed by the
+Resend SDK. Set `RESEND_API_KEY` privately in your local environment and set
+`EMAIL_FROM` to an address on your verified Resend domain. These settings are
+required only by `start:worker` and `demo:email`; no API key is required for grading.
+
+```bash
+export EMAIL_FROM='Retro Games Rental <notifications@send.your-domain.dev>'
+# RESEND_API_KEY must already be set privately.
+pnpm run demo:email
+```
+
+This creates one rental and sends one confirmation to `delivered@resend.dev`
+(the Resend test sink). To receive it yourself, export `DEMO_EMAIL_TO` with your
+own address before running the command. The demo prints its task ID before
+sending. To retry an existing task, reuse that ID instead of creating a new demo:
+
+```bash
+pnpm run start:worker YOUR_JOB_UUID
+```
+
+Application entry points and modules:
+
+- `src/worker/main.ts` starts a standalone Nest application for selected task IDs.
+- `src/worker/worker.module.ts` composes database, queue and email dependencies.
+- `src/jobs/rental-confirmation.worker.ts` is the injectable confirmation handler.
+- `src/scripts/demo-email.ts` creates demo data and invokes that same worker.
+
+Both commands finish once their selected tasks are drained; there is no permanent
+polling service or signal-handling lifecycle in this step. The API starts separately
+through `src/main.ts` and does not start email workers implicitly.
+
+Only explicitly selected task IDs are consumed. Already completed tasks are
+skipped. The real-email command uses one worker and spaces requests by at least
+600 ms after each API response; it is not a throughput benchmark or a distributed
+rate limiter. API errors fail the command and leave the task `new` for a later
+retry. Automatic provider retries and delivery webhooks are outside this step.
+
+The `email_to` migration snapshots the recipient at checkout; existing tasks are
+backfilled from the current renter address. Message content uses the immutable
+rental ID. Keep the sender and message template unchanged when retrying pending
+tasks: Resend requires identical payloads for the same idempotency key
+`rental-confirmation/<jobId>`. A crash after API acceptance but before database
+commit can repeat the request; Resend deduplicates that key for **24 hours**.
+After that window, duplicate email remains possible. `done` means the provider
+accepted the request, not that the email reached the inbox. Database counters
+commit once; PostgreSQL cannot roll back an external email.
+
+References: [Resend Node SDK](https://resend.com/docs/send-with-nodejs),
+[idempotency and the 24-hour limit](https://resend.com/docs/dashboard/emails/idempotency-keys).
+
+Integration checks (each suite needs a separate empty disposable database named
+`retro_hw14_test_*`, through `TEST_DATABASE_URL`):
+
+```bash
+pnpm run test:db:workers
+pnpm run test:db:transactions
+pnpm run test:db:checkout
+```
+
+### Source layout and module ownership
+
+Entities live with their functionality:
+
+```text
+src/
+  catalog/entities/  # games, copies, platforms, genres and their links
+  renters/entities/  # renters
+  rentals/           # checkout, RentalsModule/Service and rental entities
+  jobs/              # queue service, rental task entity and confirmation worker
+  email/             # reusable email transport and its Nest module
+  database/          # connection setup, entity registration and fixtures
+  config/            # validated configuration
+  migrations/        # shared database schema history
+  worker/            # standalone application entry point and composition module
+  scripts/           # demos, seed and reports
+```
+
+`database/entities.ts` collects the entities for the shared DataSource and
+TypeORM CLI; feature code imports its entities directly. Moving files does not
+change tables or require another migration.
+
+`EmailService` is an injectable provider. Its `send()` method accepts a recipient,
+subject, plain-text body and caller-supplied idempotency key, without knowing
+about rentals or database entities. `EmailModule` owns its Resend client and
+configuration providers, and exports only `EmailService` for other modules.
+
+`RentalConfirmationWorker` builds the rental-specific subject, body and stable
+idempotency key. `RentalConfirmationModule` owns and exports this provider,
+importing `JobsModule` and `EmailModule`. `JobsModule` owns the queue processing
+service; using it for offline demos does not require email credentials.
+`WorkerModule` composes database and confirmation modules for the standalone
+entry point. A module groups and exposes providers; a service does the work.
