@@ -11,7 +11,7 @@ import type { Relation } from 'typeorm';
 import { GameCondition, PhysicalFormat } from './enums';
 import { Game } from './game.entity';
 import { Platform } from './platform.entity';
-import { RentalItem } from './rental-item.entity';
+import { RentalItem } from '../../rentals/entities/rental-item.entity';
 
 @Entity('game_copies')
 @Check('game_copies_price_per_day_check', '"price_per_day" >= 0')
@@ -39,7 +39,7 @@ export class GameCopy {
 
   // Current price, in kopecks. RentalItem stores its own historical snapshot.
   @Column({ name: 'price_per_day', type: 'integer' })
-  pricePerDayKopecks: number;
+  pricePerDay: number;
 
   @ManyToOne(() => Game, game => game.copies, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({

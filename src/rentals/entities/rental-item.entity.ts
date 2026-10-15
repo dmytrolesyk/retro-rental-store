@@ -1,6 +1,6 @@
 import { Check, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import type { Relation } from 'typeorm';
-import { GameCopy } from './game-copy.entity';
+import { GameCopy } from '../../catalog/entities/game-copy.entity';
 import { Rental } from './rental.entity';
 
 @Entity('rental_items')
@@ -25,7 +25,7 @@ export class RentalItem {
 
   // Snapshot in kopecks: changing the copy's current price must not rewrite history.
   @Column({ name: 'cost_per_day', type: 'integer' })
-  costPerDayKopecks: number;
+  costPerDay: number;
 
   @ManyToOne(() => Rental, rental => rental.items, { nullable: false, onDelete: 'RESTRICT' })
   @JoinColumn({

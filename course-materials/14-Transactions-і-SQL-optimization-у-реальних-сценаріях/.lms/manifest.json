@@ -18,11 +18,11 @@
   },
   "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях",
   "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/.lms/manifest.json",
-  "fetchedAt": "2026-10-12T13:43:01.135Z",
+  "fetchedAt": "2026-10-14T15:16:22.561Z",
   "status": "complete",
   "homework": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T13:42:51.216Z",
+    "fetchedAt": "2026-10-14T15:16:14.987Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/homework.md"
     ],
@@ -54,12 +54,12 @@
           "url": "https://lms.robotdreams.cc/course/5467/lesson/104320/homework/54346"
         }
       ],
-      "fetchedAt": "2026-10-12T13:42:51.216Z"
+      "fetchedAt": "2026-10-14T15:16:14.987Z"
     }
   },
   "materials": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T13:42:59.102Z",
+    "fetchedAt": "2026-10-14T15:16:22.535Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/additional-materials.md",
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/presentation.pdf",
@@ -108,7 +108,7 @@
               "etag": null,
               "lastModified": null,
               "sha256": "761d5ad6c27c178e478a1d72b74b42a2c6fb910117dd16b40fe03642893334dd",
-              "fetchedAt": "2026-10-12T13:42:57.683Z"
+              "fetchedAt": "2026-10-14T15:16:20.997Z"
             }
           ]
         },
@@ -162,7 +162,7 @@
               "etag": null,
               "lastModified": "Mon, 14 Sep 2026 07:52:56 GMT",
               "sha256": "21a55b2da0cc78572e7e121fb75c7c2c3048cbc735b10c042166ec2914b655ba",
-              "fetchedAt": "2026-10-12T13:42:59.102Z"
+              "fetchedAt": "2026-10-14T15:16:22.534Z"
             }
           ]
         }
@@ -170,7 +170,7 @@
       "subtitles": [
         {
           "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_140938_6aa431d35dca64.72317729.vtt",
-          "cacheKey": "d89a93602719dee68e172d8b324c167269442b04c79d1f35b033c96ac1fa980b",
+          "cacheKey": "c76f558a1a13168c439936a95ffd9fa3d78c513221878eb2bc57c796aa450d38",
           "kind": "vtt",
           "role": "transcript",
           "status": "not_downloaded",
@@ -180,11 +180,11 @@
       "transcriptStatus": "available",
       "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях",
       "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/.lms/materials-manifest.json",
-      "fetchedAt": "2026-10-12T13:42:59.102Z"
+      "fetchedAt": "2026-10-14T15:16:22.535Z"
     }
   },
   "video": {
-    "status": "fresh",
+    "status": "not_requested",
     "fetchedAt": "2026-10-12T13:43:01.135Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/14-Transactions-і-SQL-optimization-у-реальних-сценаріях/lecture.mp4",

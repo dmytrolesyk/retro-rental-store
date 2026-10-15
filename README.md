@@ -168,6 +168,7 @@ local development credentials from `compose.yaml`.
 Copy and run the complete sequence:
 
 ```bash
+export COMPOSE_PROJECT_NAME=retro-hw14-grading
 export DB_HOST=127.0.0.1 DB_PORT="${DB_PORT:-5432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
 pnpm install --frozen-lockfile
@@ -183,19 +184,23 @@ pnpm run seed
 pnpm run seed
 pnpm run demo:nplus1
 pnpm run report
+pnpm run demo:race
+pnpm run demo:workers
+pnpm run demo:retry
 ```
 
 `DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
-before this block. To isolate grading from an existing Compose installation,
-also run `export COMPOSE_PROJECT_NAME=retro-hw13-grading` before the block;
-Compose automatically uses that name for every command, including count
-checks. No repository files need editing, and no host credential files need
-creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
+before this block. The block uses the separate Compose project `retro-hw14-grading`.
+Choose a new project name if it already has a database volume from a previous
+run. Compose uses that name for every command, including count checks.
+No repository files need editing, and no host credential files need creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
 
-Both `migrate:show` calls must mark the initial migration `[X]` (with its
-journal ID). Revert removes the business schema; reapplication recreates it.
-Run this rollback check before seeding, because the initial migration's
-`down()` removes business data. The two TypeORM service tables remain.
+Both `migrate:show` calls must mark all migrations `[X]` (with their
+journal IDs). There are three migrations. Revert rolls back only the latest,
+`AddJobEmailRecipient1792051200001`: it removes `email_to` and preserves the
+queue, balances and rentals. Reverting the preceding
+`AddRentalBalanceAndJobs1792051200000` removes the queue and renter balances.
+Reverting the initial migration removes business data. Run rollback checks only against a disposable database.
 
 Use the count command in [ORM seed](#orm-seed) after each seed run: all nine
 counts must stay unchanged. The fresh-database totals are 19,896 games,
@@ -214,6 +219,14 @@ rg -ni '\.(add)?groupBy\(' src/
 rg -n "password:[[:space:]]*['\"]" src/database/data-source-options.ts
 ```
 
+Homework 14 static checks (each should produce matches):
+
+```bash
+rg -ni 'for update|returning|pessimistic_write' src/rentals/checkout.ts
+rg -n 'skip_locked' src/jobs/jobs.service.ts
+rg -n '40001|40P01' src/database/transaction-retry.service.ts
+```
+
 The empty-result `rg` checks exit with status 1; this means no prohibited
 match was found. The other checks show both RESTRICT/CASCADE and report
 GROUP BY. If ripgrep is unavailable, use the equivalent `grep -rn` /
@@ -223,9 +236,227 @@ GROUP BY. If ripgrep is unavailable, use the equivalent `grep -rn` /
 
 This sequence is the pnpm / optional-Infisical variant agreed for this
 project. The assignment's npm/vault wrapper commands are not used.
-Verified on 2026-10-06 from a fresh local clone and a separate empty
-PostgreSQL volume, without `.env` or host credential files.
+Homework 14 was verified on 2026-10-15 from a clean export of commit `2eac4c7`
+and a separate empty Compose PostgreSQL volume, without `.env`, local notes,
+Resend settings or host credential files. See [Конкурентність](#конкурентність)
+for measured results. The pnpm install used the local package cache.
+All commands exited 0, the two seed counts matched, and the 13 unit tests,
+ESLint, TypeScript and formatting checks passed. Homework 14's required demos
+need no Resend key and do not send email; `demo:email` is optional.
 Submit the PR URL in the LMS after committing and pushing the homework.
+
+## Homework 14: transactional rentals
+
+Homework 14 adds `renters.balance` (integer kopecks, default 0, `CHECK >= 0`)
+and the `RentalJob` entity / `rental_jobs` table through
+`AddRentalBalanceAndJobs1792051200000`. Existing renters start with zero credit;
+the homework 13 seed does not overwrite balances or create jobs.
+
+Each job references a rental with `ON DELETE RESTRICT` and stores a `new`/`done`
+status, a nonnegative `processed` counter, an optional worker name, and a
+timezone-aware creation timestamp. The counter may exceed 1 so the worker demo
+can detect duplicate processing. A partial index on `(created_at, job_id)` for
+new jobs supports ordered queue selection; a separate index covers `rental_id`.
+`AddJobEmailRecipient1792051200001` adds the `email_to` recipient snapshot,
+backfilling historical jobs from their renter addresses. The race, worker and
+retry demos are available through the commands in Grading; all three run
+without Resend credentials.
+
+Use the existing `DB_*` connection settings from Grading and run `pnpm run build`
+then `pnpm run migrate` to apply the schema. The teacher-approved variant without
+Infisical also applies to homework 14; no vault wrapper or new env file is needed.
+The queue/balance migration rollback discards balances and jobs; the later
+recipient migration rollback removes only the recipient snapshot. Exercise
+rollback on a disposable database.
+
+The integration test requires a completely empty PostgreSQL database named
+`retro_hw14_test_*`. It applies the old schema, inserts existing rental data,
+applies the homework 14 migrations, checks defaults and constraints through SQL and ORM,
+verifies that ORM metadata matches the schema, then exercises down/up while
+checking that old renters and rentals survive. It leaves test data in place.
+For example, with Docker running and host port 55444 available:
+
+```bash
+docker run --detach --rm --name retro-hw14-schema-test \
+  --publish 127.0.0.1:55444:5432 \
+  --env POSTGRES_USER=hw14_test --env POSTGRES_PASSWORD=hw14_test \
+  --env POSTGRES_DB=retro_hw14_test_schema \
+  --health-cmd='pg_isready -U hw14_test -d retro_hw14_test_schema' \
+  --health-interval=1s --health-timeout=3s --health-retries=30 postgres:18
+# Wait until this prints healthy before running the test:
+docker inspect --format '{{.State.Health.Status}}' retro-hw14-schema-test
+TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_schema \
+  pnpm run test:db:transactions
+# Checkout tests require their own empty database:
+docker exec retro-hw14-schema-test createdb -U hw14_test retro_hw14_test_checkout
+TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_checkout \
+  pnpm run test:db:checkout
+# The race CLI integration tests use another empty database:
+docker exec retro-hw14-schema-test createdb -U hw14_test retro_hw14_test_race
+TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_race \
+  pnpm run test:db:race
+# Remove only this temporary container and its anonymous data volume:
+docker rm --force --volumes retro-hw14-schema-test
+```
+
+### Transactional checkout
+
+`RentalsModule` is imported by `AppModule` and exports the injectable
+`RentalsService`. Call `rentalsService.checkout({ renterId, gameId, platformId })`;
+Nest supplies the configured DataSource. The service delegates to the same
+transactional `checkout(dataSource, request)` function in `src/rentals/checkout.ts`,
+which can also be called directly with an initialized DataSource in integration
+tests. The operation rents one physical copy for one day and returns
+`rentalId`, `gameCopyId`, `jobId`, `chargedAmount`, and the remaining
+`balance`. All monetary values are integer minor units of UAH: `2500` means
+25 UAH. This is a reusable business operation; no HTTP route is added.
+
+The operation explicitly uses READ COMMITTED and the callback's transaction
+manager for every query. Its orchestration calls `ensureRenterExists`,
+`findAvailableCopyForUpdate`, and `debitRenterBalance`, then inserts the rental,
+item, and confirmation job. The early renter lookup uses TypeORM's
+`for_key_share` lock so the renter cannot be deleted or have its key changed
+between validation and payment; concurrent non-key balance updates are still
+allowed. This is a transactional business check, not HTTP pipe validation.
+
+The copy helper selects an available copy with `FOR UPDATE`, then
+checks active rental items again in a separate statement after acquiring the
+lock. The second statement gets a fresh snapshot: the first statement may have
+waited while another transaction rented that copy. If it is now occupied, the
+helper tries the next copy in ascending UUID order. Its `do...while` repeats
+while `isCopyRented` finds an active rental in the fresh snapshot. UUID order
+is used as a cursor, not as creation-time order. It waits for locked
+copies rather than treating them as unavailable with SKIP LOCKED. The locking
+protocol must be followed by other code that reserves physical copies; the
+existing partial unique index remains the database's final guard against two
+active rentals of one copy.
+
+Row locking fits our individual cartridges better than a second, aggregate
+stock counter that would need to stay synchronized with their rental history.
+Payment uses an atomic `UPDATE ... SET balance = balance - price WHERE
+balance >= price RETURNING balance`, so concurrent payments cannot overwrite
+one another or overdraw the account. Rental, rental item (with its price
+snapshot), and confirmation job are inserted before the same transaction
+commits. The confirmation is only queued here, not sent within checkout.
+
+Expected refusals throw `CheckoutError` with one of these codes:
+`INVALID_INPUT`, `COPY_UNAVAILABLE`, `RENTER_NOT_FOUND`, or
+`INSUFFICIENT_BALANCE`. Unexpected SQL/connection errors propagate to the caller;
+the operation rolls back rather than reporting them as normal refusals. If
+several conditions fail, input format is checked first, then renter existence,
+copy availability, and sufficient balance. The key-share lock keeps the renter
+present, so a zero-row debit result means insufficient funds. The separate
+TransactionRetryService is demonstrated by `demo:retry`; checkout retains
+its existing READ COMMITTED locking protocol.
+
+`pnpm run test:db:checkout` runs twelve integration cases on an empty
+`retro_hw14_test_*` database: success and price snapshot, insufficient funds,
+unavailable copies, invalid input/missing renter, rollback on an actual SQL
+failure during job insertion, concurrent requests for the same copy, concurrent
+payments from one account for different games, and lock waits followed by
+commit/rollback. It also checks early renter validation, concurrent renter
+deletion, and resolving/calling RentalsService from a real AppModule application
+context without starting an HTTP server. Lock-wait tests observe
+`pg_stat_activity` before releasing the other transaction rather than depending
+on a fixed sleep. Both database test
+suites leave their fixtures in place, so use new empty databases for reruns.
+
+## Конкурентність
+
+`pnpm run demo:race` starts a Nest application context without an HTTP server,
+using the existing `DatabaseModule` and `RentalsModule`. Only the existing
+database configuration is required; no `PORT`, new env file, or vault wrapper
+is needed for the teacher-approved variant. Apply migrations and build first.
+
+Every run adds a fresh game/platform, ten physical copies priced at 2500 minor
+units per day, and fifty renters with balances of 100000 each. Each renter
+requests one copy of that same game/platform through `RentalsService.checkout`.
+The fixture is inserted in one transaction. New UUIDs keep runs independent:
+the script never truncates tables, deletes old rentals, or resets old balances.
+It leaves the new data and confirmation jobs for inspection. Run it after
+homework 13 count/report checks, since it adds rows to those tables.
+
+All fifty calls start in one `map`, and `Promise.allSettled` waits for every
+commit or rollback, including the forty expected refusals. There is no
+application queue or sequential await per checkout. The existing three-connection
+pool limits simultaneous database transactions; calls waiting for a connection
+are still part of the concurrent workload.
+
+For an isolated run with the project's Compose configuration, choose an unused
+host port (55445 below) and a separate project:
+
+```bash
+export COMPOSE_PROJECT_NAME=retro-hw14-race DB_PORT=55445
+export DB_HOST=127.0.0.1 DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+unset DB_PASSWORD_FILE
+docker compose up -d --wait
+pnpm run build
+pnpm run migrate
+pnpm run demo:race
+pnpm run demo:race
+# Optional cleanup of this dedicated demo project only:
+docker compose -p retro-hw14-race down --volumes
+```
+
+No normal catalog seed is required: the race supplies its own small fixture.
+The command prints a JSON report with a nonzero exit code on an invariant
+violation or any unexpected checkout error. The report is scoped to that run's
+game and renters, so previous runs do not inflate its numbers.
+
+Measured on 2026-10-15 from a clean export of commit `2eac4c7`, with a fresh
+Compose PostgreSQL 18 database and the existing pool size of 3. The full
+Grading sequence ran successfully, including two seeds, N+1 and report checks,
+then all three homework 14 demos:
+
+| Metric | Result |
+| --- | ---: |
+| Attempts / successful / unavailable | 50 / 10 / 40 |
+| Initial / final stock | 10 / 0 |
+| Negative stock rows / double-booked copies | 0 / 0 |
+| Rentals / items / jobs | 10 / 10 / 10 |
+| Total charged, in minor units | 25000 |
+| Unexpected errors | 0 |
+| Checkout workload time, excluding fixture setup | 377 ms |
+| Worker tasks / distribution | 10 / 5 + 5 |
+| Worker tasks processed twice | 0 |
+| Worker elapsed / sequential handler time | 2615 / 5000 ms |
+| Retry SQLSTATE / retry count | 40001 / 1 |
+| Transaction attempts A / B | 1 / 2 |
+| Retry initial / final balance | 10000 / 13000 |
+
+Time varies by machine and database load. The demo checks its essential totals:
+ten successes, forty stock refusals, no available or double-booked copies,
+ten rentals/items/jobs, and the correct total charged. The more detailed
+per-renter, price snapshot, and transaction checks remain in the checkout tests.
+The scenario lives in `src/scripts/demo-race.ts`, and its fixture is in
+`src/database/fixtures/race-data.ts`. `readRaceState` loads the relevant entities
+and relations through TypeORM; ordinary array operations calculate the counters.
+
+**Domain mapping:** this service tracks individual cartridges rather than a
+stored aggregate stock column. `finalStock` counts copies with no active rental.
+For each copy, derived remaining capacity is `1 - count(active rental items)`;
+`negativeStockRows` counts copies where that value is negative. This is also
+`doubleBookedCopies`, so these fields report actual duplicate reservations
+rather than a hardcoded zero. The existing partial unique index independently
+prevents two active rental items for one physical copy. This is the rental-domain
+adaptation of the assignment's numeric-stock benchmark.
+
+`pnpm run test:db:race` requires an empty `retro_hw14_test_*` PostgreSQL database
+via `TEST_DATABASE_URL`. It invokes the actual CLI twice and checks that earlier
+data survives. It then forces a real SQL error during job insertion: all fifty
+checkouts roll back, no charges or rentals remain from that run, and the CLI
+exits with code 1 instead of treating database errors as stock refusals. A third
+test uses a database trigger to change the payment total and verifies that the
+CLI also rejects an incorrect charge even when ten checkouts succeed.
+
+Worker and retry measurements are included in the table above. `demo:workers` consumes
+only its own ten tasks; the ten tasks created by `demo:race` remain `new`.
+This keeps repeated demos independent and avoids treating race fixtures as real
+email recipients. The offline worker demo measures database processing counters;
+external email deduplication has the separate limits described in
+[workers and Resend](#rental-confirmation-workers-and-resend-homework-14).
+See [transaction retries](#transaction-retries-homework-14) for the retry mechanism
+and why only the two concurrency SQLSTATEs are retried.
 
 ## ORM seed
 
@@ -420,7 +651,7 @@ loading, lazy promises, or automatic ORM save/remove cascades.
 The new schema uses integer kopecks: `125.50 UAH` is `12550`.
 SQL column names remain `game_copies.price_per_day` and
 `rental_items.cost_per_day`; their TypeScript properties are
-`pricePerDayKopecks` and `costPerDayKopecks`. Both retain a `CHECK >= 0`.
+`pricePerDay` and `costPerDay`. Both retain a `CHECK >= 0`.
 The rental item's price is a snapshot, independent of later copy price changes.
 
 This differs from homework 12's `numeric(10,2)` major-unit columns.
@@ -655,3 +886,165 @@ pnpm run test --runInBand
 ```
 
 Database behavior is verified through the fresh-database workflow above.
+
+### Rental confirmation workers and Resend (homework 14)
+
+After exporting the `DB_*` CLI credentials from Grading:
+
+```bash
+pnpm run build
+pnpm run migrate
+pnpm run demo:workers
+```
+
+`demo:workers` creates ten rental tasks and starts two async workers. Each uses
+TypeORM QueryBuilder's `pessimistic_write` + `skip_locked` to claim one task;
+processing, `processed + 1`, `worker` and `done` stay in the same transaction.
+The demo handler waits 500 ms and needs no email credentials. It only consumes
+its own task IDs, preserving unrelated tasks. A locked `new` task is still pending:
+a worker rechecks the queue instead of exiting on the first empty claim.
+A handler failure rolls back the task so a subsequent run can pick it up.
+Verified PostgreSQL 18 run: 10 tasks, distribution 5 + 5, duplicates 0,
+2615 ms elapsed versus 5000 ms sequential handler time (machine-specific).
+The script prints distribution, duplicate count and elapsed/sequential time,
+and exits nonzero if its invariants fail.
+
+Real email uses the same `JobsService` with a Nest `EmailService` backed by the
+Resend SDK. Set `RESEND_API_KEY` privately in your local environment and set
+`EMAIL_FROM` to an address on your verified Resend domain. These settings are
+required only by `start:worker` and `demo:email`; no API key is required for grading.
+
+```bash
+export EMAIL_FROM='Retro Games Rental <notifications@send.your-domain.dev>'
+# RESEND_API_KEY must already be set privately.
+pnpm run demo:email
+```
+
+This creates one rental and sends one confirmation to `delivered@resend.dev`
+(the Resend test sink). To receive it yourself, export `DEMO_EMAIL_TO` with your
+own address before running the command. The demo prints its task ID before
+sending. To retry an existing task, reuse that ID instead of creating a new demo:
+
+```bash
+pnpm run start:worker YOUR_JOB_UUID
+```
+
+Application entry points and modules:
+
+- `src/worker/main.ts` starts a standalone Nest application for selected task IDs.
+- `src/worker/worker.module.ts` composes database, queue and email dependencies.
+- `src/jobs/rental-confirmation.worker.ts` is the injectable confirmation handler.
+- `src/scripts/demo-email.ts` creates demo data and invokes that same worker.
+
+Both commands finish once their selected tasks are drained; there is no permanent
+polling service or signal-handling lifecycle in this step. The API starts separately
+through `src/main.ts` and does not start email workers implicitly.
+
+Only explicitly selected task IDs are consumed. Already completed tasks are
+skipped. The real-email command uses one worker and spaces requests by at least
+600 ms after each API response; it is not a throughput benchmark or a distributed
+rate limiter. API errors fail the command and leave the task `new` for a later
+retry. Automatic provider retries and delivery webhooks are outside this step.
+
+The `email_to` migration snapshots the recipient at checkout; existing tasks are
+backfilled from the current renter address. Message content uses the immutable
+rental ID. Keep the sender and message template unchanged when retrying pending
+tasks: Resend requires identical payloads for the same idempotency key
+`rental-confirmation/<jobId>`. A crash after API acceptance but before database
+commit can repeat the request; Resend deduplicates that key for **24 hours**.
+After that window, duplicate email remains possible. `done` means the provider
+accepted the request, not that the email reached the inbox. Database counters
+commit once; PostgreSQL cannot roll back an external email.
+
+References: [Resend Node SDK](https://resend.com/docs/send-with-nodejs),
+[idempotency and the 24-hour limit](https://resend.com/docs/dashboard/emails/idempotency-keys).
+
+Integration checks (each suite needs a separate empty disposable database named
+`retro_hw14_test_*`, through `TEST_DATABASE_URL`):
+
+```bash
+pnpm run test:db:workers
+pnpm run test:db:transactions
+pnpm run test:db:checkout
+```
+
+### Source layout and module ownership
+
+Entities live with their functionality:
+
+```text
+src/
+  catalog/entities/  # games, copies, platforms, genres and their links
+  renters/entities/  # renters
+  rentals/           # checkout, RentalsModule/Service and rental entities
+  jobs/              # queue service, rental task entity and confirmation worker
+  email/             # reusable email transport and its Nest module
+  database/          # connection setup, entity registration and fixtures
+  config/            # validated configuration
+  migrations/        # shared database schema history
+  worker/            # standalone application entry point and composition module
+  scripts/           # demos, seed and reports
+```
+
+`database/entities.ts` collects the entities for the shared DataSource and
+TypeORM CLI; feature code imports its entities directly. Moving files does not
+change tables or require another migration.
+
+`EmailService` is an injectable provider. Its `send()` method accepts a recipient,
+subject, plain-text body and caller-supplied idempotency key, without knowing
+about rentals or database entities. `EmailModule` owns its Resend client and
+configuration providers, and exports only `EmailService` for other modules.
+
+`RentalConfirmationWorker` builds the rental-specific subject, body and stable
+idempotency key. `RentalConfirmationModule` owns and exports this provider,
+importing `JobsModule` and `EmailModule`. `JobsModule` owns the queue processing
+service; using it for offline demos does not require email credentials.
+`WorkerModule` composes database and confirmation modules for the standalone
+entry point. A module groups and exposes providers; a service does the work.
+
+### Transaction retries (homework 14)
+
+With the same `DB_*` CLI settings from Grading, after building and migrating:
+
+```bash
+pnpm run demo:retry
+```
+
+The demo creates a new renter with balance 10000; it never resets prior data.
+Two `REPEATABLE READ` transactions add 1000 and 2000 via read-modify-write.
+Promises coordinate the first attempts: B reads 10000 before A starts, A commits
+11000, then B attempts its stale write. PostgreSQL rejects B with a real `40001`.
+A fresh transaction reruns B's read and writes 13000. The script prints attempts,
+retry codes/delays and final balance, and asserts exactly one retry with A=1/B=2.
+Coordination is used only on B's first attempt. Failure paths release the waiting
+transaction and wait for both outcomes before closing the Nest context.
+
+`DatabaseModule` exports `TransactionRetryService`. Its `run(isolation, work,
+options)` method invokes `DataSource.transaction` anew for every attempt, so
+reads, decisions, writes and commit all run again. The callback receives that
+transaction's manager and its attempt number; use this manager for all database
+work. `maxAttempts` defaults to 3 (including the initial attempt). Backoff starts
+at 50 ms and doubles up to 1000 ms, with an additional 0–24 ms random jitter.
+Each retry is logged through Nest Logger, or through the caller's `onRetry`
+callback; the demo collects these events in its JSON report.
+
+Only SQLSTATE `40001` (serialization failure) and `40P01` (deadlock) trigger a
+retry. These can be resolved by running the transaction against fresh state.
+Other errors, such as a unique constraint violation, malformed SQL, insufficient
+balance or a connection failure, are propagated immediately. After the last
+allowed attempt, the original error is propagated. TypeORM's transaction promise
+rejects after rollback/release, so backoff does not hold the failed transaction's
+connection or row locks. This wrapper is not applied automatically to checkout
+or external email sends; its callback should contain repeatable database work.
+The existing checkout remains on `READ COMMITTED` with its current locks.
+
+```bash
+# Requires a new empty disposable retro_hw14_test_* database:
+pnpm run test:db:retry
+```
+
+The integration suite checks the real 40001 demo twice, a real 40P01 deadlock,
+exhaustion after three real conflicts with earlier writes rolled back, and a
+non-retryable SQL failure without a hung CLI.
+
+Reference: [PostgreSQL serialization failure handling](https://www.postgresql.org/docs/current/mvcc-serialization-failure-handling.html).

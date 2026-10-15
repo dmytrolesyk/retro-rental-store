@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
-import { Renter } from './renter.entity';
+import { Renter } from '../../renters/entities/renter.entity';
 import { RentalItem } from './rental-item.entity';
 
 @Entity('rentals')
