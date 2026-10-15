@@ -168,6 +168,7 @@ local development credentials from `compose.yaml`.
 Copy and run the complete sequence:
 
 ```bash
+export COMPOSE_PROJECT_NAME=retro-hw14-grading
 export DB_HOST=127.0.0.1 DB_PORT="${DB_PORT:-5432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
 pnpm install --frozen-lockfile
@@ -189,17 +190,17 @@ pnpm run demo:retry
 ```
 
 `DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
-before this block. To isolate grading from an existing Compose installation,
-also run `export COMPOSE_PROJECT_NAME=retro-hw13-grading` before the block;
-Compose automatically uses that name for every command, including count
-checks. No repository files need editing, and no host credential files need
-creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
+before this block. The block uses the separate Compose project `retro-hw14-grading`.
+Choose a new project name if it already has a database volume from a previous
+run. Compose uses that name for every command, including count checks.
+No repository files need editing, and no host credential files need creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
 
 Both `migrate:show` calls must mark all migrations `[X]` (with their
-journal IDs). Revert rolls back only the latest migration. With the homework
-14 migration present, this removes the job queue and renter balances while
-preserving the original rental schema. Reverting the initial migration removes
-business data. Run rollback checks only against a disposable database.
+journal IDs). There are three migrations. Revert rolls back only the latest,
+`AddJobEmailRecipient1792051200001`: it removes `email_to` and preserves the
+queue, balances and rentals. Reverting the preceding
+`AddRentalBalanceAndJobs1792051200000` removes the queue and renter balances.
+Reverting the initial migration removes business data. Run rollback checks only against a disposable database.
 
 Use the count command in [ORM seed](#orm-seed) after each seed run: all nine
 counts must stay unchanged. The fresh-database totals are 19,896 games,
@@ -218,6 +219,14 @@ rg -ni '\.(add)?groupBy\(' src/
 rg -n "password:[[:space:]]*['\"]" src/database/data-source-options.ts
 ```
 
+Homework 14 static checks (each should produce matches):
+
+```bash
+rg -ni 'for update|returning|pessimistic_write' src/rentals/checkout.ts
+rg -n 'skip_locked' src/jobs/jobs.service.ts
+rg -n '40001|40P01' src/database/transaction-retry.service.ts
+```
+
 The empty-result `rg` checks exit with status 1; this means no prohibited
 match was found. The other checks show both RESTRICT/CASCADE and report
 GROUP BY. If ripgrep is unavailable, use the equivalent `grep -rn` /
@@ -227,13 +236,18 @@ GROUP BY. If ripgrep is unavailable, use the equivalent `grep -rn` /
 
 This sequence is the pnpm / optional-Infisical variant agreed for this
 project. The assignment's npm/vault wrapper commands are not used.
-Verified on 2026-10-06 from a fresh local clone and a separate empty
-PostgreSQL volume, without `.env` or host credential files.
+Homework 14 was verified on 2026-10-15 from a clean export of commit `2eac4c7`
+and a separate empty Compose PostgreSQL volume, without `.env`, local notes,
+Resend settings or host credential files. See [Конкурентність](#конкурентність)
+for measured results. The pnpm install used the local package cache.
+All commands exited 0, the two seed counts matched, and the 13 unit tests,
+ESLint, TypeScript and formatting checks passed. Homework 14's required demos
+need no Resend key and do not send email; `demo:email` is optional.
 Submit the PR URL in the LMS after committing and pushing the homework.
 
 ## Homework 14: transactional rentals
 
-The first step adds `renters.balance` (integer kopecks, default 0, `CHECK >= 0`)
+Homework 14 adds `renters.balance` (integer kopecks, default 0, `CHECK >= 0`)
 and the `RentalJob` entity / `rental_jobs` table through
 `AddRentalBalanceAndJobs1792051200000`. Existing renters start with zero credit;
 the homework 13 seed does not overwrite balances or create jobs.
@@ -243,17 +257,21 @@ status, a nonnegative `processed` counter, an optional worker name, and a
 timezone-aware creation timestamp. The counter may exceed 1 so the worker demo
 can detect duplicate processing. A partial index on `(created_at, job_id)` for
 new jobs supports ordered queue selection; a separate index covers `rental_id`.
-The race demo is available below; workers and the retry demo are subsequent steps.
+`AddJobEmailRecipient1792051200001` adds the `email_to` recipient snapshot,
+backfilling historical jobs from their renter addresses. The race, worker and
+retry demos are available through the commands in Grading; all three run
+without Resend credentials.
 
 Use the existing `DB_*` connection settings from Grading and run `pnpm run build`
 then `pnpm run migrate` to apply the schema. The teacher-approved variant without
 Infisical also applies to homework 14; no vault wrapper or new env file is needed.
-The new migration's rollback discards balances and jobs, so it is a test operation
-for a disposable database, not a way to undo production payments.
+The queue/balance migration rollback discards balances and jobs; the later
+recipient migration rollback removes only the recipient snapshot. Exercise
+rollback on a disposable database.
 
 The integration test requires a completely empty PostgreSQL database named
 `retro_hw14_test_*`. It applies the old schema, inserts existing rental data,
-applies the new migration, checks defaults and constraints through SQL and ORM,
+applies the homework 14 migrations, checks defaults and constraints through SQL and ORM,
 verifies that ORM metadata matches the schema, then exercises down/up while
 checking that old renters and rentals survive. It leaves test data in place.
 For example, with Docker running and host port 55444 available:
@@ -327,8 +345,9 @@ Expected refusals throw `CheckoutError` with one of these codes:
 the operation rolls back rather than reporting them as normal refusals. If
 several conditions fail, input format is checked first, then renter existence,
 copy availability, and sufficient balance. The key-share lock keeps the renter
-present, so a zero-row debit result means insufficient funds. Retry handling
-will be added separately.
+present, so a zero-row debit result means insufficient funds. The separate
+TransactionRetryService is demonstrated by `demo:retry`; checkout retains
+its existing READ COMMITTED locking protocol.
 
 `pnpm run test:db:checkout` runs twelve integration cases on an empty
 `retro_hw14_test_*` database: success and price snapshot, insufficient funds,
@@ -384,7 +403,10 @@ The command prints a JSON report with a nonzero exit code on an invariant
 violation or any unexpected checkout error. The report is scoped to that run's
 game and renters, so previous runs do not inflate its numbers.
 
-Measured on 2026-10-15 with PostgreSQL 18 and the existing pool size of 3:
+Measured on 2026-10-15 from a clean export of commit `2eac4c7`, with a fresh
+Compose PostgreSQL 18 database and the existing pool size of 3. The full
+Grading sequence ran successfully, including two seeds, N+1 and report checks,
+then all three homework 14 demos:
 
 | Metric | Result |
 | --- | ---: |
@@ -394,7 +416,13 @@ Measured on 2026-10-15 with PostgreSQL 18 and the existing pool size of 3:
 | Rentals / items / jobs | 10 / 10 / 10 |
 | Total charged, in minor units | 25000 |
 | Unexpected errors | 0 |
-| Checkout workload time, excluding fixture setup | 607 ms |
+| Checkout workload time, excluding fixture setup | 377 ms |
+| Worker tasks / distribution | 10 / 5 + 5 |
+| Worker tasks processed twice | 0 |
+| Worker elapsed / sequential handler time | 2615 / 5000 ms |
+| Retry SQLSTATE / retry count | 40001 / 1 |
+| Transaction attempts A / B | 1 / 2 |
+| Retry initial / final balance | 10000 / 13000 |
 
 Time varies by machine and database load. The demo checks its essential totals:
 ten successes, forty stock refusals, no available or double-booked copies,
@@ -421,8 +449,14 @@ exits with code 1 instead of treating database errors as stock refusals. A third
 test uses a database trigger to change the payment total and verifies that the
 CLI also rejects an incorrect charge even when ten checkouts succeed.
 
-Worker distribution/timing and transaction retry results will be added in the
-next homework steps.
+Worker and retry measurements are included in the table above. `demo:workers` consumes
+only its own ten tasks; the ten tasks created by `demo:race` remain `new`.
+This keeps repeated demos independent and avoids treating race fixtures as real
+email recipients. The offline worker demo measures database processing counters;
+external email deduplication has the separate limits described in
+[workers and Resend](#rental-confirmation-workers-and-resend-homework-14).
+See [transaction retries](#transaction-retries-homework-14) for the retry mechanism
+and why only the two concurrency SQLSTATEs are retried.
 
 ## ORM seed
 
@@ -871,7 +905,7 @@ its own task IDs, preserving unrelated tasks. A locked `new` task is still pendi
 a worker rechecks the queue instead of exiting on the first empty claim.
 A handler failure rolls back the task so a subsequent run can pick it up.
 Verified PostgreSQL 18 run: 10 tasks, distribution 5 + 5, duplicates 0,
-2617 ms elapsed versus 5000 ms sequential handler time (machine-specific).
+2615 ms elapsed versus 5000 ms sequential handler time (machine-specific).
 The script prints distribution, duplicate count and elapsed/sequential time,
 and exits nonzero if its invariants fail.
 
