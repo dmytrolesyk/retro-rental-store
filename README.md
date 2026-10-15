@@ -192,10 +192,11 @@ Compose automatically uses that name for every command, including count
 checks. No repository files need editing, and no host credential files need
 creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
 
-Both `migrate:show` calls must mark the initial migration `[X]` (with its
-journal ID). Revert removes the business schema; reapplication recreates it.
-Run this rollback check before seeding, because the initial migration's
-`down()` removes business data. The two TypeORM service tables remain.
+Both `migrate:show` calls must mark all migrations `[X]` (with their
+journal IDs). Revert rolls back only the latest migration. With the homework
+14 migration present, this removes the job queue and renter balances while
+preserving the original rental schema. Reverting the initial migration removes
+business data. Run rollback checks only against a disposable database.
 
 Use the count command in [ORM seed](#orm-seed) after each seed run: all nine
 counts must stay unchanged. The fresh-database totals are 19,896 games,
@@ -226,6 +227,48 @@ project. The assignment's npm/vault wrapper commands are not used.
 Verified on 2026-10-06 from a fresh local clone and a separate empty
 PostgreSQL volume, without `.env` or host credential files.
 Submit the PR URL in the LMS after committing and pushing the homework.
+
+## Homework 14: balance and job queue
+
+The first step adds `renters.balance` (integer kopecks, default 0, `CHECK >= 0`)
+and the `RentalJob` entity / `rental_jobs` table through
+`AddRentalBalanceAndJobs1792051200000`. Existing renters start with zero credit;
+the homework 13 seed does not overwrite balances or create jobs.
+
+Each job references a rental with `ON DELETE RESTRICT` and stores a `new`/`done`
+status, a nonnegative `processed` counter, an optional worker name, and a
+timezone-aware creation timestamp. The counter may exceed 1 so the worker demo
+can detect duplicate processing. A partial index on `(created_at, job_id)` for
+new jobs supports ordered queue selection; a separate index covers `rental_id`.
+Checkout, workers, and retry demos are subsequent steps.
+
+Use the existing `DB_*` connection settings from Grading and run `pnpm run build`
+then `pnpm run migrate` to apply the schema. The teacher-approved variant without
+Infisical also applies to homework 14; no vault wrapper or new env file is needed.
+The new migration's rollback discards balances and jobs, so it is a test operation
+for a disposable database, not a way to undo production payments.
+
+The integration test requires a completely empty PostgreSQL database named
+`retro_hw14_test_*`. It applies the old schema, inserts existing rental data,
+applies the new migration, checks defaults and constraints through SQL and ORM,
+verifies that ORM metadata matches the schema, then exercises down/up while
+checking that old renters and rentals survive. It leaves test data in place.
+For example, with Docker running and host port 55444 available:
+
+```bash
+docker run --detach --rm --name retro-hw14-schema-test \
+  --publish 127.0.0.1:55444:5432 \
+  --env POSTGRES_USER=hw14_test --env POSTGRES_PASSWORD=hw14_test \
+  --env POSTGRES_DB=retro_hw14_test_schema \
+  --health-cmd='pg_isready -U hw14_test -d retro_hw14_test_schema' \
+  --health-interval=1s --health-timeout=3s --health-retries=30 postgres:18
+# Wait until this prints healthy before running the test:
+docker inspect --format '{{.State.Health.Status}}' retro-hw14-schema-test
+TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_schema \
+  pnpm run test:db:transactions
+# Remove only this temporary container and its anonymous data volume:
+docker rm --force --volumes retro-hw14-schema-test
+```
 
 ## ORM seed
 

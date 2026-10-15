@@ -19,6 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:db:transactions": "pnpm run build && node --test test/transactions-schema.integration.mjs",
     "check:env": "pnpm run build && node scripts/check-env-example.mjs",
     "compose:up": "docker compose --profile app up -d --build --wait",
     "compose:down": "docker compose down",
