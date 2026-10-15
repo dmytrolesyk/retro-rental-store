@@ -39,7 +39,9 @@
     "demo:workers": "node dist/scripts/demo-workers.js",
     "test:db:workers": "pnpm run build && node --test test/workers.integration.mjs",
     "start:worker": "node dist/worker/main.js",
-    "demo:email": "node dist/scripts/demo-email.js"
+    "demo:email": "node dist/scripts/demo-email.js",
+    "demo:retry": "node dist/scripts/demo-retry.js",
+    "test:db:retry": "pnpm run build && node --test test/retry.integration.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

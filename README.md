@@ -185,6 +185,7 @@ pnpm run demo:nplus1
 pnpm run report
 pnpm run demo:race
 pnpm run demo:workers
+pnpm run demo:retry
 ```
 
 `DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
@@ -966,3 +967,50 @@ importing `JobsModule` and `EmailModule`. `JobsModule` owns the queue processing
 service; using it for offline demos does not require email credentials.
 `WorkerModule` composes database and confirmation modules for the standalone
 entry point. A module groups and exposes providers; a service does the work.
+
+### Transaction retries (homework 14)
+
+With the same `DB_*` CLI settings from Grading, after building and migrating:
+
+```bash
+pnpm run demo:retry
+```
+
+The demo creates a new renter with balance 10000; it never resets prior data.
+Two `REPEATABLE READ` transactions add 1000 and 2000 via read-modify-write.
+Promises coordinate the first attempts: B reads 10000 before A starts, A commits
+11000, then B attempts its stale write. PostgreSQL rejects B with a real `40001`.
+A fresh transaction reruns B's read and writes 13000. The script prints attempts,
+retry codes/delays and final balance, and asserts exactly one retry with A=1/B=2.
+Coordination is used only on B's first attempt. Failure paths release the waiting
+transaction and wait for both outcomes before closing the Nest context.
+
+`DatabaseModule` exports `TransactionRetryService`. Its `run(isolation, work,
+options)` method invokes `DataSource.transaction` anew for every attempt, so
+reads, decisions, writes and commit all run again. The callback receives that
+transaction's manager and its attempt number; use this manager for all database
+work. `maxAttempts` defaults to 3 (including the initial attempt). Backoff starts
+at 50 ms and doubles up to 1000 ms, with an additional 0–24 ms random jitter.
+Each retry is logged through Nest Logger, or through the caller's `onRetry`
+callback; the demo collects these events in its JSON report.
+
+Only SQLSTATE `40001` (serialization failure) and `40P01` (deadlock) trigger a
+retry. These can be resolved by running the transaction against fresh state.
+Other errors, such as a unique constraint violation, malformed SQL, insufficient
+balance or a connection failure, are propagated immediately. After the last
+allowed attempt, the original error is propagated. TypeORM's transaction promise
+rejects after rollback/release, so backoff does not hold the failed transaction's
+connection or row locks. This wrapper is not applied automatically to checkout
+or external email sends; its callback should contain repeatable database work.
+The existing checkout remains on `READ COMMITTED` with its current locks.
+
+```bash
+# Requires a new empty disposable retro_hw14_test_* database:
+pnpm run test:db:retry
+```
+
+The integration suite checks the real 40001 demo twice, a real 40P01 deadlock,
+exhaustion after three real conflicts with earlier writes rolled back, and a
+non-retryable SQL failure without a hung CLI.
+
+Reference: [PostgreSQL serialization failure handling](https://www.postgresql.org/docs/current/mvcc-serialization-failure-handling.html).
