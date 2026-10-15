@@ -183,6 +183,7 @@ pnpm run seed
 pnpm run seed
 pnpm run demo:nplus1
 pnpm run report
+pnpm run demo:race
 ```
 
 `DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
@@ -240,7 +241,7 @@ status, a nonnegative `processed` counter, an optional worker name, and a
 timezone-aware creation timestamp. The counter may exceed 1 so the worker demo
 can detect duplicate processing. A partial index on `(created_at, job_id)` for
 new jobs supports ordered queue selection; a separate index covers `rental_id`.
-Workers and the race/retry demos are subsequent steps.
+The race demo is available below; workers and the retry demo are subsequent steps.
 
 Use the existing `DB_*` connection settings from Grading and run `pnpm run build`
 then `pnpm run migrate` to apply the schema. The teacher-approved variant without
@@ -270,6 +271,10 @@ TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test
 docker exec retro-hw14-schema-test createdb -U hw14_test retro_hw14_test_checkout
 TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_checkout \
   pnpm run test:db:checkout
+# The race CLI integration tests use another empty database:
+docker exec retro-hw14-schema-test createdb -U hw14_test retro_hw14_test_race
+TEST_DATABASE_URL=postgres://hw14_test:hw14_test@127.0.0.1:55444/retro_hw14_test_race \
+  pnpm run test:db:race
 # Remove only this temporary container and its anonymous data volume:
 docker rm --force --volumes retro-hw14-schema-test
 ```
@@ -334,6 +339,88 @@ context without starting an HTTP server. Lock-wait tests observe
 `pg_stat_activity` before releasing the other transaction rather than depending
 on a fixed sleep. Both database test
 suites leave their fixtures in place, so use new empty databases for reruns.
+
+## Конкурентність
+
+`pnpm run demo:race` starts a Nest application context without an HTTP server,
+using the existing `DatabaseModule` and `RentalsModule`. Only the existing
+database configuration is required; no `PORT`, new env file, or vault wrapper
+is needed for the teacher-approved variant. Apply migrations and build first.
+
+Every run adds a fresh game/platform, ten physical copies priced at 2500 minor
+units per day, and fifty renters with balances of 100000 each. Each renter
+requests one copy of that same game/platform through `RentalsService.checkout`.
+The fixture is inserted in one transaction. New UUIDs keep runs independent:
+the script never truncates tables, deletes old rentals, or resets old balances.
+It leaves the new data and confirmation jobs for inspection. Run it after
+homework 13 count/report checks, since it adds rows to those tables.
+
+All fifty calls start in one `map`, and `Promise.allSettled` waits for every
+commit or rollback, including the forty expected refusals. There is no
+application queue or sequential await per checkout. The existing three-connection
+pool limits simultaneous database transactions; calls waiting for a connection
+are still part of the concurrent workload.
+
+For an isolated run with the project's Compose configuration, choose an unused
+host port (55445 below) and a separate project:
+
+```bash
+export COMPOSE_PROJECT_NAME=retro-hw14-race DB_PORT=55445
+export DB_HOST=127.0.0.1 DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+unset DB_PASSWORD_FILE
+docker compose up -d --wait
+pnpm run build
+pnpm run migrate
+pnpm run demo:race
+pnpm run demo:race
+# Optional cleanup of this dedicated demo project only:
+docker compose -p retro-hw14-race down --volumes
+```
+
+No normal catalog seed is required: the race supplies its own small fixture.
+The command prints a JSON report with a nonzero exit code on an invariant
+violation or any unexpected checkout error. The report is scoped to that run's
+game and renters, so previous runs do not inflate its numbers.
+
+Measured on 2026-10-15 with PostgreSQL 18 and the existing pool size of 3:
+
+| Metric | Result |
+| --- | ---: |
+| Attempts / successful / unavailable | 50 / 10 / 40 |
+| Initial / final stock | 10 / 0 |
+| Negative stock rows / double-booked copies | 0 / 0 |
+| Rentals / items / jobs | 10 / 10 / 10 |
+| Total charged, in minor units | 25000 |
+| Unexpected errors | 0 |
+| Checkout workload time, excluding fixture setup | 607 ms |
+
+Time varies by machine and database load. The demo checks its essential totals:
+ten successes, forty stock refusals, no available or double-booked copies,
+ten rentals/items/jobs, and the correct total charged. The more detailed
+per-renter, price snapshot, and transaction checks remain in the checkout tests.
+The scenario lives in `src/scripts/demo-race.ts`, and its fixture is in
+`src/database/fixtures/race-data.ts`. `readRaceState` loads the relevant entities
+and relations through TypeORM; ordinary array operations calculate the counters.
+
+**Domain mapping:** this service tracks individual cartridges rather than a
+stored aggregate stock column. `finalStock` counts copies with no active rental.
+For each copy, derived remaining capacity is `1 - count(active rental items)`;
+`negativeStockRows` counts copies where that value is negative. This is also
+`doubleBookedCopies`, so these fields report actual duplicate reservations
+rather than a hardcoded zero. The existing partial unique index independently
+prevents two active rental items for one physical copy. This is the rental-domain
+adaptation of the assignment's numeric-stock benchmark.
+
+`pnpm run test:db:race` requires an empty `retro_hw14_test_*` PostgreSQL database
+via `TEST_DATABASE_URL`. It invokes the actual CLI twice and checks that earlier
+data survives. It then forces a real SQL error during job insertion: all fifty
+checkouts roll back, no charges or rentals remain from that run, and the CLI
+exits with code 1 instead of treating database errors as stock refusals. A third
+test uses a database trigger to change the payment total and verifies that the
+CLI also rejects an incorrect charge even when ten checkouts succeed.
+
+Worker distribution/timing and transaction retry results will be added in the
+next homework steps.
 
 ## ORM seed
 
