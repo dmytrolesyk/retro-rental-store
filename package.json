@@ -31,17 +31,18 @@
     "migration:generate": "typeorm migration:generate -d dist/data-source.js",
     "seed": "node dist/scripts/seed.js",
     "demo:nplus1": "node dist/scripts/demo-nplus1.js",
-    "demo:race": "node dist/scripts/demo-race.js",
+    "demo:race": "bash scripts/with-secrets.sh dev node dist/scripts/demo-race.js",
     "report": "node dist/scripts/report.js",
     "course:init": "git submodule update --init --recursive reference/node-js-pro",
     "course:update": "git submodule update --init --remote reference/node-js-pro",
     "course:diff": "git diff --submodule -- reference/node-js-pro",
-    "demo:workers": "node dist/scripts/demo-workers.js",
+    "demo:workers": "bash scripts/with-secrets.sh dev node dist/scripts/demo-workers.js",
     "test:db:workers": "pnpm run build && node --test test/workers.integration.mjs",
     "start:worker": "node dist/worker/main.js",
     "demo:email": "node dist/scripts/demo-email.js",
-    "demo:retry": "node dist/scripts/demo-retry.js",
-    "test:db:retry": "pnpm run build && node --test test/retry.integration.mjs"
+    "demo:retry": "bash scripts/with-secrets.sh dev node dist/scripts/demo-retry.js",
+    "test:db:retry": "pnpm run build && node --test test/retry.integration.mjs",
+    "test:secrets": "node --test test/with-secrets.test.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

@@ -161,14 +161,16 @@ but an old credentials volume also needs its password file migrated explicitly.
 
 Prerequisites: Node.js 24, pnpm 10.24.0 (as declared in `package.json`), and
 Docker with Compose v2 supporting `--wait`. Run from the repository root
-against a fresh database. Infisical is optional as agreed with the teacher;
-no vault wrapper or `SKIP_VAULT` is needed. The commands use the fixed public
-local development credentials from `compose.yaml`.
+against a fresh database. The three homework 14 demos use
+`scripts/with-secrets.sh`. For grading and local runs without Infisical, set
+`SKIP_VAULT=1` and provide the existing `DB_*` settings. The commands below use
+the fixed public local development credentials from `compose.yaml`.
 
 Copy and run the complete sequence:
 
 ```bash
 export COMPOSE_PROJECT_NAME=retro-hw14-grading
+export SKIP_VAULT=1
 export DB_HOST=127.0.0.1 DB_PORT="${DB_PORT:-5432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
 pnpm install --frozen-lockfile
@@ -225,6 +227,7 @@ Homework 14 static checks (each should produce matches):
 rg -ni 'for update|returning|pessimistic_write' src/rentals/checkout.ts
 rg -n 'skip_locked' src/jobs/jobs.service.ts
 rg -n '40001|40P01' src/database/transaction-retry.service.ts
+node -e "const s=require('./package.json').scripts; const bad=['demo:race','demo:workers','demo:retry'].filter(k=>!s[k].includes('with-secrets.sh')); console.log(bad.length ? bad : 'OK'); process.exit(bad.length ? 1 : 0)"
 ```
 
 The empty-result `rg` checks exit with status 1; this means no prohibited
@@ -234,8 +237,11 @@ GROUP BY. If ripgrep is unavailable, use the equivalent `grep -rn` /
 `process.env`; the shared options factory is in
 `src/database/data-source-options.ts`.
 
-This sequence is the pnpm / optional-Infisical variant agreed for this
-project. The assignment's npm/vault wrapper commands are not used.
+This is the pnpm workflow. The three demo commands include the required vault
+wrapper; `SKIP_VAULT=1` selects the explicit fallback without vault access.
+Without the fallback, the wrapper runs `infisical run --env=dev -- <command>`
+and requires an installed, authenticated CLI with access to the project.
+Arguments and child exit codes are preserved in both branches.
 Homework 14 was verified on 2026-10-15 from a clean export of commit `2eac4c7`
 and a separate empty Compose PostgreSQL volume, without `.env`, local notes,
 Resend settings or host credential files. See [Конкурентність](#конкурентність)
@@ -264,7 +270,8 @@ without Resend credentials.
 
 Use the existing `DB_*` connection settings from Grading and run `pnpm run build`
 then `pnpm run migrate` to apply the schema. The teacher-approved variant without
-Infisical also applies to homework 14; no vault wrapper or new env file is needed.
+Infisical also applies to homework 14 through the wrapper fallback:
+export `SKIP_VAULT=1` alongside `DB_*`; no new env file is needed.
 The queue/balance migration rollback discards balances and jobs; the later
 recipient migration rollback removes only the recipient snapshot. Exercise
 rollback on a disposable database.
@@ -365,8 +372,8 @@ suites leave their fixtures in place, so use new empty databases for reruns.
 
 `pnpm run demo:race` starts a Nest application context without an HTTP server,
 using the existing `DatabaseModule` and `RentalsModule`. Only the existing
-database configuration is required; no `PORT`, new env file, or vault wrapper
-is needed for the teacher-approved variant. Apply migrations and build first.
+database configuration is required; no `PORT` or new env file is needed.
+Use `SKIP_VAULT=1` from Grading to run the wrapper without Infisical. Apply migrations and build first.
 
 Every run adds a fresh game/platform, ten physical copies priced at 2500 minor
 units per day, and fifty renters with balances of 100000 each. Each renter
@@ -386,7 +393,7 @@ For an isolated run with the project's Compose configuration, choose an unused
 host port (55445 below) and a separate project:
 
 ```bash
-export COMPOSE_PROJECT_NAME=retro-hw14-race DB_PORT=55445
+export COMPOSE_PROJECT_NAME=retro-hw14-race DB_PORT=55445 SKIP_VAULT=1
 export DB_HOST=127.0.0.1 DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
 docker compose up -d --wait
@@ -1015,7 +1022,10 @@ Two `REPEATABLE READ` transactions add 1000 and 2000 via read-modify-write.
 Promises coordinate the first attempts: B reads 10000 before A starts, A commits
 11000, then B attempts its stale write. PostgreSQL rejects B with a real `40001`.
 A fresh transaction reruns B's read and writes 13000. The script prints attempts,
-retry codes/delays and final balance, and asserts exactly one retry with A=1/B=2.
+retry codes/delays and final balance. It requires at least one serialization
+failure, a correct final balance and consistent attempt/retry counters.
+Additional retryable conflicts are allowed within the service attempt limit;
+A=1/B=2 and one retry describe a typical run, not a correctness requirement.
 Coordination is used only on B's first attempt. Failure paths release the waiting
 transaction and wait for both outcomes before closing the Nest context.
 
@@ -1048,3 +1058,18 @@ exhaustion after three real conflicts with earlier writes rolled back, and a
 non-retryable SQL failure without a hung CLI.
 
 Reference: [PostgreSQL serialization failure handling](https://www.postgresql.org/docs/current/mvcc-serialization-failure-handling.html).
+
+### Homework 14 review follow-up (2026-10-22)
+
+The three demos now enter through `scripts/with-secrets.sh dev ...`.
+`SKIP_VAULT=1` is the documented grading/local fallback; existing DB credentials
+are passed through without calling Infisical. The retry demo accepts additional
+concurrency conflicts and validates the final balance instead of hardcoding
+exactly one retry. A regression test injects an extra SQLSTATE 40001 to verify
+that a correct run with A=2/B=2 succeeds.
+
+```bash
+pnpm run test:secrets
+# On a new empty disposable retro_hw14_test_* database:
+pnpm run test:db:retry
+```

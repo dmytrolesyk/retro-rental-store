@@ -67,15 +67,15 @@ async function createRenter() {
   return renterId;
 }
 
-test('CLI causes exactly one real 40001 and reruns safely without resetting prior balances', () => {
+test('CLI causes a real 40001 and reruns safely without resetting prior balances', () => {
   const first = runDemo();
   assert.equal(first.status, 0, first.stderr);
   const report = JSON.parse(first.stdout);
   assert.equal(report.initialBalance, 10000);
   assert.equal(report.finalBalance, 13000);
-  assert.deepEqual(report.attempts, { A: 1, B: 2 });
-  assert.equal(report.retries.length, 1);
-  assert.equal(report.retries[0].code, '40001');
+  assert.ok(report.retries.some(event => event.code === '40001'));
+  assert.ok(report.attempts.A >= 1 && report.attempts.B >= 1);
+  assert.equal(report.attempts.A + report.attempts.B, 2 + report.retries.length);
   console.log(JSON.stringify(report));
   const second = runDemo();
   assert.equal(second.status, 0, second.stderr);
@@ -86,6 +86,32 @@ test('CLI causes exactly one real 40001 and reruns safely without resetting prio
     .getRepository(Renter)
     .findOneByOrFail({ renterId: report.renterId })
     .then(renter => assert.equal(renter.balance, 13000));
+});
+
+test('CLI accepts additional retryable SQL failures without rejecting a correct final balance', async () => {
+  await db.query('CREATE SEQUENCE retry_extra_conflicts');
+  await db.query(`CREATE FUNCTION add_retry_conflict() RETURNS trigger LANGUAGE plpgsql AS $$
+    BEGIN
+      IF nextval('retry_extra_conflicts') = 1 THEN
+        RAISE EXCEPTION 'additional serialization conflict' USING ERRCODE = '40001';
+      END IF;
+      RETURN NEW;
+    END; $$`);
+  try {
+    await db.query(`CREATE TRIGGER add_retry_conflict BEFORE UPDATE ON renters
+      FOR EACH ROW WHEN (OLD.name = 'Retry demo renter') EXECUTE FUNCTION add_retry_conflict()`);
+    const result = runDemo();
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.finalBalance, 13000);
+    assert.ok(report.retries.length >= 2);
+    assert.equal(report.attempts.A + report.attempts.B, 2 + report.retries.length);
+    assert.ok(report.retries.every(event => ['40001', '40P01'].includes(event.code)));
+  } finally {
+    await db.query('DROP TRIGGER IF EXISTS add_retry_conflict ON renters');
+    await db.query('DROP FUNCTION add_retry_conflict()');
+    await db.query('DROP SEQUENCE retry_extra_conflicts');
+  }
 });
 
 test('real 40P01 retries the victim transaction and commits both operations once', async () => {

@@ -83,9 +83,17 @@ async function runRetryDemo(db: DataSource, transactions: TransactionRetryServic
     JSON.stringify({ renterId, initialBalance, finalBalance, attempts, retries }, null, 2),
   );
   assert.equal(finalBalance, initialBalance + 1000 + 2000);
-  assert.deepEqual(attempts, { A: 1, B: 2 });
-  assert.equal(retries.length, 1);
-  assert.equal(retries[0].code, '40001', 'The demo must cause a real serialization failure');
+  assert.ok(retries.length >= 1, 'The demo must exercise transaction retry');
+  assert.ok(
+    retries.some(event => event.code === '40001'),
+    'The demo must cause a real serialization failure',
+  );
+  assert.ok(attempts.A >= 1 && attempts.B >= 1);
+  assert.equal(
+    attempts.A + attempts.B,
+    2 + retries.length,
+    'Each retry starts another transaction attempt',
+  );
 }
 
 main().catch((error: unknown) => {
