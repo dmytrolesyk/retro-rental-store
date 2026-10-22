@@ -1,7 +1,7 @@
 # Pooling, replicas, sharding, backups і disaster recovery
 
 Джерело: https://lms.robotdreams.cc/course/5467/lesson/104321
-Отримано: 2026-10-12T13:43:02.264Z
+Отримано: 2026-10-22T15:59:33.787Z
 
 ## Домашнє завдання
 
