@@ -48,7 +48,7 @@ export function createHomeworkData(catalog: ReturnType<typeof readRetronianCatal
       photoUrl: null,
       condition: index % 2 === 0 ? GameCondition.AsNew : GameCondition.Good,
       format: platformFormat.format,
-      pricePerDayKopecks: 2500 + index * 250,
+      pricePerDay: 2500 + index * 250,
     };
   });
 
@@ -85,7 +85,7 @@ export function createHomeworkData(catalog: ReturnType<typeof readRetronianCatal
       gameCopyId: gameCopies[copyIndex].gameCopyId,
       returnedAt:
         index === rentals.length - 1 ? null : new Date(Date.UTC(2026, 8, 2 + index * 3, 10)),
-      costPerDayKopecks: 2000 + copyIndex * 250,
+      costPerDay: 2000 + copyIndex * 250,
     })),
   );
 

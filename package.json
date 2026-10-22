@@ -19,6 +19,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:db:transactions": "pnpm run build && node --test test/transactions-schema.integration.mjs",
+    "test:db:checkout": "pnpm run build && node --test test/checkout.integration.mjs",
+    "test:db:race": "pnpm run build && node --test test/race.integration.mjs",
     "check:env": "pnpm run build && node scripts/check-env-example.mjs",
     "compose:up": "docker compose --profile app up -d --build --wait",
     "compose:down": "docker compose down",
@@ -28,10 +31,18 @@
     "migration:generate": "typeorm migration:generate -d dist/data-source.js",
     "seed": "node dist/scripts/seed.js",
     "demo:nplus1": "node dist/scripts/demo-nplus1.js",
+    "demo:race": "bash scripts/with-secrets.sh dev node dist/scripts/demo-race.js",
     "report": "node dist/scripts/report.js",
     "course:init": "git submodule update --init --recursive reference/node-js-pro",
     "course:update": "git submodule update --init --remote reference/node-js-pro",
-    "course:diff": "git diff --submodule -- reference/node-js-pro"
+    "course:diff": "git diff --submodule -- reference/node-js-pro",
+    "demo:workers": "bash scripts/with-secrets.sh dev node dist/scripts/demo-workers.js",
+    "test:db:workers": "pnpm run build && node --test test/workers.integration.mjs",
+    "start:worker": "node dist/worker/main.js",
+    "demo:email": "node dist/scripts/demo-email.js",
+    "demo:retry": "bash scripts/with-secrets.sh dev node dist/scripts/demo-retry.js",
+    "test:db:retry": "pnpm run build && node --test test/retry.integration.mjs",
+    "test:secrets": "node --test test/with-secrets.test.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",
@@ -42,6 +53,7 @@
     "csv-parse": "^7.0.3",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
+    "resend": "^6.33.0",
     "rxjs": "^7.8.2",
     "typeorm": "0.3.31",
     "zod": "^4.6.2"
