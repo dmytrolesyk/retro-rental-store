@@ -152,7 +152,84 @@ For URL consumers the corresponding `DATABASE_URL` must use the same endpoint.
 `.env.example` documents the URL with a deliberately fake password; the API and
 current TypeORM CLI continue to consume the validated `DB_*` fields. Secret-store
 updates must be performed in the actual environments; editing this file does
-not change them. Backup, cron and restore-drill are subsequent homework steps.
+not change them. Restore-drill and the optional physical backup/PITR remain
+subsequent homework steps.
+
+### Logical backup and nightly schedule (homework 15)
+
+Run from the repository root with Node 24, installed project dependencies, Docker
+and this Compose stack running. Host PostgreSQL binaries are not required:
+`scripts/backup.sh` runs the Node helper `scripts/backup.mjs`, which uses the
+PostgreSQL 18 `pg_dump` already installed in the `db` container.
+
+```bash
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
+export SKIP_VAULT=1
+bash scripts/with-secrets.sh dev bash scripts/backup.sh
+```
+
+With Infisical configured, omit `SKIP_VAULT` and store the existing connection URL
+in the selected environment. The script reads `DATABASE_URL` directly; it does
+not load or create an env file. Use a role that can read every table being backed
+up (the local `db_migrator` owns the application schema); the API role is not
+granted additional permissions. On the host, the URL must be reachable from the
+host. For loopback URLs the helper matches the published Compose port and uses
+the same service's internal address for the container-side dump. It refuses to
+guess a target for an unmatched loopback port. Non-loopback hosts must also be
+reachable from the `db` container.
+
+Success prints one absolute archive path, for example
+`backups/rental-2026-10-23T12-00-00-000Z-<uuid>.dump` under the project directory.
+Times are UTC; UUIDs allow multiple backups in the same second. Set `BACKUP_DIR`
+to use another directory (relative paths are resolved from the project root).
+The default `backups/` is excluded from Git and Docker builds. Files are created
+with mode 600. A `.part` archive is renamed to `.dump` only after the dump and
+its adjacent `.dump.json` metadata are ready; failed runs do not publish it.
+
+The JSON records `count(*)` and `sum(price_per_day)` for `public.game_copies`.
+Both the queries and `pg_dump --snapshot` use one exported, read-only
+REPEATABLE READ snapshot. The exporting transaction stays open until the dump
+finishes, so concurrent writes cannot make the saved control values disagree
+with the archived snapshot. This adapts the lecturer's
+`code/15_PoolingReplicasSharding/scripts/08-backup-drill.sh` while avoiding a
+later comparison against an already changed live database. Preserve the dump
+and JSON together for the next restore-drill step. If migrations have not run,
+the backup honestly records `exists=false` and zero control values; apply the
+Grading migrations and seed first to back up a populated application database.
+
+Inspect a completed archive without installing host `pg_restore`:
+
+```bash
+# Replace the example path with the path printed by backup.sh.
+docker compose exec -T db pg_restore --list < backups/<archive>.dump
+```
+
+This checks the archive's table of contents; an actual restore-drill is still
+needed to prove recovery. `pg_dump` does not save cluster-wide role definitions
+or later changes, and does not provide WAL/PITR. With successful nightly backups
+the nominal data-loss window is up to about 24 hours; failures can make it longer.
+A local directory survives container replacement but shares the host's fate.
+
+`backup.cron` contains a user-crontab job for 03:00 in the cron host's timezone.
+It is a checked-in schedule, not an installed scheduler. To enable it, merge the
+job into `crontab -e` (preserve existing jobs), adjust the project path and PATH
+to include the actual Node, Docker and Infisical binaries, and configure vault
+access for the cron user. Cron does not inherit exports from an interactive
+terminal; in grading/fallback mode it also needs `DATABASE_URL` and
+`SKIP_VAULT=1` supplied in its own environment, outside the repository. With
+Rancher Desktop, supply its Docker context or socket in that environment too.
+Logs go to `/tmp/retro-games-rental-backup.log`. The schedule is not installed
+automatically by the backup script.
+
+Backup checks use a fresh dedicated Compose project:
+
+```bash
+export COMPOSE_PROJECT_NAME=retro-hw15-test-backup
+export POSTGRES_PORT=55451 PGBOUNCER_PORT=56451 PORT=33015
+docker compose up -d --build --wait
+pnpm run test:db:backup
+docker compose down --volumes  # only this disposable test project
+```
 
 To run the pooler integration checks, use a dedicated disposable stack. These
 checks rotate its app password and reconnect its backend sessions. Install the
@@ -237,6 +314,20 @@ Old role names can be retained through the role-specific Compose overrides,
 but an old credentials volume also needs its password file migrated explicitly.
 
 ## Grading
+
+Homework 15 backup uses the same Compose stack and `SKIP_VAULT=1` fallback.
+After startup, export the URL and run the backup (Node dependencies must already
+be installed). For populated application data, run the migration/seed sequence
+below first:
+
+```bash
+docker compose up -d --wait
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
+export SKIP_VAULT=1
+bash scripts/with-secrets.sh dev bash scripts/backup.sh
+```
+
+Restore-drill is the next plan item and is not implemented yet.
 
 Prerequisites: Node.js 24, pnpm 10.24.0 (as declared in `package.json`), and
 Docker with Compose v2 supporting `--wait`. Run from the repository root

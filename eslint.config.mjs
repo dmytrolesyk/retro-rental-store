@@ -51,7 +51,7 @@ export default defineConfig(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
-    files: ['test/**/*.mjs'],
+    files: ['test/**/*.mjs', 'scripts/backup.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { sourceType: 'module' },
   },

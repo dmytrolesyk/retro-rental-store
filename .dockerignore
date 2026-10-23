@@ -6,6 +6,7 @@ secrets
 .git
 .env
 .local
+backups
 course-materials
 reference
 .agents

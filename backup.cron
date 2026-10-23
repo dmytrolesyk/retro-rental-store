@@ -1,0 +1,5 @@
+# User crontab; server-local time. Install only after configuring PATH and vault access.
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+# Adjust the project path and include Node 24, Docker and Infisical in PATH.
+0 3 * * * cd "$HOME/dev/robotdreams/retro-games-rental" && bash scripts/with-secrets.sh dev bash scripts/backup.sh >> /tmp/retro-games-rental-backup.log 2>&1
