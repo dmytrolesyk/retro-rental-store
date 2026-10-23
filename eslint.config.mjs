@@ -7,7 +7,13 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs', 'tools/lms-client/dist/**', 'reference/**'],
+    ignores: [
+      'eslint.config.mjs',
+      'dist/**',
+      '.local/**',
+      'tools/lms-client/dist/**',
+      'reference/**',
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
@@ -43,5 +49,10 @@ export default defineConfig(
   {
     files: ['tools/lms-client/test/**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    files: ['test/**/*.mjs'],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: { sourceType: 'module' },
   },
 );

@@ -23,7 +23,7 @@
     "test:db:checkout": "pnpm run build && node --test test/checkout.integration.mjs",
     "test:db:race": "pnpm run build && node --test test/race.integration.mjs",
     "check:env": "pnpm run build && node scripts/check-env-example.mjs",
-    "compose:up": "docker compose --profile app up -d --build --wait",
+    "compose:up": "docker compose up -d --build --wait",
     "compose:down": "docker compose down",
     "migrate": "typeorm migration:run -d dist/data-source.js",
     "migrate:show": "typeorm migration:show -d dist/data-source.js",
@@ -42,7 +42,8 @@
     "demo:email": "node dist/scripts/demo-email.js",
     "demo:retry": "bash scripts/with-secrets.sh dev node dist/scripts/demo-retry.js",
     "test:db:retry": "pnpm run build && node --test test/retry.integration.mjs",
-    "test:secrets": "node --test test/with-secrets.test.mjs"
+    "test:secrets": "node --test test/with-secrets.test.mjs",
+    "test:db:pooler": "pnpm run build && node --test test/pgbouncer.integration.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

@@ -6,3 +6,8 @@ secrets
 .git
 .env
 .local
+course-materials
+reference
+.agents
+.codex
+.aws
