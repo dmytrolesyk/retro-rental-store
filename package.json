@@ -44,7 +44,8 @@
     "test:db:retry": "pnpm run build && node --test test/retry.integration.mjs",
     "test:secrets": "node --test test/with-secrets.test.mjs",
     "test:db:pooler": "pnpm run build && node --test test/pgbouncer.integration.mjs",
-    "test:db:backup": "pnpm run build && node --test test/backup.integration.mjs"
+    "test:db:backup": "pnpm run build && node --test test/backup.integration.mjs",
+    "test:db:restore": "pnpm run build && node --test test/restore-drill.integration.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

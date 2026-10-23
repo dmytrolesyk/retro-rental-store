@@ -152,8 +152,7 @@ For URL consumers the corresponding `DATABASE_URL` must use the same endpoint.
 `.env.example` documents the URL with a deliberately fake password; the API and
 current TypeORM CLI continue to consume the validated `DB_*` fields. Secret-store
 updates must be performed in the actual environments; editing this file does
-not change them. Restore-drill and the optional physical backup/PITR remain
-subsequent homework steps.
+not change them. Physical backup/PITR remains an optional subsequent homework step.
 
 ### Logical backup and nightly schedule (homework 15)
 
@@ -193,7 +192,7 @@ finishes, so concurrent writes cannot make the saved control values disagree
 with the archived snapshot. This adapts the lecturer's
 `code/15_PoolingReplicasSharding/scripts/08-backup-drill.sh` while avoiding a
 later comparison against an already changed live database. Preserve the dump
-and JSON together for the next restore-drill step. If migrations have not run,
+and JSON together for restore-drill. If migrations have not run,
 the backup honestly records `exists=false` and zero control values; apply the
 Grading migrations and seed first to back up a populated application database.
 
@@ -204,8 +203,8 @@ Inspect a completed archive without installing host `pg_restore`:
 docker compose exec -T db pg_restore --list < backups/<archive>.dump
 ```
 
-This checks the archive's table of contents; an actual restore-drill is still
-needed to prove recovery. `pg_dump` does not save cluster-wide role definitions
+This checks the archive's table of contents; use the restore-drill below to
+verify recovery. `pg_dump` does not save cluster-wide role definitions
 or later changes, and does not provide WAL/PITR. With successful nightly backups
 the nominal data-loss window is up to about 24 hours; failures can make it longer.
 A local directory survives container replacement but shares the host's fate.
@@ -221,13 +220,62 @@ Rancher Desktop, supply its Docker context or socket in that environment too.
 Logs go to `/tmp/retro-games-rental-backup.log`. The schedule is not installed
 automatically by the backup script.
 
-Backup checks use a fresh dedicated Compose project:
+### Restore-drill (homework 15)
+
+With an existing backup, run:
+
+```bash
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+```
+
+Use the same `SKIP_VAULT=1` fallback shown above for local/grading runs.
+`scripts/restore-drill.sh` launches `scripts/restore-drill.mjs`. It selects the
+latest completed `rental-<UTC timestamp>-<uuid>.dump` by filename in `BACKUP_DIR`
+(default `backups/`) and reads its adjacent `.dump.json`. Partial archives and
+orphaned JSON are ignored. Missing/invalid metadata or a damaged newest archive
+fail the drill; the script does not silently fall back to an older backup.
+
+Each run creates a uniquely named Docker volume and a plain `postgres:18`
+container, with no published ports and networking disabled. It waits for the
+final PostgreSQL server to accept connections and checks that the target has
+no application tables. The dump is streamed from the host into
+`pg_restore --no-owner --no-acl --exit-on-error --single-transaction`.
+The [PostgreSQL options](https://www.postgresql.org/docs/18/app-pgrestore.html)
+allow restoration without the source roles and fail on the first SQL error.
+This checks schema/data recovery; it does not reproduce production owners,
+grants, role passwords, or the application's complete recovery procedure.
+
+The helper compares table presence, `count(*)` and `sum(price_per_day)` for
+`public.game_copies` with the saved snapshot values. It never connects to the
+live database, so changes after the backup do not affect this comparison and
+the source database can be offline. `DATABASE_URL` is required for backup;
+restore uses the local archive and its own newly created target instead.
+As in the lecturer's `08-backup-drill.sh`, count and sum are a limited integrity
+check, not proof that every field in every table is identical. An unmigrated
+snapshot explicitly prints `exists=false` and an absent-table explanation;
+use a migrated, populated snapshot to verify application data.
+
+Success prints `MATCH` with the restored control values, archive size, the
+duration of the restore command, and measured drill RTO in seconds. The RTO
+interval covers volume/container creation, readiness, restore and verification;
+archive selection and cleanup are outside that interval. It is a local database
+drill measurement, excluding incident detection, traffic switching and API startup.
+RPO is nominally up to about 24 hours with successful nightly backups.
+
+The container and volume are removed before printing `MATCH`, including on
+restore/check failures and SIGINT/SIGTERM. Cleanup addresses only this run's
+resource names, which are printed as `Resources: <container> <volume>`.
+Cleanup failure is an error. An uncatchable kill or unavailable Docker daemon
+can leave these resources for manual removal by their printed names.
+
+Backup and restore checks use a fresh dedicated Compose project:
 
 ```bash
 export COMPOSE_PROJECT_NAME=retro-hw15-test-backup
 export POSTGRES_PORT=55451 PGBOUNCER_PORT=56451 PORT=33015
 docker compose up -d --build --wait
 pnpm run test:db:backup
+pnpm run test:db:restore
 docker compose down --volumes  # only this disposable test project
 ```
 
@@ -315,8 +363,8 @@ but an old credentials volume also needs its password file migrated explicitly.
 
 ## Grading
 
-Homework 15 backup uses the same Compose stack and `SKIP_VAULT=1` fallback.
-After startup, export the URL and run the backup (Node dependencies must already
+Homework 15 backup and restore-drill use the `SKIP_VAULT=1` fallback.
+After startup, export the URL and run both scripts (Node dependencies must already
 be installed). For populated application data, run the migration/seed sequence
 below first:
 
@@ -325,9 +373,11 @@ docker compose up -d --wait
 export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
 export SKIP_VAULT=1
 bash scripts/with-secrets.sh dev bash scripts/backup.sh
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
 ```
 
-Restore-drill is the next plan item and is not implemented yet.
+The measured recovery protocol (`RESTORE-DRILL.md`) and final clean-clone
+acceptance run are the next plan item.
 
 Prerequisites: Node.js 24, pnpm 10.24.0 (as declared in `package.json`), and
 Docker with Compose v2 supporting `--wait`. Run from the repository root
