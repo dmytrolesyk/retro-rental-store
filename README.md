@@ -268,6 +268,11 @@ resource names, which are printed as `Resources: <container> <volume>`.
 Cleanup failure is an error. An uncatchable kill or unavailable Docker daemon
 can leave these resources for manual removal by their printed names.
 
+The measured run on the seeded catalog is recorded in
+[RESTORE-DRILL.md](RESTORE-DRILL.md): a 1,935,085-byte archive, two `MATCH` results,
+and local drill RTO of 3.017 / 2.991 seconds. These are observations for that
+dataset and machine, not an application availability guarantee.
+
 Backup and restore checks use a fresh dedicated Compose project:
 
 ```bash
@@ -363,12 +368,14 @@ but an old credentials volume also needs its password file migrated explicitly.
 
 ## Grading
 
-Homework 15 backup and restore-drill use the `SKIP_VAULT=1` fallback.
-After startup, export the URL and run both scripts (Node dependencies must already
-be installed). For populated application data, run the migration/seed sequence
-below first:
+Homework 15 requires Node.js 24, pnpm 10.24.0 and Docker with Compose v2
+supporting `--wait`. Run from the repository root. No access to Infisical,
+local env file or host PostgreSQL binaries is required for grading.
+Install the checked-in dependencies, then run the startup → backup → drill
+sequence using the existing local development credentials:
 
 ```bash
+pnpm install --frozen-lockfile
 docker compose up -d --wait
 export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
 export SKIP_VAULT=1
@@ -376,8 +383,36 @@ bash scripts/with-secrets.sh dev bash scripts/backup.sh
 bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
 ```
 
-The measured recovery protocol (`RESTORE-DRILL.md`) and final clean-clone
-acceptance run are the next plan item.
+Both helpers read their settings from the process environment; neither loads an
+env file. `with-secrets.sh` skips Infisical when `SKIP_VAULT=1`. Without that flag,
+the configured Infisical environment supplies the backup's `DATABASE_URL`.
+Restore reads local backup files and creates its own target, without connecting
+to the source database.
+
+On an unmigrated database this minimal sequence reports `MATCH exists=false`;
+it checks the bootstrap database, not recovery of application data. For an
+application-data drill on the same stack, populate it and create a new snapshot:
+
+```bash
+export DB_HOST=127.0.0.1 DB_PORT="${PGBOUNCER_PORT:-6432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+unset DB_PASSWORD_FILE
+pnpm run build
+pnpm run migrate
+pnpm run seed
+bash scripts/with-secrets.sh dev bash scripts/backup.sh
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+```
+
+Both restores must print `MATCH exists=true rows=10 sumPricePerDay=36250` for
+a fresh seeded database. See [RESTORE-DRILL.md](RESTORE-DRILL.md) for the actual
+clean-export run, recovery measurements, RPO assumptions and scope of the checks.
+`backup.cron` is checked in but must be installed separately; it does not start
+nightly backups just by being present in the repository.
+
+For full-repository `eslint .`, also install the standalone LMS tool's own
+dependencies with `pnpm --dir tools/lms-client install --frozen-lockfile`.
+They are not needed to start the application or run backup/restore.
 
 Prerequisites: Node.js 24, pnpm 10.24.0 (as declared in `package.json`), and
 Docker with Compose v2 supporting `--wait`. Run from the repository root
@@ -386,7 +421,9 @@ against a fresh database. The three homework 14 demos use
 `SKIP_VAULT=1` and provide the existing `DB_*` settings. The commands below use
 the fixed public local development credentials from `compose.yaml`.
 
-Copy and run the complete sequence:
+The longer homework 13/14 regression sequence below uses a separate disposable
+project and includes migration rollback and transaction demos. Run it separately
+from the homework 15 recovery measurement:
 
 ```bash
 export COMPOSE_PROJECT_NAME=retro-hw14-grading
