@@ -40,6 +40,31 @@ describe('RotationPool connection retry', () => {
     await pool.end();
   });
 
+  it('retries PgBouncer SCRAM failures during password publication', async () => {
+    jest.useFakeTimers();
+    const client = Object.assign(new pg.Client(), { release: jest.fn() });
+    const connect = spyConnect()
+      .mockRejectedValueOnce(
+        Object.assign(new Error('SASL authentication failed'), { code: '08P01' }),
+      )
+      .mockResolvedValueOnce(client);
+    const pool = new RotationPool();
+    const result = pool.connect();
+    await jest.runAllTimersAsync();
+    await expect(result).resolves.toBe(client);
+    expect(connect).toHaveBeenCalledTimes(2);
+    await pool.end();
+  });
+
+  it('does not retry other PgBouncer protocol errors', async () => {
+    const error = Object.assign(new Error('unsupported startup parameter'), { code: '08P01' });
+    const connect = spyConnect().mockRejectedValue(error);
+    const pool = new RotationPool();
+    await expect(pool.connect()).rejects.toBe(error);
+    expect(connect).toHaveBeenCalledTimes(1);
+    await pool.end();
+  });
+
   it('stops after four authentication attempts and supports the driver callback', async () => {
     jest.useFakeTimers();
     const error = Object.assign(new Error('authentication failed'), { code: '28P01' });

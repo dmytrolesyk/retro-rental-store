@@ -30,8 +30,8 @@ For host-side development, export the variables in your shell.
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `DB_HOST` | yes | `db` inside Compose, `127.0.0.1` from the host |
-| `DB_PORT` | no, default `5432` | Connection port; also the published host port in Compose |
+| `DB_HOST` | yes | `pgbouncer` inside Compose, `127.0.0.1` from the host |
+| `DB_PORT` | no, default `5432` | Process connection port; set `6432` for PgBouncer |
 | `DB_USER` | yes | User for this process's connection |
 | `DB_NAME` | yes | Database name |
 | `DB_PASSWORD` | one password source | Static password for CLI commands |
@@ -54,7 +54,7 @@ password, under the names required by those tools.
 
 ### Running
 
-Start PostgreSQL and the automatic password rotator:
+Start PostgreSQL, PgBouncer, the API and the automatic password rotator:
 
 ```bash
 docker compose up -d --wait
@@ -63,19 +63,22 @@ docker compose up -d --wait
 No `.env` or host-side secret files are required. The one-shot `init-secrets`
 service generates the `db_app` password in the `app_credentials` named
 volume before PostgreSQL starts. Existing passwords are kept on subsequent
-runs. PostgreSQL and the API mount this volume read-only; the init service
-and rotator can write to it.
+runs. It also generates a separate `db_pool_auth_password` for PgBouncer's
+authentication lookup. PostgreSQL, PgBouncer, the auth setup service and the API
+mount this volume read-only; the init service and rotator can write to it.
 
-To also build and start the API, enable the `app` profile:
+To explicitly rebuild images and start the stack:
 
 ```bash
-pnpm compose:up   # docker compose --profile app up -d --build --wait
+pnpm compose:up   # docker compose up -d --build --wait
 pnpm compose:down
 ```
 
-The API uses `db:5432` inside Compose. Host-side scripts use `127.0.0.1`
-and the published port, selected by `DB_PORT` (default `5432`).
-Compose supplies the API's `DB_*` configuration directly.
+The API uses `pgbouncer:6432` inside Compose. Host-side scripts use `127.0.0.1`
+and `DB_PORT=6432`. Compose publishes PgBouncer on `PGBOUNCER_PORT` (default
+`6432`) and direct PostgreSQL on `POSTGRES_PORT` (default `5432`), both on
+loopback. These host port overrides are independent of the process's `DB_PORT`.
+Compose supplies the API's `DB_*` configuration directly; no profile is required.
 
 This homework uses the new `data_typeorm` database volume. The previous
 homework's `data_sql` volume is retained. Keep `data_typeorm` and
@@ -89,12 +92,216 @@ a password that no longer matches the existing database role.
 | `db_admin` | Local database initialization and password rotation | Dev password `admin_dev` |
 | `db_migrator` | Host-side migrations, seed, demos and reports | Dev password `migration_dev` |
 | `db_app` | API queries; no schema creation privileges | Generated password, rotated automatically |
+| `db_pool_auth` | PgBouncer password lookup function only | Generated password in the credentials volume |
+| `db_pool_client` | No-login group allowing authentication lookup for API/CLI roles | No password |
 
 `db_migrator` can create objects in `public` and install trusted
 extensions in the development database. Default privileges give `db_app`
 SELECT/INSERT/UPDATE/DELETE on tables and USAGE/SELECT on sequences created
 by `db_migrator`. Docker initialization creates roles and grants only;
 application tables will be created by TypeORM migrations.
+
+### Data layer ops: PgBouncer (homework 15)
+
+`pgbouncer/pgbouncer.ini` uses transaction pooling: a PostgreSQL connection is
+assigned until COMMIT/ROLLBACK, then shared with another client. This lets
+long-lived TypeORM pools share fewer server connections. The limit is 5 per
+database/user pair, with at most 100 incoming clients across the pooler. A client
+cannot rely on the same server session between transactions: `LISTEN`,
+session advisory locks and `WITH HOLD` cursors are incompatible. `NOTIFY` works.
+Protocol-level named prepared statements are tracked with
+`max_prepared_statements=200`; SQL `PREPARE` across transactions is unsupported.
+See the [PgBouncer feature map](https://www.pgbouncer.org/features.html).
+
+`pooler-auth` installs an idempotent `SECURITY DEFINER` lookup function into the
+existing database as well as fresh databases. Only `db_pool_auth` can call it;
+it returns SCRAM verifiers only for non-superuser login roles in `db_pool_client`
+(the app and migrator). Expired credentials are rejected. The lookup role cannot
+read `pg_authid` directly or access application tables. A pinned search path
+prevents object substitution. The pooler preserves the requested database role;
+there is no forced `user=` in its database mapping.
+
+Only the lookup credential and `pgbouncer_admin` console credential are written
+to a mode-600 runtime auth file. Application verifiers come from `auth_query` on
+new client authentication, so rotating `db_app` does not require copying its
+password into PgBouncer or reloading the pooler. The console reuses the existing
+Compose `DB_ADMIN_PASSWORD` (local default `admin_dev`); `pgbouncer_admin` is a
+pooler console identity, not a PostgreSQL administrator role. The generated lookup
+password is an additional internal credential kept in the existing named volume,
+not a new env file. See [authentication configuration](https://www.pgbouncer.org/config.html#auth_query).
+
+Check the published port from the host (with a local `psql` installed):
+
+```bash
+PGPASSWORD=migration_dev psql -h 127.0.0.1 -p "${PGBOUNCER_PORT:-6432}" -U db_migrator -d rental -c 'SELECT 1'
+PGPASSWORD=admin_dev psql -h 127.0.0.1 -p "${PGBOUNCER_PORT:-6432}" -U pgbouncer_admin -d pgbouncer -c 'SHOW POOLS'
+curl "http://127.0.0.1:${PORT:-3000}/db"
+```
+
+Without host `psql`, the container includes it:
+
+```bash
+docker compose exec -T -e PGPASSWORD=migration_dev pgbouncer psql -h 127.0.0.1 -p 6432 -U db_migrator -d rental -c 'SELECT 1'
+docker compose exec -T pgbouncer psql -h 127.0.0.1 -p 6432 -U pgbouncer_admin -d pgbouncer -c 'SHOW POOLS'
+```
+
+When using Infisical, update the existing `DB_HOST`/`DB_PORT` values in both
+`dev` and `prod` to that environment's pooler address. A host-side client uses
+`127.0.0.1` and the published port locally; a Compose client uses `pgbouncer:6432`.
+For URL consumers the corresponding `DATABASE_URL` must use the same endpoint.
+`.env.example` documents the URL with a deliberately fake password; the API and
+current TypeORM CLI continue to consume the validated `DB_*` fields. Secret-store
+updates must be performed in the actual environments; editing this file does
+not change them. Physical backup/PITR remains an optional subsequent homework step.
+
+### Logical backup and nightly schedule (homework 15)
+
+Run from the repository root with Node 24, installed project dependencies, Docker
+and this Compose stack running. Host PostgreSQL binaries are not required:
+`scripts/backup.sh` runs the Node helper `scripts/backup.mjs`, which uses the
+PostgreSQL 18 `pg_dump` already installed in the `db` container.
+
+```bash
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
+export SKIP_VAULT=1
+bash scripts/with-secrets.sh dev bash scripts/backup.sh
+```
+
+With Infisical configured, omit `SKIP_VAULT` and store the existing connection URL
+in the selected environment. The script reads `DATABASE_URL` directly; it does
+not load or create an env file. Use a role that can read every table being backed
+up (the local `db_migrator` owns the application schema); the API role is not
+granted additional permissions. On the host, the URL must be reachable from the
+host. For loopback URLs the helper matches the published Compose port and uses
+the same service's internal address for the container-side dump. It refuses to
+guess a target for an unmatched loopback port. Non-loopback hosts must also be
+reachable from the `db` container.
+
+Success prints one absolute archive path, for example
+`backups/rental-2026-10-23T12-00-00-000Z-<uuid>.dump` under the project directory.
+Times are UTC; UUIDs allow multiple backups in the same second. Set `BACKUP_DIR`
+to use another directory (relative paths are resolved from the project root).
+The default `backups/` is excluded from Git and Docker builds. Files are created
+with mode 600. A `.part` archive is renamed to `.dump` only after the dump and
+its adjacent `.dump.json` metadata are ready; failed runs do not publish it.
+
+The JSON records `count(*)` and `sum(price_per_day)` for `public.game_copies`.
+Both the queries and `pg_dump --snapshot` use one exported, read-only
+REPEATABLE READ snapshot. The exporting transaction stays open until the dump
+finishes, so concurrent writes cannot make the saved control values disagree
+with the archived snapshot. This adapts the lecturer's
+`code/15_PoolingReplicasSharding/scripts/08-backup-drill.sh` while avoiding a
+later comparison against an already changed live database. Preserve the dump
+and JSON together for restore-drill. If migrations have not run,
+the backup honestly records `exists=false` and zero control values; apply the
+Grading migrations and seed first to back up a populated application database.
+
+Inspect a completed archive without installing host `pg_restore`:
+
+```bash
+# Replace the example path with the path printed by backup.sh.
+docker compose exec -T db pg_restore --list < backups/<archive>.dump
+```
+
+This checks the archive's table of contents; use the restore-drill below to
+verify recovery. `pg_dump` does not save cluster-wide role definitions
+or later changes, and does not provide WAL/PITR. With successful nightly backups
+the nominal data-loss window is up to about 24 hours; failures can make it longer.
+A local directory survives container replacement but shares the host's fate.
+
+`backup.cron` contains a user-crontab job for 03:00 in the cron host's timezone.
+It is a checked-in schedule, not an installed scheduler. To enable it, merge the
+job into `crontab -e` (preserve existing jobs), adjust the project path and PATH
+to include the actual Node, Docker and Infisical binaries, and configure vault
+access for the cron user. Cron does not inherit exports from an interactive
+terminal; in grading/fallback mode it also needs `DATABASE_URL` and
+`SKIP_VAULT=1` supplied in its own environment, outside the repository. With
+Rancher Desktop, supply its Docker context or socket in that environment too.
+Logs go to `/tmp/retro-games-rental-backup.log`. The schedule is not installed
+automatically by the backup script.
+
+### Restore-drill (homework 15)
+
+With an existing backup, run:
+
+```bash
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+```
+
+Use the same `SKIP_VAULT=1` fallback shown above for local/grading runs.
+`scripts/restore-drill.sh` launches `scripts/restore-drill.mjs`. It selects the
+latest completed `rental-<UTC timestamp>-<uuid>.dump` by filename in `BACKUP_DIR`
+(default `backups/`) and reads its adjacent `.dump.json`. Partial archives and
+orphaned JSON are ignored. Missing/invalid metadata or a damaged newest archive
+fail the drill; the script does not silently fall back to an older backup.
+
+Each run creates a uniquely named Docker volume and a plain `postgres:18`
+container, with no published ports and networking disabled. It waits for the
+final PostgreSQL server to accept connections and checks that the target has
+no application tables. The dump is streamed from the host into
+`pg_restore --no-owner --no-acl --exit-on-error --single-transaction`.
+The [PostgreSQL options](https://www.postgresql.org/docs/18/app-pgrestore.html)
+allow restoration without the source roles and fail on the first SQL error.
+This checks schema/data recovery; it does not reproduce production owners,
+grants, role passwords, or the application's complete recovery procedure.
+
+The helper compares table presence, `count(*)` and `sum(price_per_day)` for
+`public.game_copies` with the saved snapshot values. It never connects to the
+live database, so changes after the backup do not affect this comparison and
+the source database can be offline. `DATABASE_URL` is required for backup;
+restore uses the local archive and its own newly created target instead.
+As in the lecturer's `08-backup-drill.sh`, count and sum are a limited integrity
+check, not proof that every field in every table is identical. An unmigrated
+snapshot explicitly prints `exists=false` and an absent-table explanation;
+use a migrated, populated snapshot to verify application data.
+
+Success prints `MATCH` with the restored control values, archive size, the
+duration of the restore command, and measured drill RTO in seconds. The RTO
+interval covers volume/container creation, readiness, restore and verification;
+archive selection and cleanup are outside that interval. It is a local database
+drill measurement, excluding incident detection, traffic switching and API startup.
+RPO is nominally up to about 24 hours with successful nightly backups.
+
+The container and volume are removed before printing `MATCH`, including on
+restore/check failures and SIGINT/SIGTERM. Cleanup addresses only this run's
+resource names, which are printed as `Resources: <container> <volume>`.
+Cleanup failure is an error. An uncatchable kill or unavailable Docker daemon
+can leave these resources for manual removal by their printed names.
+
+The measured run on the seeded catalog is recorded in
+[RESTORE-DRILL.md](RESTORE-DRILL.md): a 1,935,085-byte archive, two `MATCH` results,
+and local drill RTO of 3.017 / 2.991 seconds. These are observations for that
+dataset and machine, not an application availability guarantee.
+
+Backup and restore checks use a fresh dedicated Compose project:
+
+```bash
+export COMPOSE_PROJECT_NAME=retro-hw15-test-backup
+export POSTGRES_PORT=55451 PGBOUNCER_PORT=56451 PORT=33015
+docker compose up -d --build --wait
+pnpm run test:db:backup
+pnpm run test:db:restore
+docker compose down --volumes  # only this disposable test project
+```
+
+To run the pooler integration checks, use a dedicated disposable stack. These
+checks rotate its app password and reconnect its backend sessions. Install the
+project dependencies on the host first. The test command builds the local
+TypeORM code, then tests connect from the host using `pg`, TypeORM and HTTP.
+Published ports are discovered from Compose. Docker commands are used only for
+credentials, rotation and container inspection; JavaScript is not executed from
+strings inside the containers. The tests observe PgBouncer's waiting-client
+count, check effective database privileges and verify the pooler's start time
+and restart count across rotation:
+
+```bash
+export COMPOSE_PROJECT_NAME=retro-hw15-test-pooler
+export POSTGRES_PORT=55451 PGBOUNCER_PORT=56451 PORT=33015
+docker compose up -d --build --wait
+pnpm run test:db:pooler
+# Remove only this disposable stack:
+docker compose down --volumes
+```
 
 ### Password rotation (no API restart)
 
@@ -120,7 +327,8 @@ retired only after the application releases it; idle connections are retired
 without interrupting queries. An open QueryRunner must always be released.
 
 For file-based credentials, `RotationPool` retries only connection acquisition
-on PostgreSQL authentication error `28P01`: four attempts total, with waits
+on PostgreSQL authentication error `28P01` or PgBouncer's specific SCRAM failure
+(`08P01`, `SASL authentication failed`): four attempts total, with waits
 of 100, 200, and 400 milliseconds. SQL queries and transactions are never
 replayed. This handles a short gap between changing the password and publishing
 the file, but cannot guarantee availability if publication is delayed longer.
@@ -153,11 +361,58 @@ password in `db_app_password`. Initialization scripts run only on an empty
 PostgreSQL volume. Existing volumes created with the old names are not upgraded
 by changing Compose. Keep them intact; use a separate Compose project for a
 fresh homework database, for example `docker compose -p retro-hw13 up -d --wait`
-(with an available `DB_PORT`). Use the same project name for subsequent commands.
+(with available `POSTGRES_PORT`, `PGBOUNCER_PORT` and `PORT`). Use the same
+project name for subsequent commands.
 Old role names can be retained through the role-specific Compose overrides,
 but an old credentials volume also needs its password file migrated explicitly.
 
 ## Grading
+
+Homework 15 requires Node.js 24, pnpm 10.24.0 and Docker with Compose v2
+supporting `--wait`. Run from the repository root. No access to Infisical,
+local env file or host PostgreSQL binaries is required for grading.
+Install the checked-in dependencies, then run the startup → backup → drill
+sequence using the existing local development credentials:
+
+```bash
+pnpm install --frozen-lockfile
+docker compose up -d --wait
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
+export SKIP_VAULT=1
+bash scripts/with-secrets.sh dev bash scripts/backup.sh
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+```
+
+Both helpers read their settings from the process environment; neither loads an
+env file. `with-secrets.sh` skips Infisical when `SKIP_VAULT=1`. Without that flag,
+the configured Infisical environment supplies the backup's `DATABASE_URL`.
+Restore reads local backup files and creates its own target, without connecting
+to the source database.
+
+On an unmigrated database this minimal sequence reports `MATCH exists=false`;
+it checks the bootstrap database, not recovery of application data. For an
+application-data drill on the same stack, populate it and create a new snapshot:
+
+```bash
+export DB_HOST=127.0.0.1 DB_PORT="${PGBOUNCER_PORT:-6432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+unset DB_PASSWORD_FILE
+pnpm run build
+pnpm run migrate
+pnpm run seed
+bash scripts/with-secrets.sh dev bash scripts/backup.sh
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
+```
+
+Both restores must print `MATCH exists=true rows=10 sumPricePerDay=36250` for
+a fresh seeded database. See [RESTORE-DRILL.md](RESTORE-DRILL.md) for the actual
+clean-export run, recovery measurements, RPO assumptions and scope of the checks.
+`backup.cron` is checked in but must be installed separately; it does not start
+nightly backups just by being present in the repository.
+
+For full-repository `eslint .`, also install the standalone LMS tool's own
+dependencies with `pnpm --dir tools/lms-client install --frozen-lockfile`.
+They are not needed to start the application or run backup/restore.
 
 Prerequisites: Node.js 24, pnpm 10.24.0 (as declared in `package.json`), and
 Docker with Compose v2 supporting `--wait`. Run from the repository root
@@ -166,12 +421,14 @@ against a fresh database. The three homework 14 demos use
 `SKIP_VAULT=1` and provide the existing `DB_*` settings. The commands below use
 the fixed public local development credentials from `compose.yaml`.
 
-Copy and run the complete sequence:
+The longer homework 13/14 regression sequence below uses a separate disposable
+project and includes migration rollback and transaction demos. Run it separately
+from the homework 15 recovery measurement:
 
 ```bash
 export COMPOSE_PROJECT_NAME=retro-hw14-grading
 export SKIP_VAULT=1
-export DB_HOST=127.0.0.1 DB_PORT="${DB_PORT:-5432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+export DB_HOST=127.0.0.1 DB_PORT="${PGBOUNCER_PORT:-6432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
 pnpm install --frozen-lockfile
 pnpm exec tsc --noEmit
@@ -191,8 +448,10 @@ pnpm run demo:workers
 pnpm run demo:retry
 ```
 
-`DB_PORT` defaults to `5432`; if it is occupied, run `export DB_PORT=55441`
-before this block. The block uses the separate Compose project `retro-hw14-grading`.
+PgBouncer is published on `6432`; if occupied, run `export PGBOUNCER_PORT=56441`
+before this block. Override `POSTGRES_PORT` separately if direct port `5432` is
+occupied, and `PORT` if HTTP port `3000` is occupied.
+The block uses the separate Compose project `retro-hw14-grading`.
 Choose a new project name if it already has a database volume from a previous
 run. Compose uses that name for every command, including count checks.
 No repository files need editing, and no host credential files need creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
@@ -393,7 +652,8 @@ For an isolated run with the project's Compose configuration, choose an unused
 host port (55445 below) and a separate project:
 
 ```bash
-export COMPOSE_PROJECT_NAME=retro-hw14-race DB_PORT=55445 SKIP_VAULT=1
+export COMPOSE_PROJECT_NAME=retro-hw14-race PGBOUNCER_PORT=55445 POSTGRES_PORT=55446 PORT=33016 SKIP_VAULT=1
+export DB_PORT="$PGBOUNCER_PORT"
 export DB_HOST=127.0.0.1 DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
 docker compose up -d --wait
@@ -795,10 +1055,10 @@ A fresh clone needs no manually created credential files. This one command
 initializes the credentials volume and starts PostgreSQL:
 
 ```bash
-export DB_PORT=55432 && docker compose up -d --build --wait db
+export POSTGRES_PORT=55432 && docker compose up -d --build --wait db
 ```
 
-`DB_PORT` selects the host port; PostgreSQL continues to listen on its standard
+`POSTGRES_PORT` selects the host port; PostgreSQL continues to listen on its standard
 port `5432` inside the container.
 
 Connect with `psql` inside the container:
