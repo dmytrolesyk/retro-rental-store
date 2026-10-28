@@ -60,7 +60,7 @@ async function main(): Promise<void> {
       pactUrls: [broker ? `${broker.url}${pactPath(broker.consumerVersion)}` : PACT_FILE],
       ...(broker
         ? {
-            ...(broker.token ? { pactBrokerToken: broker.token } : {}),
+            ...broker.authentication.verifierOptions,
             providerVersion: broker.providerVersion,
             publishVerificationResult: true,
           }

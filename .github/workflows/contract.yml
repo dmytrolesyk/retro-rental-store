@@ -13,6 +13,8 @@ jobs:
     env:
       PACT_BROKER_URL: ${{ secrets.PACT_BROKER_URL }}
       PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+      PACT_BROKER_USERNAME: ${{ secrets.PACT_BROKER_USERNAME }}
+      PACT_BROKER_PASSWORD: ${{ secrets.PACT_BROKER_PASSWORD }}
       CONSUMER_VERSION: ${{ github.sha }}
       PROVIDER_VERSION: ${{ github.sha }}
       PACT_DO_NOT_TRACK: 'true'

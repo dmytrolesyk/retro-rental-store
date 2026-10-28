@@ -2,6 +2,25 @@ import { execFileSync } from 'node:child_process';
 import { z } from 'zod';
 import { CONSUMER_NAME, PROVIDER_NAME } from './contract.config';
 
+// OSS Broker uses Basic Auth; managed PactFlow uses a bearer token.
+export function brokerAuthentication(environment: NodeJS.ProcessEnv = process.env) {
+  const token = environment.PACT_BROKER_TOKEN || undefined;
+  const username = environment.PACT_BROKER_USERNAME || undefined;
+  const password = environment.PACT_BROKER_PASSWORD || undefined;
+  if (Boolean(username) !== Boolean(password))
+    throw new Error('Set both PACT_BROKER_USERNAME and PACT_BROKER_PASSWORD');
+  if (token && username) throw new Error('Choose bearer token OR Basic Auth credentials');
+  if (username?.includes(':')) throw new Error('Basic Auth username must not contain a colon');
+  if (token)
+    return { authorization: `Bearer ${token}`, verifierOptions: { pactBrokerToken: token } };
+  if (username && password)
+    return {
+      authorization: `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+      verifierOptions: { pactBrokerUsername: username, pactBrokerPassword: password },
+    };
+  return { authorization: undefined, verifierOptions: {} };
+}
+
 export function brokerConfig() {
   const url = new URL(z.url().parse(process.env.PACT_BROKER_URL));
   if (
@@ -17,7 +36,7 @@ export function brokerConfig() {
   const commit = () => execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   return {
     url: url.href.replace(/\/$/, ''),
-    token: process.env.PACT_BROKER_TOKEN,
+    authentication: brokerAuthentication(),
     consumerVersion: process.env.CONSUMER_VERSION || commit(),
     providerVersion: process.env.PROVIDER_VERSION || commit(),
   };
@@ -34,7 +53,9 @@ export async function brokerRequest(path: string, method = 'GET', body?: string)
     headers: {
       Accept: 'application/hal+json',
       ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      ...(config.token ? { Authorization: `Bearer ${config.token}` } : {}),
+      ...(config.authentication.authorization
+        ? { Authorization: config.authentication.authorization }
+        : {}),
     },
     body,
     signal: AbortSignal.timeout(30000),

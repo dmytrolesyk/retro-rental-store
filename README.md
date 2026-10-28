@@ -1472,7 +1472,8 @@ credentials are development-only; use a secured reachable Broker for CI.
 ```sh
 docker compose --profile contract up -d --wait pact-broker
 export PACT_BROKER_URL=http://127.0.0.1:9292
-# Export PACT_BROKER_TOKEN from your secret manager if authentication is required.
+# OSS Basic Auth: export PACT_BROKER_USERNAME and PACT_BROKER_PASSWORD.
+# PactFlow: export PACT_BROKER_TOKEN instead. Supply credentials via your secret manager.
 # Both versions default to git rev-parse HEAD; override to verify deployed releases.
 pnpm test:consumer
 SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:publish
@@ -1534,7 +1535,12 @@ Broker mode; unset it to return to local-file verification.
 
 The GitHub Actions job `contract` runs consumer → publish → provider verification
 with result publication → can-i-deploy. Configure repository secrets
-`PACT_BROKER_URL` and (for an authenticated Broker) `PACT_BROKER_TOKEN`.
+`PACT_BROKER_URL` plus `PACT_BROKER_USERNAME` and `PACT_BROKER_PASSWORD` for
+self-hosted OSS Broker. For managed PactFlow, set `PACT_BROKER_TOKEN` instead.
+Do not configure both authentication modes. Incomplete Basic Auth credentials
+or mixed modes fail before any request; anonymous mode remains available for
+local Compose. HTTP publication/tagging/gating and provider verification use
+the same selected authentication mode.
 The URL must be reachable from the GitHub runner: your laptop's `127.0.0.1`
 is not reachable there. Missing configuration deliberately fails the job;
 fork PRs without secrets cannot run this external Broker workflow. Both versions
@@ -1542,7 +1548,28 @@ use `github.sha`. CI never assigns `prod`. A fresh Broker needs the explicit
 production baseline above before the gate can pass. Workflow files alone do not
 configure secrets or establish a successful GitHub run.
 
-See [Pact can-i-deploy](https://docs.pact.io/pact_broker/can_i_deploy) and
+For a self-hosted Railway deployment, run the pinned
+`pactfoundation/pact-broker:2.142.0-pactbroker2.120.0` image and a separate
+PostgreSQL service with persistent storage. Connect through the private
+`PACT_BROKER_DATABASE_URL`; expose only the Broker on port `9292` using a Railway
+HTTPS domain. Configure these Broker service variables:
+
+- `PACT_BROKER_BASIC_AUTH_USERNAME` / `PACT_BROKER_BASIC_AUTH_PASSWORD`: generated
+  read/write credentials, also supplied to the CI secrets above.
+- `PACT_BROKER_ALLOW_PUBLIC_READ=false`.
+- `PACT_BROKER_PUBLIC_HEARTBEAT=true` and healthcheck path
+  `/diagnostic/status/heartbeat` (only this diagnostic endpoint is public).
+- `PACT_BROKER_BASE_URL`: the public HTTPS origin, so API links use the correct URL.
+
+These deployment variables belong in Railway's secret configuration, not in
+committed Compose defaults. Railway terminates HTTPS; PostgreSQL uses the private
+service network. Verify unauthenticated API access returns `401` before adding
+GitHub secrets. A fresh hosted Broker still requires the explicit, verified
+homework `prod` baseline described above.
+
+See [Broker authentication settings](https://docs.pact.io/pact_broker/configuration/settings),
+[Railway public networking](https://docs.railway.com/networking/public-networking),
+and See [Pact can-i-deploy](https://docs.pact.io/pact_broker/can_i_deploy) and
 [Broker Docker configuration](https://docs.pact.io/pact_broker/docker_images/pactfoundation).
 
 ### Rental confirmation workers and Resend (homework 14)
