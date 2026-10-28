@@ -176,7 +176,7 @@ test('RentalsService resolves from AppModule and runs checkout without an HTTP s
   let app;
   try {
     for (const [key, value] of Object.entries(overrides)) {
-      if (value === undefined) delete process.env[key];
+      if (value === undefined) Reflect.deleteProperty(process.env, key);
       else process.env[key] = value;
     }
     const { NestFactory } = require('@nestjs/core');
@@ -192,7 +192,7 @@ test('RentalsService resolves from AppModule and runs checkout without an HTTP s
   } finally {
     if (app) await app.close();
     for (const [key, value] of Object.entries(original)) {
-      if (value === undefined) delete process.env[key];
+      if (value === undefined) Reflect.deleteProperty(process.env, key);
       else process.env[key] = value;
     }
   }

@@ -1,0 +1,10 @@
+# User-crontab template; server-local time. Edit PROJECT_DIR and PATH before installing.
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+PROJECT_DIR=/absolute/path/to/retro-games-rental
+# Local Compose defaults only. Use the DIRECT PostgreSQL port, not PgBouncer.
+SKIP_VAULT=1
+DATABASE_URL=postgresql://db_migrator:migration_dev@127.0.0.1:5432/rental
+# For Infisical: set SKIP_VAULT=0, remove DATABASE_URL here and configure vault access.
+# Include Node 24, Docker (and Infisical when used) in PATH; configure the Docker context.
+0 3 * * * cd "$PROJECT_DIR" && bash scripts/with-secrets.sh dev bash scripts/backup.sh >> /tmp/retro-games-rental-backup.log 2>&1

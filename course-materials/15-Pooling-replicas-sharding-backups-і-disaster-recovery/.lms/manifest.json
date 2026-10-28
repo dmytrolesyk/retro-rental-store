@@ -18,11 +18,11 @@
   },
   "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery",
   "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/manifest.json",
-  "fetchedAt": "2026-10-12T13:43:20.189Z",
+  "fetchedAt": "2026-10-22T15:59:42.298Z",
   "status": "complete",
   "homework": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T13:43:02.264Z",
+    "fetchedAt": "2026-10-22T15:59:33.787Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/homework.md"
     ],
@@ -54,12 +54,12 @@
           "url": "https://lms.robotdreams.cc/course/5467/lesson/104321/homework/54347"
         }
       ],
-      "fetchedAt": "2026-10-12T13:43:02.264Z"
+      "fetchedAt": "2026-10-22T15:59:33.787Z"
     }
   },
   "materials": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T13:43:11.466Z",
+    "fetchedAt": "2026-10-22T15:59:42.267Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/additional-materials.md",
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/presentation.pdf",
@@ -110,7 +110,7 @@
               "etag": null,
               "lastModified": null,
               "sha256": "cf7ab49018730b5e011289e4cf7a2fe80d5651a7a56f7754ed7a0a9bed067803",
-              "fetchedAt": "2026-10-12T13:43:10.169Z"
+              "fetchedAt": "2026-10-22T15:59:40.933Z"
             }
           ]
         },
@@ -164,7 +164,7 @@
               "etag": null,
               "lastModified": "Wed, 16 Sep 2026 10:22:45 GMT",
               "sha256": "3f716f5e41c99ac9c089349cdebc18c2e7db0defdb59c1f55a0bc059ce01c563",
-              "fetchedAt": "2026-10-12T13:43:11.466Z"
+              "fetchedAt": "2026-10-22T15:59:42.267Z"
             }
           ]
         }
@@ -172,7 +172,7 @@
       "subtitles": [
         {
           "url": "https://d21cm17qik2dw.cloudfront.net/lesson/media/subtitle/media_141073_6aaac26a074199.35743050.vtt",
-          "cacheKey": "5e3c0788e276ecca07f0da93528ad5aa243f4a2d546c1bbecf9268463a98050b",
+          "cacheKey": "64c71b06af5e756148520e6efb6d4081e507ef57b98e33dca73f6ad62701feb0",
           "kind": "vtt",
           "role": "transcript",
           "status": "not_downloaded",
@@ -182,11 +182,11 @@
       "transcriptStatus": "available",
       "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery",
       "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/.lms/materials-manifest.json",
-      "fetchedAt": "2026-10-12T13:43:11.466Z"
+      "fetchedAt": "2026-10-22T15:59:42.267Z"
     }
   },
   "video": {
-    "status": "fresh",
+    "status": "not_requested",
     "fetchedAt": "2026-10-12T13:43:20.189Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/15-Pooling-replicas-sharding-backups-і-disaster-recovery/lecture.mp4",

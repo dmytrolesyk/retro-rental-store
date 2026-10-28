@@ -1,6 +1,7 @@
 import pg from 'pg';
 
 const POSTGRES_INVALID_PASSWORD_CODE = '28P01';
+const PGBOUNCER_PROTOCOL_ERROR_CODE = '08P01';
 
 type ConnectCallback = Parameters<pg.Pool['connect']>[0];
 
@@ -28,12 +29,13 @@ export class RotationPool extends pg.Pool {
       try {
         return await super.connect();
       } catch (error) {
-        if (
-          !(error instanceof Error) ||
-          !('code' in error) ||
-          error.code !== POSTGRES_INVALID_PASSWORD_CODE ||
-          attempt >= 3
-        ) {
+        const authenticationFailed =
+          error instanceof Error &&
+          'code' in error &&
+          (error.code === POSTGRES_INVALID_PASSWORD_CODE ||
+            (error.code === PGBOUNCER_PROTOCOL_ERROR_CODE &&
+              error.message === 'SASL authentication failed'));
+        if (!authenticationFailed || attempt >= 3) {
           throw error;
         }
         // Allow the rotator to publish the new password before trying again.
