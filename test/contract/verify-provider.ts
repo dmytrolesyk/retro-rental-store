@@ -16,16 +16,22 @@ import {
 } from '../../src/database/entities';
 import { aCatalog, aRental, aRentalItem, aRenter } from '../integration/testkit/builders';
 import { startPostgres } from '../integration/testkit/postgres';
+import { brokerConfig, pactPath } from './broker-api';
 import { PACT_FILE, PROVIDER_NAME, RENTAL_EXISTS_STATE } from './contract.config';
 
 async function main(): Promise<void> {
-  try {
-    await access(PACT_FILE);
-  } catch (error) {
-    throw new Error('Local Pact is missing. Run pnpm test:consumer before pnpm verify:provider.', {
-      cause: error,
-    });
-  }
+  const broker = process.env.PACT_BROKER_URL ? brokerConfig() : undefined;
+  if (!broker)
+    try {
+      await access(PACT_FILE);
+    } catch (error) {
+      throw new Error(
+        'Local Pact is missing. Run pnpm test:consumer before pnpm verify:provider.',
+        {
+          cause: error,
+        },
+      );
+    }
 
   const kit = await startPostgres();
   let app: INestApplication | undefined;
@@ -51,7 +57,14 @@ async function main(): Promise<void> {
     const output = await new Verifier({
       provider: PROVIDER_NAME,
       providerBaseUrl: await app.getUrl(),
-      pactUrls: [PACT_FILE],
+      pactUrls: [broker ? `${broker.url}${pactPath(broker.consumerVersion)}` : PACT_FILE],
+      ...(broker
+        ? {
+            ...(broker.token ? { pactBrokerToken: broker.token } : {}),
+            providerVersion: broker.providerVersion,
+            publishVerificationResult: true,
+          }
+        : {}),
       timeout: 60000,
       stateHandlers: {
         [RENTAL_EXISTS_STATE]: async parameters => {

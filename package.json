@@ -55,7 +55,11 @@
     "test:integration": "pnpm test:build && jest --config test/jest-integration.cjs",
     "openapi:generate": "pnpm run build && node dist/scripts/export-openapi.js",
     "openapi:lint": "redocly lint openapi/openapi.yaml",
-    "openapi:bundle": "redocly bundle openapi/openapi.yaml -o dist/openapi.json"
+    "openapi:bundle": "redocly bundle openapi/openapi.yaml -o dist/openapi.json",
+    "pact:publish": "pnpm test:build && node dist-test/test/contract/broker-cli.js publish",
+    "pact:tag-provider": "pnpm test:build && node dist-test/test/contract/broker-cli.js tag-provider",
+    "pact:can-i-deploy": "pnpm test:build && node dist-test/test/contract/broker-cli.js can-i-deploy",
+    "test:broker": "pnpm test:build && node --test dist-test/test/contract/broker-api.test.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

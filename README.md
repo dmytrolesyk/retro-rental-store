@@ -114,7 +114,7 @@ and a testcontainer DataSource: pagination, input/error contracts, concurrent
 identical/conflicting keys, persisted replay and full rollback on a storage
 failure. Full-AppModule E2E and local Pact consumer/provider verification have
 separate commands below. Pact is the selected contract option A from homework 9;
-Broker publication and the CI deployment gate belong to the next homework step.
+Broker publication and the CI deployment gate are described in the Pact Broker section below.
 
 References: [Nest pipes](https://docs.nestjs.com/pipes),
 [exception filters](https://docs.nestjs.com/exception-filters),
@@ -1407,12 +1407,65 @@ Finally, it closes the application pool, testkit pool and container and restores
 the previous environment, including DB_PASSWORD_FILE.
 
 The verifier prints `has a matching body (OK)` (with ANSI colors) and exits 0
-on success; a mismatch exits nonzero. This step verifies the local file and does
-not contact a Pact Broker or publish results, even if Broker env variables exist.
-Broker retrieval/publication and CI can-i-deploy are the next step. See the
+on success; a mismatch exits nonzero. With PACT_BROKER_URL unset it verifies the
+local file without publishing. With PACT_BROKER_URL set it downloads the exact
+consumer version from Broker and publishes the result for PROVIDER_VERSION. See the
 [Pact consumer](https://docs.pact.io/implementation_guides/javascript/docs/consumer)
 and [provider](https://docs.pact.io/implementation_guides/javascript/docs/provider)
 documentation for the two sides of this workflow.
+
+### Pact Broker and CI gate (homework 16)
+
+The optional Compose `contract` profile runs a loopback-only Broker with its own
+PostgreSQL service and `broker_data` volume. It does not use the application DB.
+The pinned Broker image matches the lecturer's lesson 16 example. Local Broker
+credentials are development-only; use a secured reachable Broker for CI.
+
+```sh
+docker compose --profile contract up -d --wait pact-broker
+export PACT_BROKER_URL=http://127.0.0.1:9292
+# Export PACT_BROKER_TOKEN from your secret manager if authentication is required.
+# Both versions default to git rev-parse HEAD; override to verify deployed releases.
+pnpm test:consumer
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:publish
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm verify:provider
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:can-i-deploy
+```
+
+On a fresh Broker the gate exits nonzero: no provider version is tagged `prod`
+yet (`summary.deployable: null`, `unknown: 1`). To reproduce the homework demo,
+explicitly tag the **same verified provider version**, then rerun the gate:
+
+```sh
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:tag-provider
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:can-i-deploy
+```
+
+This writes Broker metadata; it does not deploy the API. In a real release flow
+only mark the version actually deployed to production. The `prod` tag and
+`to=prod` query follow the homework's legacy tag workflow; current Pact guidance
+prefers environments and recording deployments. Never tag a new candidate merely
+to make the gate green. A new consumer must be compatible with the provider
+already tagged `prod`; verifying the candidate alone cannot prove that.
+
+The CLI accepts only literal `summary.deployable === true`; false, unknown,
+malformed responses, HTTP failures and timeouts exit nonzero. `pnpm test:broker`
+checks this decision rule. `CONSUMER_VERSION` and `PROVIDER_VERSION` identify
+immutable Git revisions, not mutable branch names. `PACT_BROKER_URL` selects
+Broker mode; unset it to return to local-file verification.
+
+The GitHub Actions job `contract` runs consumer → publish → provider verification
+with result publication → can-i-deploy. Configure repository secrets
+`PACT_BROKER_URL` and (for an authenticated Broker) `PACT_BROKER_TOKEN`.
+The URL must be reachable from the GitHub runner: your laptop's `127.0.0.1`
+is not reachable there. Missing configuration deliberately fails the job;
+fork PRs without secrets cannot run this external Broker workflow. Both versions
+use `github.sha`. CI never assigns `prod`. A fresh Broker needs the explicit
+production baseline above before the gate can pass. Workflow files alone do not
+configure secrets or establish a successful GitHub run.
+
+See [Pact can-i-deploy](https://docs.pact.io/pact_broker/can_i_deploy) and
+[Broker Docker configuration](https://docs.pact.io/pact_broker/docker_images/pactfoundation).
 
 ### Rental confirmation workers and Resend (homework 14)
 

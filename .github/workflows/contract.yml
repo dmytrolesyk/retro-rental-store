@@ -1,0 +1,37 @@
+name: Contract
+on:
+  pull_request:
+  push:
+    branches: [main, hw-16]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PACT_BROKER_URL: ${{ secrets.PACT_BROKER_URL }}
+      PACT_BROKER_TOKEN: ${{ secrets.PACT_BROKER_TOKEN }}
+      CONSUMER_VERSION: ${{ github.sha }}
+      PROVIDER_VERSION: ${{ github.sha }}
+      PACT_DO_NOT_TRACK: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Require reachable Broker configuration
+        run: |
+          test -n "$PACT_BROKER_URL" || { echo 'Configure PACT_BROKER_URL secret with a Broker reachable from this runner'; exit 1; }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:broker
+      - run: pnpm test:consumer
+      - name: Publish consumer contract
+        run: pnpm pact:publish
+      - name: Verify provider and publish result
+        run: pnpm verify:provider
+      - name: Gate consumer against provider tagged prod
+        run: pnpm pact:can-i-deploy
