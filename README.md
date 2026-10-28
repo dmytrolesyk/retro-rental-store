@@ -112,8 +112,9 @@ also checked against the exported document.
 `pnpm test:integration` includes focused HTTP boundary tests with real services
 and a testcontainer DataSource: pagination, input/error contracts, concurrent
 identical/conflicting keys, persisted replay and full rollback on a storage
-failure. Dedicated full-AppModule E2E and consumer/provider Pact suites remain
-the next plan points; Pact is the selected contract option from homework 9.
+failure. Full-AppModule E2E and local Pact consumer/provider verification have
+separate commands below. Pact is the selected contract option A from homework 9;
+Broker publication and the CI deployment gate belong to the next homework step.
 
 References: [Nest pipes](https://docs.nestjs.com/pipes),
 [exception filters](https://docs.nestjs.com/exception-filters),
@@ -1321,7 +1322,7 @@ failed writes must leave the previously stored data intact. The expected
 are 23505 (unique), 23514 (check) and 23503 (foreign key).
 The additional HTTP API suite checks the five operations, durable idempotency,
 pagination and error contracts. Full-AppModule E2E has its own command below;
-Pact follows in the next homework step.
+Local Pact consumer/provider verification has its own commands below.
 
 ### Full-application E2E (homework 16, step 4)
 
@@ -1359,6 +1360,59 @@ through `scripts/clean-test.mjs`, and `test:build` cleans and compiles it.
 `test:e2e` runs `test:build` followed by `test:e2e:run`; the latter starts Jest
 against an already compiled tree and can be used for a quick rerun when sources
 have not changed. `test:integration` uses the same `test:build` preparation.
+
+### Pact consumer and provider (homework 16, step 5; homework 9 option A)
+
+```bash
+pnpm test:consumer
+pnpm verify:provider
+```
+
+Run these in order from the repository root. Both reuse `test:build` and must
+run sequentially with the other suites that rebuild `dist-test/`.
+
+`test:consumer` needs no database or Docker. It exercises the illustrative
+frontend client in `test/contract/consumer/rentals-client.ts` against Pact's
+local mock server. That client uses fetch and its own Zod schema for the fields
+it consumes; it imports no backend DTOs. This is separate from the provider's
+class-validator HTTP input validation.
+
+The interaction is GET `/rentals/{rentalId}` in provider state
+`a rental with one copy exists`, parameterized by the requested UUID. The
+consumer needs `rentalId`, `renterId`, and `items[].gameCopyId/costPerDay`.
+The requested rental ID is exact; other IDs use UUID matchers, the price uses
+an integer matcher, and the items matcher requires at least one item for this
+scenario. Extra provider fields are allowed. A second test checks this endpoint
+and these consumed fields against the checked-in OpenAPI document; this is a
+targeted consistency check, not complete OpenAPI response validation.
+
+Pact JS 17 uses the current Pact builder with V3 HTTP serialization. The test
+generates `pacts/retro-rental-web-retro-rental-api.json` with providerStates.
+Generated pacts are gitignored; a fresh clone/CI run must execute the consumer
+command before verification or future publication. `test:contract` is an alias
+for `test:consumer`, preserving the fixed grading command required by homework 16.
+The consumer clears only
+this pair's previous file before generating it, preventing stale interactions
+from being merged into a new contract.
+
+`verify:provider` requires Docker, using the same runtime settings as E2E. It
+fails early with a useful message if the Pact file is missing. It starts a
+disposable PostgreSQL testkit, applies migrations, configures container-only
+DB env, then imports the real AppModule with the shared configureApp. The
+provider listens on a random loopback port; no provider is mocked or replaced.
+Its stateHandler resets the database and commits related catalog/renter/rental/
+item fixtures before the verifier sends the request. Fixture IDs are independent
+of consumer examples except the requested rental UUID from the state parameters.
+Finally, it closes the application pool, testkit pool and container and restores
+the previous environment, including DB_PASSWORD_FILE.
+
+The verifier prints `has a matching body (OK)` (with ANSI colors) and exits 0
+on success; a mismatch exits nonzero. This step verifies the local file and does
+not contact a Pact Broker or publish results, even if Broker env variables exist.
+Broker retrieval/publication and CI can-i-deploy are the next step. See the
+[Pact consumer](https://docs.pact.io/implementation_guides/javascript/docs/consumer)
+and [provider](https://docs.pact.io/implementation_guides/javascript/docs/provider)
+documentation for the two sides of this workflow.
 
 ### Rental confirmation workers and Resend (homework 14)
 
