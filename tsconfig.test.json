@@ -6,6 +6,6 @@
     "declaration": false,
     "incremental": false
   },
-  "include": ["src/**/*.ts", "test/integration/**/*.ts"],
+  "include": ["src/**/*.ts", "test/integration/**/*.ts", "test/e2e/**/*.ts"],
   "exclude": ["node_modules", "dist", "dist-test", "src/**/*.spec.ts"]
 }

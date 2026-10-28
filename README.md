@@ -1259,7 +1259,7 @@ pnpm run test --runInBand
 
 Database behavior is verified through the fresh-database workflow above.
 
-### Integration tests (homework 16, steps 1–2)
+### Integration tests (homework 16, steps 1–3)
 
 With Node 24, pnpm and a running Docker daemon:
 
@@ -1310,7 +1310,7 @@ copy. Both return plain data; tests choose when and how to persist it.
 `aRental(renterId, overrides)` and `aRentalItem(rentalId, gameCopyId, overrides)`
 build linked rental fixtures; their caller supplies existing parent IDs.
 
-The suite contains nine tests: three testkit smoke tests plus three tests for
+The repository/testkit suites contain nine tests: three smoke tests plus three tests for
 each of the `Renter` and `Rental` TypeORM repositories. The repository suites
 check write/read round trips, duplicate email, zero/negative balance, a missing
 renter FK, and an actual JOIN loading a rental with its owner and exactly its
@@ -1320,8 +1320,45 @@ failed writes must leave the previously stored data intact. The expected
 [PostgreSQL 16 codes](https://www.postgresql.org/docs/16/errcodes-appendix.html)
 are 23505 (unique), 23514 (check) and 23503 (foreign key).
 The additional HTTP API suite checks the five operations, durable idempotency,
-pagination and error contracts. Dedicated full-AppModule E2E and Pact follow
-in later homework steps.
+pagination and error contracts. Full-AppModule E2E has its own command below;
+Pact follows in the next homework step.
+
+### Full-application E2E (homework 16, step 4)
+
+```bash
+pnpm test:e2e
+```
+
+Use Node 24.9+ and a running Docker daemon (the Rancher settings above also
+apply). The command cleans and compiles `dist-test/`, then runs only
+`test/e2e/rentals.e2e-spec.ts` through its compiled JavaScript. Jest starts with
+`--experimental-vm-modules` because the installed `@nestjs/config` package is
+ESM; Node may print its VM Modules experimental warning.
+
+The suite imports the real AppModule without provider overrides. It starts
+the shared PostgreSQL testkit, applies migrations, sets the container's DB_*
+environment and clears DB_PASSWORD_FILE before importing AppModule (its config
+validation runs at import time). Previous environment values are restored
+during teardown. It uses the same configureApp as production for validation,
+problem details and Swagger. No working database, Compose, vault or email
+service is needed.
+
+Four tests cover POST rental -> GET its Location, an absent rental (404), an
+invalid UUID (400), and body/header validation without side effects. AppModule
+opens its own real connection pool; fixtures, truncation and assertions use
+the testkit pool against the same disposable database. Teardown closes the
+application first, then the testkit pool/container, even if setup or a test
+fails. Supertest uses a temporary HTTP listener; the application does not bind
+the configured PORT. E2E also uses `reporters: ['default']` and one worker.
+
+Run integration and E2E commands sequentially: both rebuild the shared
+`dist-test/` directory.
+
+Test preparation is split into named commands: `test:clean` removes `dist-test/`
+through `scripts/clean-test.mjs`, and `test:build` cleans and compiles it.
+`test:e2e` runs `test:build` followed by `test:e2e:run`; the latter starts Jest
+against an already compiled tree and can be used for a quick rerun when sources
+have not changed. `test:integration` uses the same `test:build` preparation.
 
 ### Rental confirmation workers and Resend (homework 14)
 
