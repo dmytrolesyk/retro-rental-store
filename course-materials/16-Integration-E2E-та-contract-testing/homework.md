@@ -1,7 +1,7 @@
 # Integration, E2E та contract testing
 
 Джерело: https://lms.robotdreams.cc/course/5467/lesson/104322
-Отримано: 2026-10-12T13:43:21.493Z
+Отримано: 2026-10-24T10:24:44.968Z
 
 ## Домашнє завдання
 
