@@ -1258,7 +1258,55 @@ The API uses `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_NAME`, and
 pnpm run test --runInBand
 ```
 
-Database behavior is verified through the fresh-database workflow above.
+### Homework 16: verification from a fresh clone
+
+Use Node 24.9+ (verified with 24.19.0), pnpm 10.24.0 and a running Docker daemon.
+This repository uses `pnpm-lock.yaml`; use the commands below in place of the
+homework's generic `npm ci` examples. No `.env`, application database or vault
+is required for these suites. For Rancher Desktop, export the socket settings
+in the integration section first.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec tsc --noEmit
+pnpm exec eslint 'src/**/*.ts' 'test/**/*.ts' --max-warnings=0
+pnpm test --runInBand
+pnpm test:integration
+pnpm test:integration
+pnpm test:e2e
+pnpm test:contract
+pnpm verify:provider
+pnpm test:broker
+pnpm openapi:generate
+pnpm openapi:lint
+```
+
+Leave `PACT_BROKER_URL` unset for this local-file verification sequence.
+`test:contract` generates the ignored Pact file needed by `verify:provider`.
+Run the commands sequentially: the test commands share and rebuild `dist-test/`.
+`openapi:generate` also builds the application without requiring a database;
+its output should match the committed `openapi/openapi.yaml`.
+
+| Homework requirement | Implementation / check |
+| --- | --- |
+| Two repositories, at least three tests each; real constraints and SQL | `test/integration/renters.spec.ts`, `rentals.spec.ts`: UNIQUE/CHECK/FK and JOIN |
+| PostgreSQL 16, isolation, unique builders | `test/integration/testkit/`; two consecutive integration runs |
+| Full Nest application, create → read and negative HTTP cases | `test/e2e/rentals.e2e-spec.ts`, shared `configureApp`, no provider overrides |
+| Consumer interaction and provider state, consistent with OpenAPI | `test/contract/consumer.spec.ts`; generated `pacts/*.json`; real provider verifier |
+| Broker publication, verification and strict deployment gate | `pnpm pact:publish`, `pnpm verify:provider`, `pnpm pact:can-i-deploy`; workflow job `contract` |
+| Explicit Jest reporter and TypeScript decorator metadata | `jest.config.cjs`, `test/jest-*`, `tsconfig.test.json` |
+| Secrets wrapper and environment-based Broker configuration | `scripts/with-secrets.sh`, `test/contract/broker-api.ts`, GitHub secrets |
+
+Verified from a clean clone of `f73ce2d` on 2026-10-28: unit **15/15**, integration
+**35/35 twice**, E2E **4/4**, consumer **2/2**, gate unit **1/1**, local and Broker
+provider verification successful. OpenAPI regenerated without a diff and passed
+lint with two allowed warnings (license metadata and localhost server URL).
+TypeScript, ESLint and TypeScript formatting checks passed. This is local
+verification evidence; the external GitHub CI has not been run.
+
+Broker setup, the explicit `prod` tag and captured gate responses are documented
+in the Pact Broker section below. Submit a PR from `hw-16` in the LMS.
+
 
 ### Integration tests (homework 16, steps 1–3)
 
@@ -1439,6 +1487,36 @@ explicitly tag the **same verified provider version**, then rerun the gate:
 ```sh
 SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:tag-provider
 SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:can-i-deploy
+```
+
+Captured on 2026-10-28 from a fresh local clone of
+`f73ce2d2611e049d368922a9eef4c303182b52e6` against an isolated fresh Broker.
+Publish returned `201`; Broker provider verification exited `0`. Both versions
+were the commit SHA above. These are the actual `summary` objects from the same
+`pnpm pact:can-i-deploy` query before and after tagging that provider version.
+
+Before the tag, exit `1`:
+
+```json
+{
+  "deployable": null,
+  "reason": "There is no verified pact between version f73ce2d2611e049d368922a9eef4c303182b52e6 of retro-rental-web and the latest version of retro-rental-api with tag prod (no such version exists)",
+  "success": 0,
+  "failed": 0,
+  "unknown": 1
+}
+```
+
+After the tag returned `201`, exit `0`:
+
+```json
+{
+  "deployable": true,
+  "reason": "All required verification results are published and successful",
+  "success": 1,
+  "failed": 0,
+  "unknown": 0
+}
 ```
 
 This writes Broker metadata; it does not deploy the API. In a real release flow
