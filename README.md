@@ -1301,8 +1301,11 @@ Verified from a clean clone of `f73ce2d` on 2026-10-28: unit **15/15**, integrat
 **35/35 twice**, E2E **4/4**, consumer **2/2**, gate unit **1/1**, local and Broker
 provider verification successful. OpenAPI regenerated without a diff and passed
 lint with two allowed warnings (license metadata and localhost server URL).
-TypeScript, ESLint and TypeScript formatting checks passed. This is local
-verification evidence; the external GitHub CI has not been run.
+TypeScript, ESLint and TypeScript formatting checks passed. Those results describe
+local verification of that revision. Hosted CI was subsequently verified at
+`4001ebe` using a self-hosted Railway Broker: the
+[contract workflow passed](https://github.com/dmytrolesyk/retro-rental-store/actions/runs/40743359291),
+including publication, real provider verification and the deployment gate.
 
 Broker setup, the explicit `prod` tag and captured gate responses are documented
 in the Pact Broker section below. Submit a PR from `hw-16` in the LMS.
