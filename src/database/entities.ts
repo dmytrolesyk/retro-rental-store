@@ -9,6 +9,7 @@ import { Renter } from '../renters/entities/renter.entity';
 import { Rental } from '../rentals/entities/rental.entity';
 import { RentalItem } from '../rentals/entities/rental-item.entity';
 import { RentalJob } from '../jobs/entities/rental-job.entity';
+import { RentalRequest } from '../rentals/entities/rental-request.entity';
 
 export {
   Game,
@@ -35,4 +36,5 @@ export const rentalEntities = [
   Rental,
   RentalItem,
   RentalJob,
+  RentalRequest,
 ];

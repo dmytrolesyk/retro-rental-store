@@ -21,6 +21,105 @@ entry point to `dist/main.js`. `experimentalDecorators` and
 TypeORM and `@nestjs/typeorm` are runtime dependencies; `pg` provides the
 PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
+## HTTP API and OpenAPI (homework 16, step 3; homework 9 requirements)
+
+Apply the migrations with the migration role before using the domain endpoints
+(see [Grading](#grading)); existing databases also need `AddRentalRequests`.
+The API still connects through PgBouncer and never runs migrations at startup.
+
+| Method | Path | Response |
+| --- | --- | --- |
+| GET | `/games?limit=20&cursor=…` | Game summaries: `items`, `next_cursor` |
+| GET | `/games/{gameId}` | Game details and supported platform IDs |
+| POST | `/rentals` | One-copy, one-day checkout: `rentalId`, `gameCopyId`, `chargedAmount`, `balance` |
+| GET | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor` |
+| GET | `/rentals/{rentalId}` | Rental, renter ID and item price/return snapshots |
+
+Money is in integer kopecks. The request DTO is separate from the TypeORM entity;
+internal confirmation job IDs are not exposed. Swagger UI is at `/docs`, and
+the running application's OpenAPI JSON is at `/docs-json`. `/health` and `/db`
+remain operational endpoints, excluded from the public OpenAPI document.
+
+```bash
+curl -s 'http://localhost:3000/games?limit=2'
+# Set these three variables to existing IDs with an available game copy and renter credit.
+curl -i -X POST http://localhost:3000/rentals \
+  -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: example-rental-0001' \
+  -d "{\"renterId\":\"$RENTER_ID\",\"gameId\":\"$GAME_ID\",\"platformId\":\"$PLATFORM_ID\"}"
+```
+
+POST accepts exactly `renterId`, `gameId`, `platformId` (UUIDs) and requires
+`Idempotency-Key`: 8–128 visible ASCII characters, no spaces. A successful
+request returns 201, a relative `Location`, and `Idempotency-Replay: false`.
+Repeating its key and validated body returns the original 201/body/Location
+with `Idempotency-Replay: true`. JSON property order and UUID letter case do not
+change request identity. The balance in a replay is the original post-checkout
+balance, not a fresh balance query. Reusing a successful key for another body
+returns 422. Failed requests roll back and do not reserve their keys.
+
+The key/hash/response live in `rental_requests`, not process memory. Its unique
+key coordinates concurrent requests; key allocation, checkout debit, rental,
+item, confirmation job and saved response commit in one READ COMMITTED
+transaction using the same EntityManager. A failure rolls everything back.
+Keys currently have no expiry. The legacy `checkout(DataSource, request)` entry
+point remains available to scripts without HTTP idempotency semantics.
+
+Both lists use stable UUID ordering, `limit` from 1 to 100 (default 20), and
+an opaque resource-specific cursor. Pass `next_cursor` unchanged; null marks
+the last page. Tokens are validated and cannot be exchanged between games and
+rentals. Pagination uses the last UUID, not OFFSET or a row lookup, so deleting
+the cursor row does not invalidate it. Separate HTTP pages are not a database
+snapshot: concurrent inserts before a passed cursor will not appear later.
+
+DTO classes with class-validator rules and a shared global ValidationPipe
+validate body and selected header inputs, reject unknown fields and apply
+explicit transformations. PaginationPipe uses the same validation policy for
+query/cursor DTOs, then decodes the resource-specific cursor; ParseUUIDPipe
+validates path IDs. Zod remains in configuration, fixture parsing and the
+standalone checkout input guard. Controllers delegate business work to services.
+RentalsService owns the transaction and idempotency decisions; one
+RentalsRepository contains rental reads, checkout persistence/locking and
+idempotency SQL. Its write methods require the transaction's EntityManager.
+CreateRentalResponseInterceptor sets Location/Idempotency-Replay through the
+Nest HTTP adapter and unwraps the public receipt. A shared global
+exception filter returns `application/problem+json` with required
+`type`, `title`, `status`, `detail`, `instance`: 400 for validation, 404 for
+missing resources/renters, 409 for unavailable copies/insufficient balance,
+422 for a conflicting key and a generic 500 for internal failures. The same
+`configureApp` function registers validation, the filter and docs in all bootstraps;
+parameter pipes are attached to the controllers. Authentication/guards are not
+part of this step.
+
+Generate and check the committed OpenAPI 3.0 document:
+
+```bash
+pnpm openapi:generate
+pnpm openapi:lint
+pnpm openapi:bundle
+```
+
+Generation builds with tsc, then reads the real controllers/DTO metadata in a
+documentation-only Nest module; its placeholder services are never called and
+it does not open a DB connection or HTTP listener. YAML is written to
+`openapi/openapi.yaml`, the bundle to ignored `dist/openapi.json`. Do not edit
+the generated YAML manually. Every operation declares an operationId, summary,
+success response and problem responses, with `components.schemas.Problem`.
+Redocly accepts the document with two advisory warnings (license metadata and
+the local server URL); the homework allows warnings. Runtime `/docs-json` was
+also checked against the exported document.
+
+`pnpm test:integration` includes focused HTTP boundary tests with real services
+and a testcontainer DataSource: pagination, input/error contracts, concurrent
+identical/conflicting keys, persisted replay and full rollback on a storage
+failure. Dedicated full-AppModule E2E and consumer/provider Pact suites remain
+the next plan points; Pact is the selected contract option from homework 9.
+
+References: [Nest pipes](https://docs.nestjs.com/pipes),
+[exception filters](https://docs.nestjs.com/exception-filters),
+[Swagger generation](https://docs.nestjs.com/openapi/introduction),
+[PostgreSQL ON CONFLICT](https://www.postgresql.org/docs/16/sql-insert.html).
+
 ## Configuration
 
 Connection settings are validated by `src/config/database-env.schema.ts`.
@@ -357,7 +456,7 @@ pnpm run build # compile the generated migration before running it
 
 Export the CLI credentials from the Grading block before these commands.
 `synchronize: false` and `migrationsRun: false` prevent schema changes on API
-startup. All nine entities and the initial migration are registered.
+startup. All application entities and migrations are registered.
 `migrate:show` marks the applied migration with `[X]`. Only the CLI module exports a
 DataSource instance; both CLI and Nest use the same options factory.
 
@@ -1220,7 +1319,9 @@ rows. Constraint assertions check both SQLSTATE and the constraint name;
 failed writes must leave the previously stored data intact. The expected
 [PostgreSQL 16 codes](https://www.postgresql.org/docs/16/errcodes-appendix.html)
 are 23505 (unique), 23514 (check) and 23503 (foreign key).
-E2E and Pact follow in later homework steps.
+The additional HTTP API suite checks the five operations, durable idempotency,
+pagination and error contracts. Dedicated full-AppModule E2E and Pact follow
+in later homework steps.
 
 ### Rental confirmation workers and Resend (homework 14)
 
