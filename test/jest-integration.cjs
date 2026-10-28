@@ -1,0 +1,11 @@
+module.exports = {
+  rootDir: '..',
+  roots: ['<rootDir>/dist-test/test/integration'],
+  testEnvironment: 'node',
+  testMatch: ['<rootDir>/dist-test/test/integration/**/*.spec.js'],
+  transform: {},
+  reporters: ['default'],
+  verbose: true,
+  maxWorkers: 1,
+  testTimeout: 120000,
+};

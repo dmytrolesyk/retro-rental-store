@@ -1160,6 +1160,58 @@ pnpm run test --runInBand
 
 Database behavior is verified through the fresh-database workflow above.
 
+### Integration testkit (homework 16, step 1)
+
+With Node 24, pnpm and a running Docker daemon:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm test:integration
+pnpm test:integration
+```
+
+No Compose stack, vault credentials or working database is needed. The command
+removes the previous dist-test output so deleted tests/migrations cannot linger,
+then compiles application code and integration tests with `tsc -p tsconfig.test.json`
+into ignored `dist-test/`, preserving Nest/TypeORM decorator metadata, then runs
+Jest against that JavaScript without another transformer. Unit tests keep their
+own `jest.config.cjs`; the integration config uses `reporters: ['default']`,
+`verbose: true` and `maxWorkers: 1`.
+
+For Rancher Desktop, export its socket settings before running the commands:
+
+```bash
+export DOCKER_HOST="unix://${HOME}/.rd/docker.sock"
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
+These are the [Testcontainers Rancher Desktop settings](https://node.testcontainers.org/supported-container-runtimes/#rancher-desktop).
+Ryuk stays enabled. Docker Desktop normally needs no additional settings.
+The first run may take longer while downloading the PostgreSQL/Ryuk images.
+
+`test/integration/testkit/postgres.ts` creates a disposable `postgres:16-alpine`
+container with a random host port and password, then runs the existing TypeORM
+migrations with `synchronize: false`. Its connection settings come exclusively
+from the [PostgreSQL container getters](https://node.testcontainers.org/modules/postgresql/),
+without reading or modifying the developer's `DB_*` environment. The returned
+`environment` contains the container's `DB_*` fields for later AppModule tests;
+those tests must apply them and unset `DB_PASSWORD_FILE` before building AppModule.
+
+Isolation uses a fresh container per suite and `TRUNCATE ... RESTART IDENTITY
+CASCADE` before each test. Truncation preserves the migrated schema and migration
+history while clearing all mapped application tables; it also works for future
+HTTP tests whose transactions can use different pool connections. One worker
+limits concurrent containers. Teardown closes the DataSource and removes the
+container and its volumes; initialization/migration failures trigger cleanup too.
+
+`aRenter(overrides)` builds renters with unique IDs, emails and phone numbers.
+`aCatalog({ pricePerDay })` builds a linked game, platform, association and physical
+copy. Both return plain data; tests choose when and how to persist it.
+
+The current three smoke tests verify PostgreSQL 16 migrations, renter builder
+round trips, and catalog persistence/reset. The two-repository suite and its
+constraint/SQL cases are the next homework step; E2E and Pact follow later.
+
 ### Rental confirmation workers and Resend (homework 14)
 
 After exporting the `DB_*` CLI credentials from Grading:
