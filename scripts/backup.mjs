@@ -21,36 +21,24 @@ function databaseUrl() {
 
 function containerUrl(source) {
   const url = new URL(source);
+  if (url.hostname === 'pgbouncer') {
+    throw new Error('Set DATABASE_URL to a direct PostgreSQL endpoint, not PgBouncer');
+  }
   if (['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)) {
-    // Host loopback means a different machine inside a container. Match the
-    // published Compose port, then use that SAME service's internal address.
+    // Both the exported snapshot and pg_dump must bypass the transaction pool.
+    // Match only this project's direct PostgreSQL port; never guess a database.
     const port = Number(url.port || 5432);
-    let matched = false;
-    for (const [service, internalPort] of [
-      ['pgbouncer', 6432],
-      ['db', 5432],
-    ]) {
-      try {
-        const published = execFileSync(
-          'docker',
-          ['compose', 'port', service, String(internalPort)],
-          {
-            cwd: root,
-            encoding: 'utf8',
-            stdio: ['ignore', 'pipe', 'pipe'],
-            timeout: 15000,
-          },
-        ).trim();
-        if (Number(new URL(`http://${published}`).port) !== port) continue;
-        url.hostname = service;
-        url.port = String(internalPort);
-        matched = true;
-        break;
-      } catch {
-        // Try the other service; never fall back to an unrelated database.
-      }
+    const published = execFileSync('docker', ['compose', 'port', 'db', '5432'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 15000,
+    }).trim();
+    if (Number(new URL(`http://${published}`).port) !== port) {
+      throw new Error("DATABASE_URL must use this Compose project's direct PostgreSQL port");
     }
-    if (!matched) throw new Error('DATABASE_URL port does not match this Compose project');
+    url.hostname = 'db';
+    url.port = '5432';
   }
   return url;
 }
@@ -58,7 +46,7 @@ function containerUrl(source) {
 async function dump(url, snapshot, filename) {
   const file = await open(filename, 'wx', 0o600);
   try {
-    const target = containerUrl(url);
+    const target = new URL(url);
     const password = target.searchParams.get('password') ?? decodeURIComponent(target.password);
     target.password = '';
     target.searchParams.delete('password');
@@ -95,6 +83,8 @@ async function dump(url, snapshot, filename) {
 
 async function main() {
   const url = databaseUrl();
+  // Validate the direct endpoint before connecting or exporting a snapshot.
+  const target = containerUrl(url);
   const directory = resolve(root, process.env.BACKUP_DIR || 'backups');
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const date = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
@@ -118,7 +108,7 @@ async function main() {
         coalesce(sum(price_per_day), 0)::text AS "sumPricePerDay" FROM public.game_copies`);
       [control] = result.rows;
     }
-    await dump(url, snapshot.id, partial);
+    await dump(target, snapshot.id, partial);
     await client.query('COMMIT');
     await writeFile(
       metadataFile,

@@ -162,7 +162,7 @@ and this Compose stack running. Host PostgreSQL binaries are not required:
 PostgreSQL 18 `pg_dump` already installed in the `db` container.
 
 ```bash
-export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${POSTGRES_PORT:-5432}/rental"
 export SKIP_VAULT=1
 bash scripts/with-secrets.sh dev bash scripts/backup.sh
 ```
@@ -172,10 +172,12 @@ in the selected environment. The script reads `DATABASE_URL` directly; it does
 not load or create an env file. Use a role that can read every table being backed
 up (the local `db_migrator` owns the application schema); the API role is not
 granted additional permissions. On the host, the URL must be reachable from the
-host. For loopback URLs the helper matches the published Compose port and uses
-the same service's internal address for the container-side dump. It refuses to
-guess a target for an unmatched loopback port. Non-loopback hosts must also be
-reachable from the `db` container.
+host. Use a direct PostgreSQL endpoint for backups: the snapshot connection
+and pg_dump must both bypass PgBouncer. For loopback URLs the helper requires
+the published `db` port and uses `db:5432` for the container-side dump. Pooler
+and unmatched loopback endpoints are rejected before opening a SQL connection.
+Non-loopback URLs must identify PostgreSQL directly and be reachable from both
+the host and the `db` container.
 
 Success prints one absolute archive path, for example
 `backups/rental-2026-10-23T12-00-00-000Z-<uuid>.dump` under the project directory.
@@ -211,11 +213,15 @@ A local directory survives container replacement but shares the host's fate.
 
 `backup.cron` contains a user-crontab job for 03:00 in the cron host's timezone.
 It is a checked-in schedule, not an installed scheduler. To enable it, merge the
-job into `crontab -e` (preserve existing jobs), adjust the project path and PATH
-to include the actual Node, Docker and Infisical binaries, and configure vault
-access for the cron user. Cron does not inherit exports from an interactive
-terminal; in grading/fallback mode it also needs `DATABASE_URL` and
-`SKIP_VAULT=1` supplied in its own environment, outside the repository. With
+job and its environment settings into `crontab -e` (preserve existing jobs).
+Replace the explicit `PROJECT_DIR` placeholder with the checkout's absolute path
+and adjust PATH to include Node 24 and Docker. The template supplies
+`SKIP_VAULT=1` and a direct `DATABASE_URL` using public local Compose defaults;
+adjust the port, credentials and `COMPOSE_PROJECT_NAME` for your stack.
+For vault mode set `SKIP_VAULT=0`, remove the template DATABASE_URL, include
+Infisical in PATH and configure unattended vault access for the cron user.
+Keep real credentials in the private crontab/vault, outside Git.
+Cron does not inherit exports from an interactive terminal. With
 Rancher Desktop, supply its Docker context or socket in that environment too.
 Logs go to `/tmp/retro-games-rental-backup.log`. The schedule is not installed
 automatically by the backup script.
@@ -251,9 +257,10 @@ live database, so changes after the backup do not affect this comparison and
 the source database can be offline. `DATABASE_URL` is required for backup;
 restore uses the local archive and its own newly created target instead.
 As in the lecturer's `08-backup-drill.sh`, count and sum are a limited integrity
-check, not proof that every field in every table is identical. An unmigrated
-snapshot explicitly prints `exists=false` and an absent-table explanation;
-use a migrated, populated snapshot to verify application data.
+check, not proof that every field in every table is identical. If the restored
+`public.game_copies` table is absent, the drill fails with a nonzero exit code
+and never prints MATCH, even when the snapshot metadata also says exists=false.
+A migrated but empty table is valid: its actual count and sum must still match.
 
 Success prints `MATCH` with the restored control values, archive size, the
 duration of the restore command, and measured drill RTO in seconds. The RTO
@@ -372,12 +379,18 @@ Homework 15 requires Node.js 24, pnpm 10.24.0 and Docker with Compose v2
 supporting `--wait`. Run from the repository root. No access to Infisical,
 local env file or host PostgreSQL binaries is required for grading.
 Install the checked-in dependencies, then run the startup → backup → drill
-sequence using the existing local development credentials:
+sequence using the existing local development credentials. Apply migrations
+and seed before taking the application-data backup:
 
 ```bash
 pnpm install --frozen-lockfile
 docker compose up -d --wait
-export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT:-6432}/rental"
+export DB_HOST=127.0.0.1 DB_PORT="${PGBOUNCER_PORT:-6432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
+unset DB_PASSWORD_FILE
+pnpm run build
+pnpm run migrate
+pnpm run seed
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${POSTGRES_PORT:-5432}/rental"
 export SKIP_VAULT=1
 bash scripts/with-secrets.sh dev bash scripts/backup.sh
 bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
@@ -389,18 +402,11 @@ the configured Infisical environment supplies the backup's `DATABASE_URL`.
 Restore reads local backup files and creates its own target, without connecting
 to the source database.
 
-On an unmigrated database this minimal sequence reports `MATCH exists=false`;
-it checks the bootstrap database, not recovery of application data. For an
-application-data drill on the same stack, populate it and create a new snapshot:
+A backup of an unmigrated database remains possible for diagnostics, but
+restore-drill rejects it. After applying migrations, create a new backup rather
+than reusing an older archive. Run the drill a second time to verify repeatability:
 
 ```bash
-export DB_HOST=127.0.0.1 DB_PORT="${PGBOUNCER_PORT:-6432}" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
-unset DB_PASSWORD_FILE
-pnpm run build
-pnpm run migrate
-pnpm run seed
-bash scripts/with-secrets.sh dev bash scripts/backup.sh
-bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
 bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
 ```
 

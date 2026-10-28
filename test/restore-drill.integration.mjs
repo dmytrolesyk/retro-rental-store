@@ -65,7 +65,7 @@ function assertCleaned(stdout) {
 
 before(async () => {
   directory = await mkdtemp(join(tmpdir(), 'retro-restore-test-'));
-  const port = new URL(`http://${docker('compose', 'port', 'pgbouncer', '6432')}`).port;
+  const port = new URL(`http://${docker('compose', 'port', 'db', '5432')}`).port;
   const user = process.env.DB_MIGRATION_USER ?? 'db_migrator';
   const password = process.env.DB_MIGRATION_PASSWORD ?? 'migration_dev';
   url = `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@127.0.0.1:${port}/rental`;
@@ -203,7 +203,7 @@ test('missing backups and invalid metadata fail before allocating resources', as
   assert.doesNotMatch(invalid.stdout, /Resources:/);
 });
 
-test('a fresh unmigrated database restores with an explicit absent-table result', async () => {
+test('an unmigrated snapshot fails the drill instead of reporting MATCH', async () => {
   const name = `retro_restore_empty_${randomUUID().replaceAll('-', '')}`;
   const admin = process.env.DB_ADMIN_USER ?? 'db_admin';
   function adminSql(query) {
@@ -233,9 +233,9 @@ test('a fresh unmigrated database restores with an explicit absent-table result'
     const backup = await run('backup', { BACKUP_DIR: target, DATABASE_URL: emptyUrl.href });
     assert.equal(backup.code, 0, backup.stderr);
     const result = await run('restore-drill', { BACKUP_DIR: target });
-    assert.equal(result.code, 0, result.stderr);
-    assert.match(result.stdout, /^MATCH exists=false rows=0 sumPricePerDay=0/m);
-    assert.match(result.stdout, /unmigrated database only/);
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /public\.game_copies.*absent/);
+    assert.doesNotMatch(result.stdout, /^MATCH /m);
     assertCleaned(result.stdout);
   } finally {
     adminSql(`DROP DATABASE ${name}`);

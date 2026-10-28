@@ -191,6 +191,11 @@ async function main() {
     restoreSeconds = (performance.now() - restoreStarted) / 1000;
 
     const exists = await sql("SELECT to_regclass('public.game_copies') IS NOT NULL");
+    if (exists !== 't') {
+      throw new Error(
+        'Required application table public.game_copies is absent in the restored database',
+      );
+    }
     actual = { exists: exists === 't', rows: '0', sumPricePerDay: '0' };
     if (actual.exists) {
       const values = JSON.parse(
@@ -241,10 +246,6 @@ async function main() {
   console.log(
     `MATCH exists=${actual.exists} rows=${actual.rows} sumPricePerDay=${actual.sumPricePerDay}`,
   );
-  if (!actual.exists)
-    console.log(
-      'Application table absent in this snapshot; this verifies an unmigrated database only.',
-    );
   console.log(`pg_restore: ${restoreSeconds.toFixed(3)} seconds`);
   console.log(`RTO (create through verification): ${rtoSeconds.toFixed(3)} seconds`);
   console.log(

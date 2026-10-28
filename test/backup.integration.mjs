@@ -44,7 +44,7 @@ async function backup(environment = {}) {
 
 before(async () => {
   directory = await mkdtemp(join(tmpdir(), 'retro-backup-test-'));
-  const port = new URL(`http://${compose('port', 'pgbouncer', '6432')}`).port;
+  const port = new URL(`http://${compose('port', 'db', '5432')}`).port;
   const user = process.env.DB_MIGRATION_USER ?? 'db_migrator';
   const password = process.env.DB_MIGRATION_PASSWORD ?? 'migration_dev';
   url = `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@127.0.0.1:${port}/rental`;
@@ -121,6 +121,17 @@ test('failed authentication publishes no archive and does not expose the passwor
   assert.notEqual(result.code, 0);
   assert.equal(result.stdout, '');
   assert.equal(result.stderr.includes('wrong-backup-secret'), false);
+  assert.deepEqual(await readdir(directory), before);
+});
+
+test('rejects the pooler endpoint before publishing a backup', async () => {
+  const before = await readdir(directory);
+  const pooled = new URL(url);
+  pooled.port = new URL(`http://${compose('port', 'pgbouncer', '6432')}`).port;
+  const result = await backup({ DATABASE_URL: pooled.href });
+  assert.notEqual(result.code, 0);
+  assert.match(result.stderr, /direct PostgreSQL/);
+  assert.equal(result.stdout, '');
   assert.deepEqual(await readdir(directory), before);
 });
 

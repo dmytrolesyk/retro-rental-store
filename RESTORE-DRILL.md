@@ -62,7 +62,7 @@ export COMPOSE_PROJECT_NAME=retro-hw15-test-grading
 export POSTGRES_PORT=55451 PGBOUNCER_PORT=56451 PORT=33015
 pnpm install --frozen-lockfile
 docker compose up -d --wait
-export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${PGBOUNCER_PORT}/rental"
+export DATABASE_URL="postgresql://db_migrator:migration_dev@127.0.0.1:${POSTGRES_PORT}/rental"
 export SKIP_VAULT=1
 export DB_HOST=127.0.0.1 DB_PORT="$PGBOUNCER_PORT" DB_USER=db_migrator DB_PASSWORD=migration_dev DB_NAME=rental
 unset DB_PASSWORD_FILE
@@ -76,9 +76,14 @@ bash scripts/with-secrets.sh dev bash scripts/restore-drill.sh
 docker compose down --volumes
 ```
 
-The minimal grading sequence was also tested before migrations: startup → backup
+Historical behavior at commit `9845078` (fixed after lecturer review on
+2026-10-28): the minimal grading sequence was also tested before migrations: startup → backup
 → restore returned `MATCH exists=false rows=0 sumPricePerDay=0`, exit 0. That
-bootstrap-only result is distinct from the populated-data measurements above.
+bootstrap-only result was distinct from the populated-data measurements above.
+The current drill rejects a restored database without public.game_copies and
+returns nonzero without MATCH. The current README grading sequence runs
+migrations and seed before backup. Backups now require the direct PostgreSQL
+endpoint; both snapshot export and pg_dump bypass PgBouncer.
 
 ## Other acceptance checks
 
