@@ -1160,7 +1160,7 @@ pnpm run test --runInBand
 
 Database behavior is verified through the fresh-database workflow above.
 
-### Integration testkit (homework 16, step 1)
+### Integration tests (homework 16, steps 1–2)
 
 With Node 24, pnpm and a running Docker daemon:
 
@@ -1208,9 +1208,19 @@ container and its volumes; initialization/migration failures trigger cleanup too
 `aCatalog({ pricePerDay })` builds a linked game, platform, association and physical
 copy. Both return plain data; tests choose when and how to persist it.
 
-The current three smoke tests verify PostgreSQL 16 migrations, renter builder
-round trips, and catalog persistence/reset. The two-repository suite and its
-constraint/SQL cases are the next homework step; E2E and Pact follow later.
+`aRental(renterId, overrides)` and `aRentalItem(rentalId, gameCopyId, overrides)`
+build linked rental fixtures; their caller supplies existing parent IDs.
+
+The suite contains nine tests: three testkit smoke tests plus three tests for
+each of the `Renter` and `Rental` TypeORM repositories. The repository suites
+check write/read round trips, duplicate email, zero/negative balance, a missing
+renter FK, and an actual JOIN loading a rental with its owner and exactly its
+own items. The JOIN fixture includes another renter/rental to catch unrelated
+rows. Constraint assertions check both SQLSTATE and the constraint name;
+failed writes must leave the previously stored data intact. The expected
+[PostgreSQL 16 codes](https://www.postgresql.org/docs/16/errcodes-appendix.html)
+are 23505 (unique), 23514 (check) and 23503 (foreign key).
+E2E and Pact follow in later homework steps.
 
 ### Rental confirmation workers and Resend (homework 14)
 
