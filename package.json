@@ -18,7 +18,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:clean": "node scripts/clean-test.mjs",
+    "test:build": "pnpm test:clean && tsc -p tsconfig.test.json",
+    "test:e2e": "pnpm test:build && pnpm test:e2e:run",
+    "test:e2e:run": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config test/jest-e2e.json",
+    "test:consumer": "pnpm test:build && jest --config test/jest-consumer.json",
+    "test:contract": "pnpm test:consumer",
+    "verify:provider": "pnpm test:build && node dist-test/test/contract/verify-provider.js",
     "test:db:transactions": "pnpm run build && node --test test/transactions-schema.integration.mjs",
     "test:db:checkout": "pnpm run build && node --test test/checkout.integration.mjs",
     "test:db:race": "pnpm run build && node --test test/race.integration.mjs",
@@ -45,20 +51,32 @@
     "test:secrets": "node --test test/with-secrets.test.mjs",
     "test:db:pooler": "pnpm run build && node --test test/pgbouncer.integration.mjs",
     "test:db:backup": "pnpm run build && node --test test/backup.integration.mjs",
-    "test:db:restore": "pnpm run build && node --test test/restore-drill.integration.mjs"
+    "test:db:restore": "pnpm run build && node --test test/restore-drill.integration.mjs",
+    "test:integration": "pnpm test:build && jest --config test/jest-integration.cjs",
+    "openapi:generate": "pnpm run build && node dist/scripts/export-openapi.js",
+    "openapi:lint": "redocly lint openapi/openapi.yaml",
+    "openapi:bundle": "redocly bundle openapi/openapi.yaml -o dist/openapi.json",
+    "pact:publish": "pnpm test:build && node dist-test/test/contract/broker-cli.js publish",
+    "pact:tag-provider": "pnpm test:build && node dist-test/test/contract/broker-cli.js tag-provider",
+    "pact:can-i-deploy": "pnpm test:build && node dist-test/test/contract/broker-cli.js can-i-deploy",
+    "test:broker": "pnpm test:build && node --test dist-test/test/contract/broker-api.test.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",
     "@nestjs/config": "^12.0.0",
     "@nestjs/core": "^11.2.3",
     "@nestjs/platform-express": "^11.2.3",
+    "@nestjs/swagger": "^11.4.7",
     "@nestjs/typeorm": "12.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "csv-parse": "^7.0.3",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "resend": "^6.33.0",
     "rxjs": "^7.8.2",
     "typeorm": "0.3.31",
+    "yaml": "^2.9.1",
     "zod": "^4.6.2"
   },
   "devDependencies": {
@@ -67,6 +85,9 @@
     "@nestjs/cli": "^11.0.24",
     "@nestjs/schematics": "^11.1.0",
     "@nestjs/testing": "^11.2.3",
+    "@pact-foundation/pact": "^17.1.4",
+    "@redocly/cli": "^2.71.2",
+    "@testcontainers/postgresql": "^12.2.1",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.13.4",
@@ -87,23 +108,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.70.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   },
   "packageManager": "pnpm@10.24.0"
 }

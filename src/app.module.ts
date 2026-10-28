@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { validateEnvConfig } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { RentalsModule } from './rentals/rentals.module';
+import { CatalogModule } from './catalog/catalog.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RentalsModule } from './rentals/rentals.module';
     }),
     DatabaseModule,
     RentalsModule,
+    CatalogModule,
   ],
   controllers: [AppController],
 })

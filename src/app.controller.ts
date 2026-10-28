@@ -1,8 +1,10 @@
 import { Controller, Get, HttpCode } from '@nestjs/common';
 import { DataSource } from 'typeorm';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 const started = Date.now();
 
+@ApiExcludeController()
 @Controller('/')
 export class AppController {
   constructor(private readonly db: DataSource) {}

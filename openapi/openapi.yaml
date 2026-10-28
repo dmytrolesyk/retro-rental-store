@@ -1,0 +1,472 @@
+openapi: 3.0.0
+paths:
+  /games:
+    get:
+      operationId: listGames
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of items per page.
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque token from next_cursor. Pass it unchanged; do not parse or
+            construct it. A token belongs to one resource. Omit for the first
+            page.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: One page of games.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamePageDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      summary: List games in stable UUID order
+      tags: &a1
+        - games
+  /games/{gameId}:
+    get:
+      operationId: getGame
+      parameters:
+        - name: gameId
+          required: true
+          in: path
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Game details and platform identifiers for checkout.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameDetailDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      summary: Get a game and its platforms
+      tags: *a1
+  /rentals:
+    post:
+      operationId: createRental
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: Client-generated opaque key. The same key and validated body replay
+            the original 201 response and Location, without another rental,
+            debit or job. JSON property order and UUID case do not affect
+            identity. A different body with the same key returns 422. Keys are
+            stored in PostgreSQL without automatic expiration.
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 128
+            pattern: ^[!-~]+$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRentalDto"
+      responses:
+        "201":
+          description: Rental created, or its original response replayed.
+          headers:
+            Location:
+              description: URL of the created rental.
+              schema:
+                type: string
+                format: uri-reference
+            Idempotency-Replay:
+              description: Whether this is the persisted original response.
+              schema:
+                type: string
+                enum:
+                  - "true"
+                  - "false"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatedRentalDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: Business state conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: Idempotency key used with a different request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      summary: Rent one available copy for one day
+      tags: &a2
+        - rentals
+    get:
+      operationId: listRentals
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of items per page.
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque token from next_cursor. Pass it unchanged; do not parse or
+            construct it. A token belongs to one resource. Omit for the first
+            page.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: One page of rental summaries.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalPageDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      summary: List rentals in stable UUID order
+      tags: *a2
+  /rentals/{rentalId}:
+    get:
+      operationId: getRental
+      parameters:
+        - name: rentalId
+          required: true
+          in: path
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Rental details with historical item prices.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalDetailDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      summary: Get a rental and its items
+      tags: *a2
+info:
+  title: Retro Games Rental API
+  description: Catalog and single-copy rental API. Monetary amounts are integer
+    kopecks. No authentication is configured yet.
+  version: 1.0.0
+  contact: {}
+tags:
+  - name: games
+    description: Game catalog and supported platforms.
+  - name: rentals
+    description: Single-copy rentals, one day per checkout.
+servers:
+  - url: http://localhost:3000
+    description: Local server; override the URL for your deployment.
+components:
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+          example: urn:retro-rental:problem:bad-request
+        title:
+          type: string
+          example: bad request
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+          example: 400
+        detail:
+          type: string
+          example: Invalid UUID
+        instance:
+          type: string
+          format: uri-reference
+          example: /rentals
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+    GameSummaryDto:
+      type: object
+      properties:
+        gameId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        nameUk:
+          type: string
+        releaseDate:
+          type: string
+          nullable: true
+          format: date
+        gameCoverUrl:
+          type: string
+          nullable: true
+      required:
+        - gameId
+        - name
+        - nameUk
+        - releaseDate
+        - gameCoverUrl
+    GamePageDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/GameSummaryDto"
+        next_cursor:
+          type: string
+          nullable: true
+          description: Opaque token for the next page; null when there are no more items.
+      required:
+        - items
+        - next_cursor
+    GamePlatformDto:
+      type: object
+      properties:
+        platformId:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - platformId
+        - name
+    GameDetailDto:
+      type: object
+      properties:
+        gameId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        nameUk:
+          type: string
+        releaseDate:
+          type: string
+          nullable: true
+          format: date
+        gameCoverUrl:
+          type: string
+          nullable: true
+        description:
+          type: string
+        descriptionUk:
+          type: string
+        platforms:
+          type: array
+          items:
+            $ref: "#/components/schemas/GamePlatformDto"
+      required:
+        - gameId
+        - name
+        - nameUk
+        - releaseDate
+        - gameCoverUrl
+        - description
+        - descriptionUk
+        - platforms
+    CreateRentalDto:
+      type: object
+      properties:
+        renterId:
+          type: string
+          format: uuid
+        gameId:
+          type: string
+          format: uuid
+        platformId:
+          type: string
+          format: uuid
+      required:
+        - renterId
+        - gameId
+        - platformId
+      additionalProperties: false
+    CreatedRentalDto:
+      type: object
+      properties:
+        rentalId:
+          type: string
+          format: uuid
+        gameCopyId:
+          type: string
+          format: uuid
+        chargedAmount:
+          type: integer
+          minimum: 0
+          description: Amount charged for one day, in integer kopecks.
+        balance:
+          type: integer
+          minimum: 0
+          description: Balance immediately after checkout, in kopecks. A replay returns
+            the original value.
+      required:
+        - rentalId
+        - gameCopyId
+        - chargedAmount
+        - balance
+    RentalSummaryDto:
+      type: object
+      properties:
+        rentalId:
+          type: string
+          format: uuid
+        renterId:
+          type: string
+          format: uuid
+        rentedAt:
+          type: string
+          format: date-time
+      required:
+        - rentalId
+        - renterId
+        - rentedAt
+    RentalPageDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RentalSummaryDto"
+        next_cursor:
+          type: string
+          nullable: true
+          description: Opaque token for the next page; null when there are no more items.
+      required:
+        - items
+        - next_cursor
+    RentalItemDto:
+      type: object
+      properties:
+        gameCopyId:
+          type: string
+          format: uuid
+        costPerDay:
+          type: integer
+          minimum: 0
+          description: Historical price per day in kopecks.
+        returnedAt:
+          type: string
+          nullable: true
+          format: date-time
+      required:
+        - gameCopyId
+        - costPerDay
+        - returnedAt
+    RentalDetailDto:
+      type: object
+      properties:
+        rentalId:
+          type: string
+          format: uuid
+        renterId:
+          type: string
+          format: uuid
+        rentedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RentalItemDto"
+      required:
+        - rentalId
+        - renterId
+        - rentedAt
+        - items
+security: []

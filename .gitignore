@@ -1,5 +1,6 @@
 # compiled output
 /dist
+/dist-test
 /node_modules
 /build
 /backups/
@@ -24,6 +25,7 @@ lerna-debug.log*
 .DS_Store
 
 # Tests
+/pacts/
 /coverage
 /.nyc_output
 

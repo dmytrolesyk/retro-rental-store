@@ -10,6 +10,7 @@ export default defineConfig(
     ignores: [
       'eslint.config.mjs',
       'dist/**',
+      'dist-test/**',
       '.local/**',
       'tools/lms-client/dist/**',
       'reference/**',
@@ -51,7 +52,16 @@ export default defineConfig(
     extends: [tseslint.configs.disableTypeChecked],
   },
   {
-    files: ['test/**/*.mjs', 'scripts/backup.mjs', 'scripts/restore-drill.mjs'],
+    files: ['jest.config.cjs', 'test/jest-integration.cjs'],
+    extends: [tseslint.configs.disableTypeChecked],
+  },
+  {
+    files: [
+      'test/**/*.mjs',
+      'scripts/backup.mjs',
+      'scripts/restore-drill.mjs',
+      'scripts/clean-test.mjs',
+    ],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { sourceType: 'module' },
   },

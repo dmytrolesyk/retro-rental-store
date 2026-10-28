@@ -21,6 +21,106 @@ entry point to `dist/main.js`. `experimentalDecorators` and
 TypeORM and `@nestjs/typeorm` are runtime dependencies; `pg` provides the
 PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
+## HTTP API and OpenAPI (homework 16, step 3; homework 9 requirements)
+
+Apply the migrations with the migration role before using the domain endpoints
+(see [Grading](#grading)); existing databases also need `AddRentalRequests`.
+The API still connects through PgBouncer and never runs migrations at startup.
+
+| Method | Path | Response |
+| --- | --- | --- |
+| GET | `/games?limit=20&cursor=…` | Game summaries: `items`, `next_cursor` |
+| GET | `/games/{gameId}` | Game details and supported platform IDs |
+| POST | `/rentals` | One-copy, one-day checkout: `rentalId`, `gameCopyId`, `chargedAmount`, `balance` |
+| GET | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor` |
+| GET | `/rentals/{rentalId}` | Rental, renter ID and item price/return snapshots |
+
+Money is in integer kopecks. The request DTO is separate from the TypeORM entity;
+internal confirmation job IDs are not exposed. Swagger UI is at `/docs`, and
+the running application's OpenAPI JSON is at `/docs-json`. `/health` and `/db`
+remain operational endpoints, excluded from the public OpenAPI document.
+
+```bash
+curl -s 'http://localhost:3000/games?limit=2'
+# Set these three variables to existing IDs with an available game copy and renter credit.
+curl -i -X POST http://localhost:3000/rentals \
+  -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: example-rental-0001' \
+  -d "{\"renterId\":\"$RENTER_ID\",\"gameId\":\"$GAME_ID\",\"platformId\":\"$PLATFORM_ID\"}"
+```
+
+POST accepts exactly `renterId`, `gameId`, `platformId` (UUIDs) and requires
+`Idempotency-Key`: 8–128 visible ASCII characters, no spaces. A successful
+request returns 201, a relative `Location`, and `Idempotency-Replay: false`.
+Repeating its key and validated body returns the original 201/body/Location
+with `Idempotency-Replay: true`. JSON property order and UUID letter case do not
+change request identity. The balance in a replay is the original post-checkout
+balance, not a fresh balance query. Reusing a successful key for another body
+returns 422. Failed requests roll back and do not reserve their keys.
+
+The key/hash/response live in `rental_requests`, not process memory. Its unique
+key coordinates concurrent requests; key allocation, checkout debit, rental,
+item, confirmation job and saved response commit in one READ COMMITTED
+transaction using the same EntityManager. A failure rolls everything back.
+Keys currently have no expiry. The legacy `checkout(DataSource, request)` entry
+point remains available to scripts without HTTP idempotency semantics.
+
+Both lists use stable UUID ordering, `limit` from 1 to 100 (default 20), and
+an opaque resource-specific cursor. Pass `next_cursor` unchanged; null marks
+the last page. Tokens are validated and cannot be exchanged between games and
+rentals. Pagination uses the last UUID, not OFFSET or a row lookup, so deleting
+the cursor row does not invalidate it. Separate HTTP pages are not a database
+snapshot: concurrent inserts before a passed cursor will not appear later.
+
+DTO classes with class-validator rules and a shared global ValidationPipe
+validate body and selected header inputs, reject unknown fields and apply
+explicit transformations. PaginationPipe uses the same validation policy for
+query/cursor DTOs, then decodes the resource-specific cursor; ParseUUIDPipe
+validates path IDs. Zod remains in configuration, fixture parsing and the
+standalone checkout input guard. Controllers delegate business work to services.
+RentalsService owns the transaction and idempotency decisions; one
+RentalsRepository contains rental reads, checkout persistence/locking and
+idempotency SQL. Its write methods require the transaction's EntityManager.
+CreateRentalResponseInterceptor sets Location/Idempotency-Replay through the
+Nest HTTP adapter and unwraps the public receipt. A shared global
+exception filter returns `application/problem+json` with required
+`type`, `title`, `status`, `detail`, `instance`: 400 for validation, 404 for
+missing resources/renters, 409 for unavailable copies/insufficient balance,
+422 for a conflicting key and a generic 500 for internal failures. The same
+`configureApp` function registers validation, the filter and docs in all bootstraps;
+parameter pipes are attached to the controllers. Authentication/guards are not
+part of this step.
+
+Generate and check the committed OpenAPI 3.0 document:
+
+```bash
+pnpm openapi:generate
+pnpm openapi:lint
+pnpm openapi:bundle
+```
+
+Generation builds with tsc, then reads the real controllers/DTO metadata in a
+documentation-only Nest module; its placeholder services are never called and
+it does not open a DB connection or HTTP listener. YAML is written to
+`openapi/openapi.yaml`, the bundle to ignored `dist/openapi.json`. Do not edit
+the generated YAML manually. Every operation declares an operationId, summary,
+success response and problem responses, with `components.schemas.Problem`.
+Redocly accepts the document with two advisory warnings (license metadata and
+the local server URL); the homework allows warnings. Runtime `/docs-json` was
+also checked against the exported document.
+
+`pnpm test:integration` includes focused HTTP boundary tests with real services
+and a testcontainer DataSource: pagination, input/error contracts, concurrent
+identical/conflicting keys, persisted replay and full rollback on a storage
+failure. Full-AppModule E2E and local Pact consumer/provider verification have
+separate commands below. Pact is the selected contract option A from homework 9;
+Broker publication and the CI deployment gate are described in the Pact Broker section below.
+
+References: [Nest pipes](https://docs.nestjs.com/pipes),
+[exception filters](https://docs.nestjs.com/exception-filters),
+[Swagger generation](https://docs.nestjs.com/openapi/introduction),
+[PostgreSQL ON CONFLICT](https://www.postgresql.org/docs/16/sql-insert.html).
+
 ## Configuration
 
 Connection settings are validated by `src/config/database-env.schema.ts`.
@@ -357,7 +457,7 @@ pnpm run build # compile the generated migration before running it
 
 Export the CLI credentials from the Grading block before these commands.
 `synchronize: false` and `migrationsRun: false` prevent schema changes on API
-startup. All nine entities and the initial migration are registered.
+startup. All application entities and migrations are registered.
 `migrate:show` marks the applied migration with `[X]`. Only the CLI module exports a
 DataSource instance; both CLI and Nest use the same options factory.
 
@@ -1158,7 +1258,322 @@ The API uses `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_NAME`, and
 pnpm run test --runInBand
 ```
 
-Database behavior is verified through the fresh-database workflow above.
+### Homework 16: verification from a fresh clone
+
+Use Node 24.9+ (verified with 24.19.0), pnpm 10.24.0 and a running Docker daemon.
+This repository uses `pnpm-lock.yaml`; use the commands below in place of the
+homework's generic `npm ci` examples. No `.env`, application database or vault
+is required for these suites. For Rancher Desktop, export the socket settings
+in the integration section first.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec tsc --noEmit
+pnpm exec eslint 'src/**/*.ts' 'test/**/*.ts' --max-warnings=0
+pnpm test --runInBand
+pnpm test:integration
+pnpm test:integration
+pnpm test:e2e
+pnpm test:contract
+pnpm verify:provider
+pnpm test:broker
+pnpm openapi:generate
+pnpm openapi:lint
+```
+
+Leave `PACT_BROKER_URL` unset for this local-file verification sequence.
+`test:contract` generates the ignored Pact file needed by `verify:provider`.
+Run the commands sequentially: the test commands share and rebuild `dist-test/`.
+`openapi:generate` also builds the application without requiring a database;
+its output should match the committed `openapi/openapi.yaml`.
+
+| Homework requirement | Implementation / check |
+| --- | --- |
+| Two repositories, at least three tests each; real constraints and SQL | `test/integration/renters.spec.ts`, `rentals.spec.ts`: UNIQUE/CHECK/FK and JOIN |
+| PostgreSQL 16, isolation, unique builders | `test/integration/testkit/`; two consecutive integration runs |
+| Full Nest application, create → read and negative HTTP cases | `test/e2e/rentals.e2e-spec.ts`, shared `configureApp`, no provider overrides |
+| Consumer interaction and provider state, consistent with OpenAPI | `test/contract/consumer.spec.ts`; generated `pacts/*.json`; real provider verifier |
+| Broker publication, verification and strict deployment gate | `pnpm pact:publish`, `pnpm verify:provider`, `pnpm pact:can-i-deploy`; workflow job `contract` |
+| Explicit Jest reporter and TypeScript decorator metadata | `jest.config.cjs`, `test/jest-*`, `tsconfig.test.json` |
+| Secrets wrapper and environment-based Broker configuration | `scripts/with-secrets.sh`, `test/contract/broker-api.ts`, GitHub secrets |
+
+Verified from a clean clone of `f73ce2d` on 2026-10-28: unit **15/15**, integration
+**35/35 twice**, E2E **4/4**, consumer **2/2**, gate unit **1/1**, local and Broker
+provider verification successful. OpenAPI regenerated without a diff and passed
+lint with two allowed warnings (license metadata and localhost server URL).
+TypeScript, ESLint and TypeScript formatting checks passed. Those results describe
+local verification of that revision. Hosted CI was subsequently verified at
+`4001ebe` using a self-hosted Railway Broker: the
+[contract workflow passed](https://github.com/dmytrolesyk/retro-rental-store/actions/runs/40743359291),
+including publication, real provider verification and the deployment gate.
+
+Broker setup, the explicit `prod` tag and captured gate responses are documented
+in the Pact Broker section below. Submit a PR from `hw-16` in the LMS.
+
+
+### Integration tests (homework 16, steps 1–3)
+
+With Node 24, pnpm and a running Docker daemon:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm test:integration
+pnpm test:integration
+```
+
+No Compose stack, vault credentials or working database is needed. The command
+removes the previous dist-test output so deleted tests/migrations cannot linger,
+then compiles application code and integration tests with `tsc -p tsconfig.test.json`
+into ignored `dist-test/`, preserving Nest/TypeORM decorator metadata, then runs
+Jest against that JavaScript without another transformer. Unit tests keep their
+own `jest.config.cjs`; the integration config uses `reporters: ['default']`,
+`verbose: true` and `maxWorkers: 1`.
+
+For Rancher Desktop, export its socket settings before running the commands:
+
+```bash
+export DOCKER_HOST="unix://${HOME}/.rd/docker.sock"
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
+These are the [Testcontainers Rancher Desktop settings](https://node.testcontainers.org/supported-container-runtimes/#rancher-desktop).
+Ryuk stays enabled. Docker Desktop normally needs no additional settings.
+The first run may take longer while downloading the PostgreSQL/Ryuk images.
+
+`test/integration/testkit/postgres.ts` creates a disposable `postgres:16-alpine`
+container with a random host port and password, then runs the existing TypeORM
+migrations with `synchronize: false`. Its connection settings come exclusively
+from the [PostgreSQL container getters](https://node.testcontainers.org/modules/postgresql/),
+without reading or modifying the developer's `DB_*` environment. The returned
+`environment` contains the container's `DB_*` fields for later AppModule tests;
+those tests must apply them and unset `DB_PASSWORD_FILE` before building AppModule.
+
+Isolation uses a fresh container per suite and `TRUNCATE ... RESTART IDENTITY
+CASCADE` before each test. Truncation preserves the migrated schema and migration
+history while clearing all mapped application tables; it also works for future
+HTTP tests whose transactions can use different pool connections. One worker
+limits concurrent containers. Teardown closes the DataSource and removes the
+container and its volumes; initialization/migration failures trigger cleanup too.
+
+`aRenter(overrides)` builds renters with unique IDs, emails and phone numbers.
+`aCatalog({ pricePerDay })` builds a linked game, platform, association and physical
+copy. Both return plain data; tests choose when and how to persist it.
+
+`aRental(renterId, overrides)` and `aRentalItem(rentalId, gameCopyId, overrides)`
+build linked rental fixtures; their caller supplies existing parent IDs.
+
+The repository/testkit suites contain nine tests: three smoke tests plus three tests for
+each of the `Renter` and `Rental` TypeORM repositories. The repository suites
+check write/read round trips, duplicate email, zero/negative balance, a missing
+renter FK, and an actual JOIN loading a rental with its owner and exactly its
+own items. The JOIN fixture includes another renter/rental to catch unrelated
+rows. Constraint assertions check both SQLSTATE and the constraint name;
+failed writes must leave the previously stored data intact. The expected
+[PostgreSQL 16 codes](https://www.postgresql.org/docs/16/errcodes-appendix.html)
+are 23505 (unique), 23514 (check) and 23503 (foreign key).
+The additional HTTP API suite checks the five operations, durable idempotency,
+pagination and error contracts. Full-AppModule E2E has its own command below;
+Local Pact consumer/provider verification has its own commands below.
+
+### Full-application E2E (homework 16, step 4)
+
+```bash
+pnpm test:e2e
+```
+
+Use Node 24.9+ and a running Docker daemon (the Rancher settings above also
+apply). The command cleans and compiles `dist-test/`, then runs only
+`test/e2e/rentals.e2e-spec.ts` through its compiled JavaScript. Jest starts with
+`--experimental-vm-modules` because the installed `@nestjs/config` package is
+ESM; Node may print its VM Modules experimental warning.
+
+The suite imports the real AppModule without provider overrides. It starts
+the shared PostgreSQL testkit, applies migrations, sets the container's DB_*
+environment and clears DB_PASSWORD_FILE before importing AppModule (its config
+validation runs at import time). Previous environment values are restored
+during teardown. It uses the same configureApp as production for validation,
+problem details and Swagger. No working database, Compose, vault or email
+service is needed.
+
+Four tests cover POST rental -> GET its Location, an absent rental (404), an
+invalid UUID (400), and body/header validation without side effects. AppModule
+opens its own real connection pool; fixtures, truncation and assertions use
+the testkit pool against the same disposable database. Teardown closes the
+application first, then the testkit pool/container, even if setup or a test
+fails. Supertest uses a temporary HTTP listener; the application does not bind
+the configured PORT. E2E also uses `reporters: ['default']` and one worker.
+
+Run integration and E2E commands sequentially: both rebuild the shared
+`dist-test/` directory.
+
+Test preparation is split into named commands: `test:clean` removes `dist-test/`
+through `scripts/clean-test.mjs`, and `test:build` cleans and compiles it.
+`test:e2e` runs `test:build` followed by `test:e2e:run`; the latter starts Jest
+against an already compiled tree and can be used for a quick rerun when sources
+have not changed. `test:integration` uses the same `test:build` preparation.
+
+### Pact consumer and provider (homework 16, step 5; homework 9 option A)
+
+```bash
+pnpm test:consumer
+pnpm verify:provider
+```
+
+Run these in order from the repository root. Both reuse `test:build` and must
+run sequentially with the other suites that rebuild `dist-test/`.
+
+`test:consumer` needs no database or Docker. It exercises the illustrative
+frontend client in `test/contract/consumer/rentals-client.ts` against Pact's
+local mock server. That client uses fetch and its own Zod schema for the fields
+it consumes; it imports no backend DTOs. This is separate from the provider's
+class-validator HTTP input validation.
+
+The interaction is GET `/rentals/{rentalId}` in provider state
+`a rental with one copy exists`, parameterized by the requested UUID. The
+consumer needs `rentalId`, `renterId`, and `items[].gameCopyId/costPerDay`.
+The requested rental ID is exact; other IDs use UUID matchers, the price uses
+an integer matcher, and the items matcher requires at least one item for this
+scenario. Extra provider fields are allowed. A second test checks this endpoint
+and these consumed fields against the checked-in OpenAPI document; this is a
+targeted consistency check, not complete OpenAPI response validation.
+
+Pact JS 17 uses the current Pact builder with V3 HTTP serialization. The test
+generates `pacts/retro-rental-web-retro-rental-api.json` with providerStates.
+Generated pacts are gitignored; a fresh clone/CI run must execute the consumer
+command before verification or future publication. `test:contract` is an alias
+for `test:consumer`, preserving the fixed grading command required by homework 16.
+The consumer clears only
+this pair's previous file before generating it, preventing stale interactions
+from being merged into a new contract.
+
+`verify:provider` requires Docker, using the same runtime settings as E2E. It
+fails early with a useful message if the Pact file is missing. It starts a
+disposable PostgreSQL testkit, applies migrations, configures container-only
+DB env, then imports the real AppModule with the shared configureApp. The
+provider listens on a random loopback port; no provider is mocked or replaced.
+Its stateHandler resets the database and commits related catalog/renter/rental/
+item fixtures before the verifier sends the request. Fixture IDs are independent
+of consumer examples except the requested rental UUID from the state parameters.
+Finally, it closes the application pool, testkit pool and container and restores
+the previous environment, including DB_PASSWORD_FILE.
+
+The verifier prints `has a matching body (OK)` (with ANSI colors) and exits 0
+on success; a mismatch exits nonzero. With PACT_BROKER_URL unset it verifies the
+local file without publishing. With PACT_BROKER_URL set it downloads the exact
+consumer version from Broker and publishes the result for PROVIDER_VERSION. See the
+[Pact consumer](https://docs.pact.io/implementation_guides/javascript/docs/consumer)
+and [provider](https://docs.pact.io/implementation_guides/javascript/docs/provider)
+documentation for the two sides of this workflow.
+
+### Pact Broker and CI gate (homework 16)
+
+The optional Compose `contract` profile runs a loopback-only Broker with its own
+PostgreSQL service and `broker_data` volume. It does not use the application DB.
+The pinned Broker image matches the lecturer's lesson 16 example. Local Broker
+credentials are development-only; use a secured reachable Broker for CI.
+
+```sh
+docker compose --profile contract up -d --wait pact-broker
+export PACT_BROKER_URL=http://127.0.0.1:9292
+# OSS Basic Auth: export PACT_BROKER_USERNAME and PACT_BROKER_PASSWORD.
+# PactFlow: export PACT_BROKER_TOKEN instead. Supply credentials via your secret manager.
+# Both versions default to git rev-parse HEAD; override to verify deployed releases.
+pnpm test:consumer
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:publish
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm verify:provider
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:can-i-deploy
+```
+
+On a fresh Broker the gate exits nonzero: no provider version is tagged `prod`
+yet (`summary.deployable: null`, `unknown: 1`). To reproduce the homework demo,
+explicitly tag the **same verified provider version**, then rerun the gate:
+
+```sh
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:tag-provider
+SKIP_VAULT=1 bash scripts/with-secrets.sh dev pnpm pact:can-i-deploy
+```
+
+Captured on 2026-10-28 from a fresh local clone of
+`f73ce2d2611e049d368922a9eef4c303182b52e6` against an isolated fresh Broker.
+Publish returned `201`; Broker provider verification exited `0`. Both versions
+were the commit SHA above. These are the actual `summary` objects from the same
+`pnpm pact:can-i-deploy` query before and after tagging that provider version.
+
+Before the tag, exit `1`:
+
+```json
+{
+  "deployable": null,
+  "reason": "There is no verified pact between version f73ce2d2611e049d368922a9eef4c303182b52e6 of retro-rental-web and the latest version of retro-rental-api with tag prod (no such version exists)",
+  "success": 0,
+  "failed": 0,
+  "unknown": 1
+}
+```
+
+After the tag returned `201`, exit `0`:
+
+```json
+{
+  "deployable": true,
+  "reason": "All required verification results are published and successful",
+  "success": 1,
+  "failed": 0,
+  "unknown": 0
+}
+```
+
+This writes Broker metadata; it does not deploy the API. In a real release flow
+only mark the version actually deployed to production. The `prod` tag and
+`to=prod` query follow the homework's legacy tag workflow; current Pact guidance
+prefers environments and recording deployments. Never tag a new candidate merely
+to make the gate green. A new consumer must be compatible with the provider
+already tagged `prod`; verifying the candidate alone cannot prove that.
+
+The CLI accepts only literal `summary.deployable === true`; false, unknown,
+malformed responses, HTTP failures and timeouts exit nonzero. `pnpm test:broker`
+checks this decision rule. `CONSUMER_VERSION` and `PROVIDER_VERSION` identify
+immutable Git revisions, not mutable branch names. `PACT_BROKER_URL` selects
+Broker mode; unset it to return to local-file verification.
+
+The GitHub Actions job `contract` runs consumer → publish → provider verification
+with result publication → can-i-deploy. Configure repository secrets
+`PACT_BROKER_URL` plus `PACT_BROKER_USERNAME` and `PACT_BROKER_PASSWORD` for
+self-hosted OSS Broker. For managed PactFlow, set `PACT_BROKER_TOKEN` instead.
+Do not configure both authentication modes. Incomplete Basic Auth credentials
+or mixed modes fail before any request; anonymous mode remains available for
+local Compose. HTTP publication/tagging/gating and provider verification use
+the same selected authentication mode.
+The URL must be reachable from the GitHub runner: your laptop's `127.0.0.1`
+is not reachable there. Missing configuration deliberately fails the job;
+fork PRs without secrets cannot run this external Broker workflow. Both versions
+use `github.sha`. CI never assigns `prod`. A fresh Broker needs the explicit
+production baseline above before the gate can pass. Workflow files alone do not
+configure secrets or establish a successful GitHub run.
+
+For a self-hosted Railway deployment, run the pinned
+`pactfoundation/pact-broker:2.142.0-pactbroker2.120.0` image and a separate
+PostgreSQL service with persistent storage. Connect through the private
+`PACT_BROKER_DATABASE_URL`; expose only the Broker on port `9292` using a Railway
+HTTPS domain. Configure these Broker service variables:
+
+- `PACT_BROKER_BASIC_AUTH_USERNAME` / `PACT_BROKER_BASIC_AUTH_PASSWORD`: generated
+  read/write credentials, also supplied to the CI secrets above.
+- `PACT_BROKER_ALLOW_PUBLIC_READ=false`.
+- `PACT_BROKER_PUBLIC_HEARTBEAT=true` and healthcheck path
+  `/diagnostic/status/heartbeat` (only this diagnostic endpoint is public).
+- `PACT_BROKER_BASE_URL`: the public HTTPS origin, so API links use the correct URL.
+
+These deployment variables belong in Railway's secret configuration, not in
+committed Compose defaults. Railway terminates HTTPS; PostgreSQL uses the private
+service network. Verify unauthenticated API access returns `401` before adding
+GitHub secrets. A fresh hosted Broker still requires the explicit, verified
+homework `prod` baseline described above.
+
+See [Broker authentication settings](https://docs.pact.io/pact_broker/configuration/settings),
+[Railway public networking](https://docs.railway.com/networking/public-networking),
+and See [Pact can-i-deploy](https://docs.pact.io/pact_broker/can_i_deploy) and
+[Broker Docker configuration](https://docs.pact.io/pact_broker/docker_images/pactfoundation).
 
 ### Rental confirmation workers and Resend (homework 14)
 

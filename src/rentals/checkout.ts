@@ -1,10 +1,6 @@
-import { IsNull } from 'typeorm';
 import type { DataSource, EntityManager } from 'typeorm';
 import { z } from 'zod';
-import { Rental } from './entities/rental.entity';
-import { RentalItem } from './entities/rental-item.entity';
-import { RentalJob } from '../jobs/entities/rental-job.entity';
-import { Renter } from '../renters/entities/renter.entity';
+import { RentalsRepository } from './rentals.repository';
 
 export interface CheckoutRequest {
   renterId: string;
@@ -34,15 +30,22 @@ export class CheckoutError extends Error {
 
 const requestSchema = z.object({ renterId: z.uuid(), gameId: z.uuid(), platformId: z.uuid() });
 
-interface AvailableCopy {
-  gameCopyId: string;
-  pricePerDay: number;
-}
-
 // One call rents one physical copy for one day. The caller supplies an initialized DataSource.
 export async function checkout(
   dataSource: DataSource,
   request: CheckoutRequest,
+  rentals: RentalsRepository = new RentalsRepository(dataSource),
+): Promise<CheckoutResult> {
+  return dataSource.transaction('READ COMMITTED', manager =>
+    checkoutInTransaction(manager, request, rentals),
+  );
+}
+
+/** Caller owns the transaction, allowing an HTTP idempotency record to commit atomically. */
+export async function checkoutInTransaction(
+  manager: EntityManager,
+  request: CheckoutRequest,
+  rentals: RentalsRepository,
 ): Promise<CheckoutResult> {
   const parsed = requestSchema.safeParse(request);
   if (!parsed.success) {
@@ -50,99 +53,27 @@ export async function checkout(
   }
   const { renterId, gameId, platformId } = parsed.data;
 
-  return dataSource.transaction('READ COMMITTED', async manager => {
-    const renter = await ensureRenterExists(manager, renterId);
-    const copy = await findAvailableCopyForUpdate(manager, gameId, platformId);
-    const balance = await debitRenterBalance(manager, renterId, copy.pricePerDay);
-
-    const rental = await manager.save(Rental, { renterId, rentedAt: new Date() });
-    await manager.insert(RentalItem, {
-      rentalId: rental.rentalId,
-      gameCopyId: copy.gameCopyId,
-      costPerDay: copy.pricePerDay,
-    });
-    const job = await manager.save(RentalJob, { rentalId: rental.rentalId, emailTo: renter.email });
-
-    return {
-      rentalId: rental.rentalId,
-      gameCopyId: copy.gameCopyId,
-      jobId: job.jobId,
-      chargedAmount: copy.pricePerDay,
-      balance,
-    };
-  });
-}
-
-async function ensureRenterExists(manager: EntityManager, renterId: string): Promise<Renter> {
-  // Keep the renter from being deleted after validation. KEY SHARE still allows
-  // non-key updates, including concurrent atomic balance deductions.
-  const renter = await manager.findOne(Renter, {
-    select: { renterId: true, email: true },
-    where: { renterId },
-    lock: { mode: 'for_key_share' },
-  });
-  if (!renter) {
-    throw new CheckoutError('RENTER_NOT_FOUND', 'Renter does not exist');
-  }
-  return renter;
-}
-
-async function findAvailableCopyForUpdate(
-  manager: EntityManager,
-  gameId: string,
-  platformId: string,
-): Promise<AvailableCopy> {
-  let previousCopyId: string | null = null;
-  let copy: AvailableCopy | undefined;
-  do {
-    // Advance through UUID order; a larger UUID does not mean a newer copy.
-    const copies: AvailableCopy[] = await manager.query<AvailableCopy[]>(
-      `SELECT c.game_copy_id AS "gameCopyId", c.price_per_day AS "pricePerDay"
-       FROM game_copies c
-       WHERE c.game_id = $1 AND c.platform_id = $2
-         AND ($3::uuid IS NULL OR c.game_copy_id > $3::uuid)
-         AND NOT EXISTS (
-           SELECT 1 FROM rental_items i
-           WHERE i.game_copy_id = c.game_copy_id AND i.returned_at IS NULL
-         )
-       ORDER BY c.game_copy_id
-       LIMIT 1
-       FOR UPDATE OF c`,
-      [gameId, platformId, previousCopyId],
-    );
-    copy = copies.at(0);
-    if (!copy) {
-      throw new CheckoutError('COPY_UNAVAILABLE', 'No available copy for this game and platform');
-    }
-    previousCopyId = copy.gameCopyId;
-    // The first SELECT snapshot predates any lock wait. Recheck rental_items in
-    // a fresh READ COMMITTED statement, then move on if the copy was taken.
-  } while (await isCopyRented(manager, copy.gameCopyId));
-
-  return copy;
-}
-
-function isCopyRented(manager: EntityManager, gameCopyId: string): Promise<boolean> {
-  return manager.existsBy(RentalItem, { gameCopyId, returnedAt: IsNull() });
-}
-
-async function debitRenterBalance(
-  manager: EntityManager,
-  renterId: string,
-  amount: number,
-): Promise<number> {
-  // TypeORM 0.3's raw UPDATE result is [returnedRows, affectedCount].
-  const [balances] = await manager.query<[{ balance: number }[], number]>(
-    `UPDATE renters SET balance = balance - $1
-     WHERE renter_id = $2 AND balance >= $1
-     RETURNING balance`,
-    [amount, renterId],
-  );
-  const balanceRow = balances.at(0);
-  // ensureRenterExists holds KEY SHARE until this transaction ends, so a
-  // missing RETURNING row now unambiguously means insufficient balance.
-  if (!balanceRow) {
+  const renter = await rentals.findRenterForCheckout(manager, renterId);
+  if (!renter) throw new CheckoutError('RENTER_NOT_FOUND', 'Renter does not exist');
+  const copy = await rentals.findAvailableCopyForUpdate(manager, gameId, platformId);
+  if (!copy)
+    throw new CheckoutError('COPY_UNAVAILABLE', 'No available copy for this game and platform');
+  const balance = await rentals.debitBalance(manager, renterId, copy.pricePerDay);
+  // The renter is held by KEY SHARE, so no returned balance means insufficient funds.
+  if (balance === null)
     throw new CheckoutError('INSUFFICIENT_BALANCE', 'Renter has insufficient balance');
-  }
-  return balanceRow.balance;
+
+  const saved = await rentals.saveCheckout(manager, {
+    renterId,
+    gameCopyId: copy.gameCopyId,
+    costPerDay: copy.pricePerDay,
+    emailTo: renter.email,
+  });
+
+  return {
+    ...saved,
+    gameCopyId: copy.gameCopyId,
+    chargedAmount: copy.pricePerDay,
+    balance,
+  };
 }
