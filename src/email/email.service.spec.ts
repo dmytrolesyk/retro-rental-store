@@ -23,8 +23,11 @@ describe('EmailService', () => {
     };
     await expect(service.send(message)).resolves.toBe('email-1');
     await expect(service.send(message)).rejects.toThrow('Rate limited');
-    expect(send.mock.calls[0]).toEqual(send.mock.calls[1]);
-    expect(send.mock.calls[0][1]).toEqual({ idempotencyKey: message.idempotencyKey });
+    expect(send.mock.calls[0][0]).toEqual(send.mock.calls[1][0]);
+    expect(send.mock.calls[0][1]).toMatchObject({
+      idempotencyKey: message.idempotencyKey,
+    });
+    expect(send.mock.calls[0][1]?.signal).toBeInstanceOf(AbortSignal);
     expect(send.mock.calls[0][0]).toEqual({
       from: 'Rentals <notifications@send.example.com>',
       to: message.to,

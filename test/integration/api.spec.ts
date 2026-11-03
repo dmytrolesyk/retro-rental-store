@@ -273,7 +273,7 @@ describe('API contracts with real PostgreSQL', () => {
       new RentalsRepository(kit.dataSource),
     ).create(input, 'parallel-0001', clientPrincipal);
     expect(replay).toEqual({ response: responses[0].body as CreatedRental, replayed: true });
-    for (const table of [Rental, RentalItem, RentalRequest]) {
+    for (const table of [Rental, RentalItem, RentalRequest, RentalJob]) {
       await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(1);
     }
     await expect(

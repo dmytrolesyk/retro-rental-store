@@ -34,6 +34,7 @@ export class CancelRental {
           'Cancellation requires a nonblank reason of up to 500 characters',
         );
       await this.rentalsRepository.cancel(manager, rentalId, now, principal.id, reason.trim());
+      await this.rentalsRepository.queueStatusEmail(manager, rentalId, now);
       const updatedRental = await this.rentalsRepository.findForUpdate(manager, rentalId);
       if (!updatedRental) throw new InternalServerErrorException('Rental disappeared while locked');
       return rentalDetail(

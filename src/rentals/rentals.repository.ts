@@ -8,6 +8,7 @@ import type { BookingReceipt } from './rentals.types';
 import { Renter } from '../renters/entities/renter.entity';
 import { RentalItem } from './entities/rental-item.entity';
 import { RentalJob } from '../jobs/entities/rental-job.entity';
+import { rentalNotification } from '../jobs/rental-notification';
 
 interface AvailableCopy {
   gameCopyId: string;
@@ -30,6 +31,21 @@ export interface RentalDeadlineCandidate {
 @Injectable()
 export class RentalsRepository {
   constructor(private readonly dataSource: DataSource) {}
+
+  async queueStatusEmail(
+    manager: EntityManager,
+    rentalId: string,
+    occurredAt: Date,
+  ): Promise<void> {
+    const rental = await manager.findOneByOrFail(Rental, { rentalId });
+    const renter = await manager.findOneByOrFail(Renter, { renterId: rental.renterId });
+    await manager.insert(RentalJob, {
+      rentalId,
+      emailTo: renter.email,
+      notificationStatus: rental.status,
+      notification: rentalNotification(rental, occurredAt),
+    });
+  }
 
   findRenterForCheckout(manager: EntityManager, renterId: string): Promise<Renter | null> {
     // KEY SHARE prevents deletion until commit, but permits concurrent balance updates.

@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
-import { RentalConfirmationModule } from '../jobs/rental-confirmation.module';
+import { RentalNotificationModule } from '../jobs/rental-notification.module';
 
 @Module({
-  imports: [DatabaseModule, RentalConfirmationModule],
-  exports: [RentalConfirmationModule],
+  imports: [DatabaseModule, RentalNotificationModule],
+  exports: [RentalNotificationModule],
 })
 export class WorkerModule {}

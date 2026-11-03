@@ -32,6 +32,7 @@ export class ReturnRental {
       if (!rental.rentedAt || now < rental.rentedAt)
         throw new ConflictException('Rental has not been physically issued');
       await this.rentalsRepository.returnItems(manager, rentalId, now);
+      await this.rentalsRepository.queueStatusEmail(manager, rentalId, now);
       const updatedRental = await this.rentalsRepository.findForUpdate(manager, rentalId);
       if (!updatedRental) throw new InternalServerErrorException('Rental disappeared while locked');
       return rentalDetail(

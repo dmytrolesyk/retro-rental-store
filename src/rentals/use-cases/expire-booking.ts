@@ -19,6 +19,7 @@ export class ExpireBooking {
       const now = await this.rentalsRepository.currentTime(manager);
       if (nextDeadlineStatus(rental, now) !== 'CANCELLED') return false;
       await this.rentalsRepository.cancel(manager, rentalId, now, null, BOOKING_EXPIRY_REASON);
+      await this.rentalsRepository.queueStatusEmail(manager, rentalId, now);
       return true;
     });
   }

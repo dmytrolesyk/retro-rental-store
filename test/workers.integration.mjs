@@ -9,7 +9,7 @@ const { DataSource } = require('typeorm');
 const { rentalEntities, RentalJob, Renter } = require('../dist/database/entities');
 const { JobsService } = require('../dist/jobs/jobs.service');
 const { EmailService } = require('../dist/email/email.service');
-const { RentalConfirmationWorker } = require('../dist/jobs/rental-confirmation.worker');
+const { RentalNotificationWorker } = require('../dist/jobs/rental-notification.worker');
 const { checkout } = require('../dist/rentals/checkout');
 const { createRaceData } = require('../dist/database/fixtures/race-data');
 const { setTimeout: delay } = require('node:timers/promises');
@@ -77,7 +77,7 @@ test('a failure after provider acceptance rolls back the task; retry keeps its p
     'Rentals <notifications@send.example.com>',
   );
   const workers = new JobsService(dataSource);
-  const confirmation = new RentalConfirmationWorker(workers, email);
+  const confirmation = new RentalNotificationWorker(workers, email);
   await assert.rejects(
     workers.runWorker(
       'failed',

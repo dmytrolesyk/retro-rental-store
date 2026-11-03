@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { z } from 'zod';
 import { Renter } from '../database/entities';
 import { createRaceData } from '../database/fixtures/race-data';
-import { RentalConfirmationWorker } from '../jobs/rental-confirmation.worker';
+import { RentalNotificationWorker } from '../jobs/rental-notification.worker';
 import { RentalsModule } from '../rentals/rentals.module';
 import { RentalsService } from '../rentals/rentals.service';
 import { WorkerModule } from '../worker/worker.module';
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
     console.log(
       `Created email task ${checkoutReceipt.jobId}; retry with: pnpm start:worker ${checkoutReceipt.jobId}`,
     );
-    await app.get(RentalConfirmationWorker).run([checkoutReceipt.jobId]);
+    await app.get(RentalNotificationWorker).run([checkoutReceipt.jobId]);
   } finally {
     await app.close();
   }

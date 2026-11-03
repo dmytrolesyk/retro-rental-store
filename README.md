@@ -127,8 +127,8 @@ HTTP creation now books a copy; issue and return are separate commands (step 3).
 The internal CLI/demo `checkout()` retains immediate `ACTIVE` checkout,
 charging and its existing confirmation job. A compatibility insert trigger
 supplies its one-day `due_at`. The API now runs the five-minute deadline
-scheduler described below. Status emails and realtime transports are subsequent
-steps. Issue rejects expired bookings before the next scheduler run.
+scheduler described below. Status email jobs are queued transactionally; realtime
+transports are subsequent steps. Issue rejects expired bookings before the next scheduler run.
 
 Rollback is supported for legacy-only data. It deliberately refuses to remove
 the new schema once bookings or new overdue states exist, rather than dropping
@@ -179,8 +179,8 @@ the next scheduled run after restart catches up without restoring timers.
 Automatic status changes can lag a deadline by roughly five minutes in normal
 operation, longer during outages or a long-running scan.
 
-There are no new HTTP routes or deadline email jobs in this step. The next
-email step will add jobs inside these same transition transactions. Tests call
+The deadline transitions also enqueue status emails in the same transactions.
+There are no new HTTP routes. Tests call
 the processor or fire the registered cron directly, using past/future fixtures
 and pure boundary tests instead of waiting five minutes.
 
@@ -221,7 +221,7 @@ curl -i -X POST http://localhost:3000/rentals \
 `POST /rentals` accepts exactly `renterId`, `gameId`, `platformId` (UUIDs)
 and requires `Idempotency-Key`: 8–128 visible ASCII characters, no spaces.
 It reserves a copy for exactly 24 hours, snapshots its daily price, and creates
-`BOOKED` without debiting the balance or queuing a checkout email. Zero balance
+`BOOKED` without debiting the balance, with a booking status email job. Zero balance
 does not prevent booking. The response returns 201, a relative `Location`,
 and `Idempotency-Replay: false`. Repeating its key and validated body returns
 the original 201/body/Location with `Idempotency-Replay: true`, even after issue
@@ -287,8 +287,8 @@ with PostgreSQL `clock_timestamp()` after blocking locks: `now()` would retain
 the transaction start time and could allow an expired booking after a lock wait.
 See [row locks](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS)
 and [current time functions](https://www.postgresql.org/docs/16/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT).
-Status emails will be added in their own plan step; these HTTP commands do not
-yet enqueue them.
+Each actual transition queues one status email in the same transaction.
+No-op commands and idempotency replays enqueue nothing.
 
 Both lists use stable UUID ordering, `limit` from 1 to 100 (default 20), and
 an opaque resource-specific cursor. Pass `next_cursor` unchanged; null marks
@@ -788,11 +788,13 @@ run. Compose uses that name for every command, including count checks.
 No repository files need editing, and no host credential files need creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
 
 Both `migrate:show` calls must mark all migrations `[X]` (with their
-journal IDs). There are three migrations. Revert rolls back only the latest,
-`AddJobEmailRecipient1792051200001`: it removes `email_to` and preserves the
-queue, balances and rentals. Reverting the preceding
+journal IDs). There are six migrations. Revert rolls back only the latest,
+`AddRentalNotifications1793750400000`, and preserves legacy-only jobs, balances
+and rentals. It refuses to discard new notification/delivery data. Earlier,
+`AddJobEmailRecipient1792051200001` added the recipient snapshot; reverting
 `AddRentalBalanceAndJobs1792051200000` removes the queue and renter balances.
-Reverting the initial migration removes business data. Run rollback checks only against a disposable database.
+Reverting the initial migration removes business data. Run rollback checks only
+against a disposable database.
 
 Use the count command in [ORM seed](#orm-seed) after each seed run: all nine
 counts must stay unchanged. The fresh-database totals are 19,896 games,
@@ -1850,28 +1852,15 @@ Application entry points and modules:
 
 - `src/worker/main.ts` starts a standalone Nest application for selected task IDs.
 - `src/worker/worker.module.ts` composes database, queue and email dependencies.
-- `src/jobs/rental-confirmation.worker.ts` is the injectable confirmation handler.
+- `src/jobs/rental-notification.worker.ts` is the injectable email consumer.
 - `src/scripts/demo-email.ts` creates demo data and invokes that same worker.
 
-Both commands finish once their selected tasks are drained; there is no permanent
-polling service or signal-handling lifecycle in this step. The API starts separately
-through `src/main.ts` and does not start email workers implicitly.
-
-Only explicitly selected task IDs are consumed. Already completed tasks are
-skipped. The real-email command uses one worker and spaces requests by at least
-600 ms after each API response; it is not a throughput benchmark or a distributed
-rate limiter. API errors fail the command and leave the task `new` for a later
-retry. Automatic provider retries and delivery webhooks are outside this step.
-
-The `email_to` migration snapshots the recipient at checkout; existing tasks are
-backfilled from the current renter address. Message content uses the immutable
-rental ID. Keep the sender and message template unchanged when retrying pending
-tasks: Resend requires identical payloads for the same idempotency key
-`rental-confirmation/<jobId>`. A crash after API acceptance but before database
-commit can repeat the request; Resend deduplicates that key for **24 hours**.
-After that window, duplicate email remains possible. `done` means the provider
-accepted the request, not that the email reached the inbox. Database counters
-commit once; PostgreSQL cannot roll back an external email.
+Selected-ID commands finish after their jobs are processed; a failed or deferred
+job gives a nonzero exit. Locked pending jobs are waited on. `--watch` keeps
+polling, backs off failed deliveries and handles SIGINT/SIGTERM. See the status
+notification section below for the current lifecycle and retry rules.
+Legacy jobs keep their original confirmation text and `rental-confirmation/<jobId>`
+key. The offline `demo:workers` still uses the original generic transaction worker.
 
 References: [Resend Node SDK](https://resend.com/docs/send-with-nodejs),
 [idempotency and the 24-hour limit](https://resend.com/docs/dashboard/emails/idempotency-keys).
@@ -1884,6 +1873,71 @@ pnpm run test:db:workers
 pnpm run test:db:transactions
 pnpm run test:db:checkout
 ```
+
+### Rental status emails (homework 18)
+
+Booking and every real transition (`BOOKED`, `ACTIVE`, `OVERDUE`, `RETURNED`,
+`CANCELLED`) insert a `rental_jobs` row **inside the business transaction**.
+This includes expiry/overdue processing. An insert failure rolls back the status,
+copy release and any debit; provider failure happens later and cannot break an
+HTTP command. Repeated commands and replayed bookings create no extra jobs.
+
+`rentalNotification()` is a pure function. It freezes the status, event time,
+applicable deadlines, cancellation reason and rendered subject/text. The recipient
+is copied from the renter at enqueue time. A partial unique index allows one
+status notification per rental/status (the current lifecycle never revisits a
+status). Existing jobs have a null notification snapshot and remain confirmations.
+
+After migrating, export the usual `DB_*`, private `RESEND_API_KEY` and verified
+`EMAIL_FROM`, then start the separate consumer:
+
+```bash
+pnpm run start:worker -- --watch
+# Alternatively, after migration, enable the optional Compose consumer:
+docker compose --profile email up -d --build email-worker
+```
+
+The API needs no email credentials. Default Compose startup keeps the email
+profile off; enable it only when ready to send queued mail. `--watch` checks for
+new work roughly every second while idle. Restarts retain queued work. SIGINT or
+SIGTERM stops polling and lets an in-flight request finish; SDK requests have a
+10-second abort signal. No delivery webhooks are configured.
+
+Before a provider call, the worker commits the **complete request**, including
+`EMAIL_FROM` and the stable `rental-status/<jobId>` key. A second transaction locks
+that job with `FOR UPDATE SKIP LOCKED`, sends the frozen request, and marks it
+`done`. A crash or database rollback after acceptance reuses that exact payload.
+The lock is held during the bounded provider call: simple coordination at the
+cost of occupying a pool connection. Multiple workers skip each other's locks;
+600ms spacing per consumer is not a global provider rate limiter.
+
+Transient failures (network/timeout, 429, 5xx, concurrent idempotent request) retain
+`new` with exponential backoff, initially 2 seconds, capped at one hour.
+Permanent provider errors become `failed`; neither blocks unrelated jobs.
+`attempts` counts committed delivery outcomes; `processed` counts committed
+successful processing. A crash can roll back those counters after an external
+acceptance. `last_error` contains a code, not provider response bodies.
+
+Resend retains idempotency keys for 24 hours. Automatic retries stop before
+23 hours from preparation to avoid crossing that boundary. Expired/failed jobs
+remain in the database for investigation. Inspect job ID, status, attempts,
+`next_attempt_at`, `first_attempt_at`, `last_error` and the provider logs privately.
+For a permanent configuration problem, fix configuration and, only after
+confirming the frozen request remains valid and within the retry window, reset
+that job's `status` to `new`, `next_attempt_at` to `clock_timestamp()` and
+`last_error` to null. Preserve its payload, key and first-attempt time. Reconcile
+ambiguous or expired deliveries with the provider before deciding on a new
+message; do not blindly clear the snapshot or reset the clock.
+`done` means provider acceptance, not inbox delivery. Retry delays can reorder
+arrival of status emails; each message includes its original event time.
+
+The notification migration refuses rollback once snapshots or delivery state
+exist. It does not invent historical transition notifications. Tests use a fake
+transport and disposable PostgreSQL, including provider-acceptance/DB-rollback,
+concurrent workers, immutable sender, retry backoff and permanent failure.
+
+References: [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys),
+[provider errors](https://resend.com/docs/api-reference/errors).
 
 ### Source layout and module ownership
 
@@ -1912,11 +1966,11 @@ subject, plain-text body and caller-supplied idempotency key, without knowing
 about rentals or database entities. `EmailModule` owns its Resend client and
 configuration providers, and exports only `EmailService` for other modules.
 
-`RentalConfirmationWorker` builds the rental-specific subject, body and stable
-idempotency key. `RentalConfirmationModule` owns and exports this provider,
+`RentalNotificationWorker` builds the rental-specific subject, body and stable
+idempotency key. `RentalNotificationModule` owns and exports this provider,
 importing `JobsModule` and `EmailModule`. `JobsModule` owns the queue processing
 service; using it for offline demos does not require email credentials.
-`WorkerModule` composes database and confirmation modules for the standalone
+`WorkerModule` composes database and notification modules for the standalone
 entry point. A module groups and exposes providers; a service does the work.
 
 ### Transaction retries (homework 14)

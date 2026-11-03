@@ -77,6 +77,7 @@ export class RentalsService {
         bookedAt,
         bookingExpiresAt,
       });
+      await this.rentalsRepository.queueStatusEmail(manager, rentalId, bookedAt);
       const bookingReceipt = {
         rentalId,
         gameCopyId: availableCopy.gameCopyId,
