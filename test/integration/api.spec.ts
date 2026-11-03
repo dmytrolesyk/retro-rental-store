@@ -1,3 +1,13 @@
+import { AuthModule } from '../../src/auth/auth.module';
+import { AUTH_IDENTITIES } from '../../src/auth/auth.config';
+import {
+  clientPrincipal,
+  otherPrincipal,
+  testIdentities,
+  clientAuthorization,
+  otherAuthorization,
+  staffAuthorization,
+} from './testkit/auth';
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -48,6 +58,7 @@ describe('API contracts with real PostgreSQL', () => {
     cleanup = () => kit.stop();
     // Focused HTTP boundary tests. Full AppModule E2E belongs to the next plan point.
     const module = await Test.createTestingModule({
+      imports: [AuthModule],
       controllers: [CatalogController, RentalsController],
       providers: [
         CatalogService,
@@ -56,7 +67,10 @@ describe('API contracts with real PostgreSQL', () => {
         CreateRentalResponseInterceptor,
         { provide: DataSource, useValue: kit.dataSource },
       ],
-    }).compile();
+    })
+      .overrideProvider(AUTH_IDENTITIES)
+      .useValue(testIdentities)
+      .compile();
     app = module.createNestApplication<INestApplication<App>>({ logger: false });
     cleanup = async () => {
       try {
@@ -86,7 +100,9 @@ describe('API contracts with real PostgreSQL', () => {
   }
   async function fixture() {
     const data = await catalog();
-    const renter = await kit.dataSource.getRepository(Renter).save(aRenter());
+    const renter = await kit.dataSource
+      .getRepository(Renter)
+      .save(aRenter({ renterId: clientPrincipal.renterId }));
     return {
       renter,
       data,
@@ -97,7 +113,110 @@ describe('API contracts with real PostgreSQL', () => {
       },
     };
   }
-  const post = () => request(app.getHttpServer()).post('/rentals');
+  const post = () =>
+    request(app.getHttpServer()).post('/rentals').set('Authorization', clientAuthorization);
+
+  it.each([undefined, 'Basic abc', 'Bearer invalid', `Bearer ${'x'.repeat(64)}`])(
+    'rejects missing, malformed or unknown credentials before reading rentals',
+    async authorization => {
+      const call = request(app.getHttpServer()).get('/rentals');
+      if (authorization) call.set('Authorization', authorization);
+      const response = await call.expect(401);
+      expect(response.get('WWW-Authenticate')).toBe('Bearer');
+      expect(response.get('Content-Type')).toMatch(/application\/problem\+json/);
+      expect(JSON.stringify(response.body)).not.toContain(testIdentities[0].token);
+    },
+  );
+
+  it('rejects duplicate Authorization headers instead of choosing one identity', async () => {
+    await request(app.getHttpServer())
+      .get('/rentals')
+      .set({ Authorization: [clientAuthorization, staffAuthorization] })
+      .expect(401);
+  });
+
+  it('allows owner and staff reads, but refuses another client', async () => {
+    const renter = await kit.dataSource
+      .getRepository(Renter)
+      .save(aRenter({ renterId: clientPrincipal.renterId }));
+    const rental = await kit.dataSource.getRepository(Rental).save(aRental(renter.renterId));
+    const path = `/rentals/${rental.rentalId}`;
+    await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', clientAuthorization)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', otherAuthorization)
+      .expect(403);
+  });
+
+  it('scopes every client page in SQL before pagination, even with another client cursor', async () => {
+    const db = kit.dataSource;
+    for (const actor of [clientPrincipal, otherPrincipal]) {
+      await db.getRepository(Renter).save(aRenter({ renterId: actor.renterId }));
+      await db.getRepository(Rental).save(Array.from({ length: 3 }, () => aRental(actor.renterId)));
+    }
+    let cursor: string | null = null;
+    const seen: string[] = [];
+    do {
+      const response = await request(app.getHttpServer())
+        .get('/rentals')
+        .set('Authorization', clientAuthorization)
+        .query({ limit: 1, ...(cursor ? { cursor } : {}) })
+        .expect(200);
+      const page = response.body as {
+        items: { rentalId: string; renterId: string }[];
+        next_cursor: string | null;
+      };
+      expect(page.items).toHaveLength(1);
+      expect(page.items[0].renterId).toBe(clientPrincipal.renterId);
+      seen.push(page.items[0].rentalId);
+      cursor = page.next_cursor;
+    } while (cursor);
+    expect(new Set(seen).size).toBe(3);
+    const other = await request(app.getHttpServer())
+      .get('/rentals?limit=1')
+      .set('Authorization', otherAuthorization)
+      .expect(200);
+    const foreignCursor = (other.body as Page).next_cursor;
+    const response = await request(app.getHttpServer())
+      .get('/rentals')
+      .set('Authorization', clientAuthorization)
+      .query({ limit: 100, cursor: foreignCursor })
+      .expect(200);
+    const page = response.body as { items: { renterId: string }[] };
+    expect(page.items.every(item => item.renterId === clientPrincipal.renterId)).toBe(true);
+  });
+
+  it('rejects owner/role spoofing before idempotency, payment or rental writes', async () => {
+    const { input } = await fixture();
+    await post()
+      .set('Idempotency-Key', 'foreign-owner-0001')
+      .send({ ...input, renterId: otherPrincipal.renterId })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post('/rentals')
+      .set('Authorization', staffAuthorization)
+      .set('Idempotency-Key', 'staff-create-0001')
+      .send(input)
+      .expect(403);
+    await post()
+      .set('Idempotency-Key', 'forged-role-0001')
+      .send({ ...input, role: 'staff' })
+      .expect(400);
+    for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
+      expect(await kit.dataSource.getRepository(table).count()).toBe(0);
+    }
+    expect(
+      (await kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: input.renterId }))
+        .balance,
+    ).toBe(10000);
+  });
 
   it('creates and reads a rental with a stable public response', async () => {
     const { input, data } = await fixture();
@@ -112,7 +231,10 @@ describe('API contracts with real PostgreSQL', () => {
     });
     expect(result.get('Location')).toBe(`/rentals/${body.rentalId}`);
     expect(result.get('Idempotency-Replay')).toBe('false');
-    const read = await request(app.getHttpServer()).get(`/rentals/${body.rentalId}`).expect(200);
+    const read = await request(app.getHttpServer())
+      .get(`/rentals/${body.rentalId}`)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     expect(read.body).toMatchObject({
       rentalId: body.rentalId,
       renterId: input.renterId,
@@ -135,7 +257,7 @@ describe('API contracts with real PostgreSQL', () => {
     const replay = await new RentalsService(
       kit.dataSource,
       new RentalsRepository(kit.dataSource),
-    ).create(input, 'parallel-0001');
+    ).create(input, 'parallel-0001', clientPrincipal);
     expect(replay).toEqual({ response: results[0].body as CreatedRental, replayed: true });
     for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
       await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(1);
@@ -273,7 +395,10 @@ describe('API contracts with real PostgreSQL', () => {
       ['/rentals/not-a-uuid', 400],
       ['/unknown', 404],
     ] as const) {
-      const result = await request(app.getHttpServer()).get(path).expect(status);
+      const result = await request(app.getHttpServer())
+        .get(path)
+        .set('Authorization', staffAuthorization)
+        .expect(status);
       expect(result.get('Content-Type')).toMatch(/application\/problem\+json/);
       expect(result.body).toMatchObject({ status, instance: path });
       for (const field of ['type', 'title', 'detail']) {
@@ -281,20 +406,22 @@ describe('API contracts with real PostgreSQL', () => {
       }
     }
     const { input } = await fixture();
-    await post()
-      .set('Idempotency-Key', 'no-renter-0001')
-      .send({ ...input, renterId: randomUUID() })
-      .expect(404);
+    await kit.dataSource.getRepository(Renter).delete(input.renterId);
+    await post().set('Idempotency-Key', 'no-renter-0001').send(input).expect(404);
   });
 
   it('paginates games without duplicates and serves game details with platform IDs', async () => {
     const data = await Promise.all([catalog(), catalog(), catalog()]);
-    const one = await request(app.getHttpServer()).get('/games?limit=2').expect(200);
+    const one = await request(app.getHttpServer())
+      .get('/games?limit=2')
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     const first = one.body as Page;
     expect(first.items).toHaveLength(2);
     expect(first.next_cursor).toEqual(expect.any(String));
     const two = await request(app.getHttpServer())
       .get('/games')
+      .set('Authorization', staffAuthorization)
       .query({ limit: 2, cursor: first.next_cursor })
       .expect(200);
     const second = two.body as Page;
@@ -304,13 +431,17 @@ describe('API contracts with real PostgreSQL', () => {
       data.map(item => item.game.gameId).sort(),
     );
     const game = data[0];
-    const detail = await request(app.getHttpServer()).get(`/games/${game.game.gameId}`).expect(200);
+    const detail = await request(app.getHttpServer())
+      .get(`/games/${game.game.gameId}`)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     expect(detail.body).toMatchObject({
       gameId: game.game.gameId,
       platforms: [{ platformId: game.platform.platformId, name: game.platform.name }],
     });
     await request(app.getHttpServer())
       .get('/rentals')
+      .set('Authorization', staffAuthorization)
       .query({ cursor: first.next_cursor })
       .expect(400);
   });
@@ -318,15 +449,20 @@ describe('API contracts with real PostgreSQL', () => {
   it('paginates rentals and returns an empty terminal page', async () => {
     await request(app.getHttpServer())
       .get('/rentals')
+      .set('Authorization', staffAuthorization)
       .expect(200, { items: [], next_cursor: null });
     const renter = await kit.dataSource.getRepository(Renter).save(aRenter());
     const rentals = await kit.dataSource
       .getRepository(Rental)
       .save([aRental(renter.renterId), aRental(renter.renterId), aRental(renter.renterId)]);
-    const one = await request(app.getHttpServer()).get('/rentals?limit=2').expect(200);
+    const one = await request(app.getHttpServer())
+      .get('/rentals?limit=2')
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     const first = one.body as Page;
     const two = await request(app.getHttpServer())
       .get('/rentals')
+      .set('Authorization', staffAuthorization)
       .query({ limit: 2, cursor: first.next_cursor })
       .expect(200);
     const second = two.body as Page;
@@ -353,7 +489,10 @@ describe('API contracts with real PostgreSQL', () => {
     'cursor=garbage',
     'extra=1',
   ])('rejects invalid pagination: %s', async query => {
-    await request(app.getHttpServer()).get(`/games?${query}`).expect(400);
+    await request(app.getHttpServer())
+      .get(`/games?${query}`)
+      .set('Authorization', staffAuthorization)
+      .expect(400);
   });
 
   it('publishes exactly five documented operations with required idempotency and problem media types', () => {
@@ -379,6 +518,10 @@ describe('API contracts with real PostgreSQL', () => {
         expect.objectContaining({ name: 'Idempotency-Key', in: 'header', required: true }),
       ]),
     );
+    expect(create.security).toEqual([{ bearer: [] }]);
+    expect(create.responses['401']).toHaveProperty('content.application/problem+json');
+    expect(create.responses['403']).toHaveProperty('content.application/problem+json');
+    expect(spec.paths['/games'].get?.security ?? []).toEqual([]);
     expect(create.responses['422']).toHaveProperty('content.application/problem+json');
     expect(create.responses['201']).toHaveProperty(
       'content.application/json.schema.$ref',

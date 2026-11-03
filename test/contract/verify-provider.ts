@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { testIdentities, staffAuthorization } from '../integration/testkit/auth';
 import { access } from 'node:fs/promises';
 import type { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -38,6 +39,7 @@ async function main(): Promise<void> {
   const overrides: Record<string, string | undefined> = {
     ...kit.environment,
     DB_PASSWORD_FILE: undefined,
+    AUTH_IDENTITIES: JSON.stringify(testIdentities),
     PORT: '3000',
     LOG_LEVEL: 'error',
     TIMEOUT_MS: '5000',
@@ -66,6 +68,11 @@ async function main(): Promise<void> {
           }
         : {}),
       timeout: 60000,
+      // Pact records only a dummy credential; verification uses ephemeral local auth.
+      requestFilter: (request, _response, next) => {
+        request.headers.authorization = staffAuthorization;
+        next();
+      },
       stateHandlers: {
         [RENTAL_EXISTS_STATE]: async parameters => {
           const { rentalId } = z.object({ rentalId: z.uuid() }).strict().parse(parameters);

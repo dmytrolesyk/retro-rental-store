@@ -129,6 +129,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "404":
           description: Resource not found
           content:
@@ -153,8 +165,10 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      security: &a2
+        - bearer: []
       summary: Rent one available copy for one day
-      tags: &a2
+      tags: &a3
         - rentals
     get:
       operationId: listRentals
@@ -189,14 +203,21 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Unexpected server error
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      security: *a2
       summary: List rentals in stable UUID order
-      tags: *a2
+      tags: *a3
   /rentals/{rentalId}:
     get:
       operationId: getRental
@@ -220,6 +241,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "404":
           description: Resource not found
           content:
@@ -232,12 +265,14 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      security: *a2
       summary: Get a rental and its items
-      tags: *a2
+      tags: *a3
 info:
   title: Retro Games Rental API
   description: Catalog and single-copy rental API. Monetary amounts are integer
-    kopecks. No authentication is configured yet.
+    kopecks. Rental operations require configured opaque Bearer credentials; the
+    game catalog is public.
   version: 1.0.0
   contact: {}
 tags:
@@ -249,6 +284,12 @@ servers:
   - url: http://localhost:3000
     description: Local server; override the URL for your deployment.
 components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: opaque
+      type: http
+      description: Configured opaque token (not a JWT).
   schemas:
     Problem:
       type: object

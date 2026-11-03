@@ -40,6 +40,9 @@ export class ProblemFilter implements ExceptionFilter {
     if (status >= SERVER_ERROR_STATUS_MIN) this.logger.error(error);
     const title = (HttpStatus[status] ?? 'ERROR').toLowerCase().replaceAll('_', ' ');
     const http = host.switchToHttp();
+    if (status === 401) {
+      http.getResponse<Response>().setHeader('WWW-Authenticate', 'Bearer');
+    }
     http
       .getResponse<Response>()
       .status(status)

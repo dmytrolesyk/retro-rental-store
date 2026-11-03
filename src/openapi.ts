@@ -5,9 +5,15 @@ export function createApiDocument(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Retro Games Rental API')
     .setDescription(
-      'Catalog and single-copy rental API. Monetary amounts are integer kopecks. No authentication is configured yet.',
+      'Catalog and single-copy rental API. Monetary amounts are integer kopecks. Rental operations require configured opaque Bearer credentials; the game catalog is public.',
     )
     .setVersion('1.0.0')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'opaque',
+      description: 'Configured opaque token (not a JWT).',
+    })
     .addServer('http://localhost:3000', 'Local server; override the URL for your deployment.')
     .addTag('games', 'Game catalog and supported platforms.')
     .addTag('rentals', 'Single-copy rentals, one day per checkout.')

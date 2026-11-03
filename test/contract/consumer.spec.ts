@@ -5,6 +5,7 @@ import { parse } from 'yaml';
 import { RentalsClient } from './consumer/rentals-client';
 import {
   CONSUMER_NAME,
+  EXAMPLE_AUTH_TOKEN,
   EXAMPLE_RENTAL_ID,
   PACT_DIRECTORY,
   PACT_FILE,
@@ -34,7 +35,13 @@ describe('Rental web client contract', () => {
       .given(RENTAL_EXISTS_STATE, { rentalId: EXAMPLE_RENTAL_ID })
       .uponReceiving('a request to display an existing rental')
       .withRequest('GET', `/rentals/${EXAMPLE_RENTAL_ID}`, builder => {
-        builder.headers({ Accept: 'application/json' });
+        builder.headers({
+          Accept: 'application/json',
+          Authorization: Matchers.regex(
+            '^Bearer [A-Za-z0-9_-]{32,256}$',
+            `Bearer ${EXAMPLE_AUTH_TOKEN}`,
+          ),
+        });
       })
       .willRespondWith(200, builder => {
         builder
@@ -51,7 +58,7 @@ describe('Rental web client contract', () => {
           });
       })
       .executeTest(async server => {
-        const client = new RentalsClient(server.url);
+        const client = new RentalsClient(server.url, EXAMPLE_AUTH_TOKEN);
         await expect(client.getRental(EXAMPLE_RENTAL_ID)).resolves.toEqual({
           rentalId: EXAMPLE_RENTAL_ID,
           renterId,

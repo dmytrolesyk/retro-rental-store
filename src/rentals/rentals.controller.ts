@@ -8,8 +8,10 @@ import {
   Post,
   Query,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiHeader,
   ApiOkResponse,
@@ -19,6 +21,8 @@ import {
 } from '@nestjs/swagger';
 import type { ExecutionContext } from '@nestjs/common';
 import type { Request } from 'express';
+import { BearerAuthGuard, CurrentPrincipal } from '../auth/bearer-auth.guard';
+import type { Principal } from '../auth/principal';
 import { RentalsService } from './rentals.service';
 import type { CreateRentalResult } from './rentals.types';
 import { CreateRentalResponseInterceptor } from './create-rental-response.interceptor';
@@ -47,6 +51,8 @@ const RequestHeaders = createParamDecorator((_data: unknown, context: ExecutionC
 }));
 
 @ApiTags('rentals')
+@ApiBearerAuth()
+@UseGuards(BearerAuthGuard)
 @Controller('rentals')
 export class RentalsController {
   constructor(private readonly rentals: RentalsService) {}
@@ -80,21 +86,25 @@ export class RentalsController {
       },
     },
   })
-  @ApiProblems(400, 404, 409, 422, 500)
+  @ApiProblems(400, 401, 403, 404, 409, 422, 500)
   create(
+    @CurrentPrincipal() principal: Principal,
     @Body() body: CreateRentalDto,
     @RequestHeaders() headers: RentalRequestHeadersDto,
   ): Promise<CreateRentalResult> {
-    return this.rentals.create(body, headers.idempotencyKey);
+    return this.rentals.create(body, headers.idempotencyKey, principal);
   }
 
   @Get()
   @ApiOperation({ operationId: 'listRentals', summary: 'List rentals in stable UUID order' })
   @ApiPagination()
   @ApiOkResponse({ type: RentalPageDto, description: 'One page of rental summaries.' })
-  @ApiProblems(400, 500)
-  list(@Query(new PaginationPipe('rentals')) page: PageQuery): Promise<RentalPageDto> {
-    return this.rentals.list(page);
+  @ApiProblems(400, 401, 500)
+  list(
+    @CurrentPrincipal() principal: Principal,
+    @Query(new PaginationPipe('rentals')) page: PageQuery,
+  ): Promise<RentalPageDto> {
+    return this.rentals.list(page, principal);
   }
 
   @Get(':rentalId')
@@ -104,8 +114,11 @@ export class RentalsController {
     type: RentalDetailDto,
     description: 'Rental details with historical item prices.',
   })
-  @ApiProblems(400, 404, 500)
-  get(@Param('rentalId', new ParseUUIDPipe()) rentalId: string): Promise<RentalDetailDto> {
-    return this.rentals.get(rentalId);
+  @ApiProblems(400, 401, 403, 404, 500)
+  get(
+    @CurrentPrincipal() principal: Principal,
+    @Param('rentalId', new ParseUUIDPipe()) rentalId: string,
+  ): Promise<RentalDetailDto> {
+    return this.rentals.get(rentalId, principal);
   }
 }

@@ -1,3 +1,5 @@
+import { assertRentalAccess } from '../auth/rental-access';
+import type { Principal } from '../auth/principal';
 import { createHash } from 'node:crypto';
 import {
   Injectable,
@@ -34,7 +36,12 @@ export class RentalsService {
     return checkout(this.dataSource, request, this.rentals);
   }
 
-  async create(request: CheckoutRequest, key: string): Promise<CreateRentalResult> {
+  async create(
+    request: CheckoutRequest,
+    key: string,
+    principal: Principal,
+  ): Promise<CreateRentalResult> {
+    assertRentalAccess(principal, request.renterId, 'create');
     // Stable field order: JSON object property order is not part of request identity.
     const canonical = {
       renterId: request.renterId.toLowerCase(),
@@ -63,14 +70,18 @@ export class RentalsService {
     });
   }
 
-  async list(page: PageQuery): Promise<RentalPageDto> {
-    const rentals = await this.rentals.findPage(page);
+  async list(page: PageQuery, principal: Principal): Promise<RentalPageDto> {
+    const rentals = await this.rentals.findPage(
+      page,
+      principal.role === 'client' ? principal.renterId : undefined,
+    );
     return pageOf(rentals.map(summary), page, 'rentals', rental => rental.rentalId);
   }
 
-  async get(rentalId: string): Promise<RentalDetailDto> {
+  async get(rentalId: string, principal: Principal): Promise<RentalDetailDto> {
     const rental = await this.rentals.findWithItems(rentalId);
     if (!rental) throw new NotFoundException('Rental not found');
+    assertRentalAccess(principal, rental.renterId, 'read');
     return {
       ...summary(rental),
       items: rental.items.map(item => ({

@@ -23,6 +23,69 @@ PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
 ## HTTP API and OpenAPI (homework 16, step 3; homework 9 requirements)
 
+### Temporary authentication (homework 18, step 2)
+
+**Temporary coursework implementation — replace in the authentication homework.**
+`AUTH_IDENTITIES` and `ConfiguredTokenService` are scaffolding for HW18. Replace
+the configured credential lookup with the authentication flow implemented in
+that homework. Retain the verified `Principal` boundary and rental role/ownership
+rules, adapting transport guards to the selected session/token mechanism.
+
+All `/rentals` operations require `Authorization: Bearer <token>`. The catalog,
+health endpoints and API documentation remain public. This step uses opaque
+configured credentials, not JWTs: no password login, registration, refresh or
+expiry yet. `AUTH_IDENTITIES` defaults to `[]`, denying every rental request
+until identities are configured. Values are read at startup; restart the API
+after changing credentials to rotate/revoke them.
+
+The JSON array contains `{ id, role, token, renterId }` for a `client`, or
+`{ id, role, token }` for `staff`. IDs are UUIDs; `renterId` identifies the
+client's renter row. Tokens must be distinct, 32–256 characters from
+`A-Z a-z 0-9 _ -`; generate randomly and inject through process environment.
+Real credentials do not belong in Git or logs.
+
+For a local seeded database, generate credentials in your shell without printing
+them (the client below refers to the first existing seed renter):
+
+```bash
+export AUTH_IDENTITIES="$(node --input-type=module <<'JS'
+import { randomBytes, randomUUID } from 'node:crypto';
+console.log(JSON.stringify([
+  { id: randomUUID(), role: 'client', renterId: '20000000-0000-4000-8000-000000000001', token: randomBytes(32).toString('hex') },
+  { id: randomUUID(), role: 'staff', token: randomBytes(32).toString('hex') },
+]));
+JS
+)"
+export CLIENT_TOKEN="$(node -e 'console.log(JSON.parse(process.env.AUTH_IDENTITIES)[0].token)')"
+export STAFF_TOKEN="$(node -e 'console.log(JSON.parse(process.env.AUTH_IDENTITIES)[1].token)')"
+# Start the API in this environment, or pass it through Compose's node service.
+curl -s http://localhost:3000/rentals -H "Authorization: Bearer $CLIENT_TOKEN"
+```
+
+Client reads are owner-only; list filtering happens in SQL before pagination.
+The existing checkout POST checks that body `renterId` matches the verified
+client before reserving its idempotency key or charging. Staff can read all
+rentals but cannot use this client-only POST. Shared policy also defines
+staff-only issue/return and owner-or-staff cancellation for future commands.
+Token failures return `401` with a Bearer challenge; known identities without
+access receive `403`, both as problem+json. The existing global Idempotency-Key
+namespace is unchanged: generate unique keys. Ownership is checked before replay.
+
+`ConfiguredTokenService` returns a frozen principal without the token.
+`BearerAuthGuard` adapts HTTP headers to this transport-independent service;
+rental services enforce access policy. Internal CLI/demo `checkout()` remains
+trusted and is not an unguarded HTTP alternative. Later SSE/Socket.IO steps
+will reuse credentials and policy. Native browser EventSource cannot set an
+Authorization header: a future UI needs a suitable streaming client or the
+later cookie-based login design.
+
+Nest mechanisms: [guards](https://docs.nestjs.com/guards) and
+[OpenAPI Bearer scheme](https://docs.nestjs.com/openapi/security).
+
+The Pact consumer now sends an illustrative Bearer token. Provider verification
+replaces that dummy value with an ephemeral configured staff credential; no
+real application tokens are stored in contracts.
+
 ### Rental lifecycle schema (homework 18, step 1)
 
 `AddRentalLifecycle` adds the schema and pure transition rules for
@@ -58,7 +121,7 @@ and [transactional trigger behavior](https://www.postgresql.org/docs/16/trigger-
 This schema step retains immediate checkout in `POST /rentals` and the legacy
 scripts. Those writes still create `ACTIVE` rentals, charge once, and queue the
 existing confirmation email. A compatibility insert trigger supplies their
-one-day `due_at`. Booking/issue/return endpoints, auth, the five-minute
+one-day `due_at`. Booking/issue/return endpoints, the five-minute
 scheduler, status emails and realtime transports are subsequent steps.
 Rental reads permit `rentedAt: null` for future bookings; existing issued
 rentals keep the same response values.
@@ -103,6 +166,7 @@ remain operational endpoints, excluded from the public OpenAPI document.
 curl -s 'http://localhost:3000/games?limit=2'
 # Set these three variables to existing IDs with an available game copy and renter credit.
 curl -i -X POST http://localhost:3000/rentals \
+  -H "Authorization: Bearer $CLIENT_TOKEN" \
   -H 'Content-Type: application/json' \
   -H 'Idempotency-Key: example-rental-0001' \
   -d "{\"renterId\":\"$RENTER_ID\",\"gameId\":\"$GAME_ID\",\"platformId\":\"$PLATFORM_ID\"}"
@@ -147,8 +211,8 @@ exception filter returns `application/problem+json` with required
 missing resources/renters, 409 for unavailable copies/insufficient balance,
 422 for a conflicting key and a generic 500 for internal failures. The same
 `configureApp` function registers validation, the filter and docs in all bootstraps;
-parameter pipes are attached to the controllers. Authentication/guards are not
-part of this step.
+parameter pipes are attached to the controllers. The temporary authentication
+layer described above now guards rental endpoints.
 
 Generate and check the committed OpenAPI 3.0 document:
 

@@ -1,3 +1,4 @@
+import { staffPrincipal } from './testkit/auth';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Game, GameCopy, GamePlatform, Platform, Renter } from '../../src/database/entities';
@@ -123,7 +124,10 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
     const { renter, catalog } = await fixture();
     const id = await book(renter.renterId, catalog.copy.gameCopyId);
     const service = new RentalsService(kit.dataSource, new RentalsRepository(kit.dataSource));
-    await expect(service.get(id)).resolves.toMatchObject({ rentalId: id, rentedAt: null });
+    await expect(service.get(id, staffPrincipal)).resolves.toMatchObject({
+      rentalId: id,
+      rentedAt: null,
+    });
   });
 
   it('rejects a second hold and manual release while a booking is live', async () => {

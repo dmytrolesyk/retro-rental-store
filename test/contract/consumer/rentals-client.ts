@@ -10,12 +10,15 @@ const rentalViewSchema = z.object({
 export type RentalView = z.infer<typeof rentalViewSchema>;
 
 export class RentalsClient {
-  constructor(private readonly baseUrl: string) {}
+  constructor(
+    private readonly baseUrl: string,
+    private readonly token: string,
+  ) {}
 
   async getRental(rentalId: string): Promise<RentalView> {
     const url = new URL(`/rentals/${encodeURIComponent(rentalId)}`, this.baseUrl);
     const response = await fetch(url, {
-      headers: { Accept: 'application/json' },
+      headers: { Accept: 'application/json', Authorization: `Bearer ${this.token}` },
       signal: AbortSignal.timeout(5000),
     });
     if (response.status !== 200)

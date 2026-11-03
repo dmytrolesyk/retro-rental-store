@@ -1,3 +1,9 @@
+import {
+  clientPrincipal,
+  testIdentities,
+  clientAuthorization,
+  staffAuthorization,
+} from '../integration/testkit/auth';
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -39,6 +45,7 @@ describe('Rental HTTP API (full AppModule)', () => {
     const overrides: Record<string, string | undefined> = {
       ...kit.environment,
       DB_PASSWORD_FILE: undefined,
+      AUTH_IDENTITIES: JSON.stringify(testIdentities),
       PORT: '3000',
       LOG_LEVEL: 'error',
       TIMEOUT_MS: '5000',
@@ -89,7 +96,9 @@ describe('Rental HTTP API (full AppModule)', () => {
     await db.getRepository(Platform).save(data.platform);
     await db.getRepository(GamePlatform).save(data.gamePlatform);
     await db.getRepository(GameCopy).save(data.copy);
-    const renter = await db.getRepository(Renter).save(aRenter());
+    const renter = await db
+      .getRepository(Renter)
+      .save(aRenter({ renterId: clientPrincipal.renterId }));
     return {
       data,
       renter,
@@ -101,10 +110,17 @@ describe('Rental HTTP API (full AppModule)', () => {
     };
   }
 
+  it('rejects anonymous rental access while the catalog remains public', async () => {
+    const response = await request(app.getHttpServer()).get('/rentals').expect(401);
+    expectProblem(response, 401, '/rentals');
+    await request(app.getHttpServer()).get('/games').expect(200);
+  });
+
   it('creates a rental over HTTP and reads it from its Location', async () => {
     const { data, renter, input } = await fixture();
     const result = await request(app.getHttpServer())
       .post('/rentals')
+      .set('Authorization', clientAuthorization)
       .set('Idempotency-Key', `e2e-${randomUUID()}`)
       .send(input)
       .expect(201);
@@ -125,7 +141,10 @@ describe('Rental HTTP API (full AppModule)', () => {
     const stored = await kit.dataSource.getRepository(Rental).findOneByOrFail({
       rentalId: created.rentalId,
     });
-    const read = await request(app.getHttpServer()).get(location).expect(200);
+    const read = await request(app.getHttpServer())
+      .get(location)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     expect(read.body).toEqual({
       rentalId: created.rentalId,
       renterId: renter.renterId,
@@ -141,22 +160,33 @@ describe('Rental HTTP API (full AppModule)', () => {
 
   it('returns problem details with 404 for a valid UUID without a rental', async () => {
     const path = `/rentals/${randomUUID()}`;
-    const result = await request(app.getHttpServer()).get(path).expect(404);
+    const result = await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', staffAuthorization)
+      .expect(404);
     expectProblem(result, 404, path);
   });
 
   it('returns problem details with 400 for a malformed rental UUID', async () => {
     const path = '/rentals/not-a-uuid';
-    const result = await request(app.getHttpServer()).get(path).expect(400);
+    const result = await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', staffAuthorization)
+      .expect(400);
     expectProblem(result, 400, path);
   });
 
   it('validates body and headers through the shared application configuration', async () => {
     const { input, renter } = await fixture();
-    const missingKey = await request(app.getHttpServer()).post('/rentals').send(input).expect(400);
+    const missingKey = await request(app.getHttpServer())
+      .post('/rentals')
+      .set('Authorization', clientAuthorization)
+      .send(input)
+      .expect(400);
     expectProblem(missingKey, 400, '/rentals');
     const unknownField = await request(app.getHttpServer())
       .post('/rentals')
+      .set('Authorization', clientAuthorization)
       .set('Idempotency-Key', `e2e-${randomUUID()}`)
       .send({ ...input, extra: true })
       .expect(400);

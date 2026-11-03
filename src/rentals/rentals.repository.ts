@@ -119,13 +119,14 @@ export class RentalsRepository {
     await manager.update(RentalRequest, { idempotencyKey: key }, { response });
   }
 
-  findPage(page: PageQuery): Promise<Rental[]> {
+  findPage(page: PageQuery, renterId?: string): Promise<Rental[]> {
     const query = this.dataSource
       .getRepository(Rental)
       .createQueryBuilder('rental')
       .orderBy('rental.rentalId', 'ASC')
       .take(page.limit + 1);
-    if (page.after) query.where('rental.rentalId > :after', { after: page.after });
+    if (renterId) query.where('rental.renterId = :renterId', { renterId });
+    if (page.after) query.andWhere('rental.rentalId > :after', { after: page.after });
     return query.getMany();
   }
 

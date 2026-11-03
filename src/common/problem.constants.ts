@@ -7,6 +7,8 @@ export const SERVER_ERROR_STATUS_MIN = 500;
 
 export const PROBLEM_DESCRIPTIONS = {
   [HttpStatus.BAD_REQUEST]: 'Invalid request',
+  [HttpStatus.UNAUTHORIZED]: 'Authentication required',
+  [HttpStatus.FORBIDDEN]: 'Access forbidden',
   [HttpStatus.NOT_FOUND]: 'Resource not found',
   [HttpStatus.CONFLICT]: 'Business state conflict',
   [HttpStatus.UNPROCESSABLE_ENTITY]: 'Idempotency key used with a different request',

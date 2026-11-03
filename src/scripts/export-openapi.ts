@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { AuthModule } from '../auth/auth.module';
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { stringify } from 'yaml';
@@ -12,6 +13,7 @@ import { createApiDocument } from '../openapi';
 
 // Metadata only: real controllers/DTOs, no handlers invoked and no database/network startup.
 @Module({
+  imports: [AuthModule],
   controllers: [CatalogController, RentalsController],
   providers: [
     { provide: CatalogService, useValue: {} },
