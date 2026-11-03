@@ -13,6 +13,7 @@ services:
     environment:
       PORT: ${PORT:-3000}
       AUTH_IDENTITIES: ${AUTH_IDENTITIES:-[]}
+      RENTAL_DEADLINES_ENABLED: ${RENTAL_DEADLINES_ENABLED:-true}
       DB_HOST: pgbouncer
       DB_PORT: 6432
       DB_USER: ${DB_APP_USER:-db_app}

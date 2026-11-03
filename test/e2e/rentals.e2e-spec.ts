@@ -1,3 +1,7 @@
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { ConfigService } from '@nestjs/config';
+import { RENTAL_DEADLINES_JOB } from '../../src/rentals/rental-deadlines.scheduler';
+import { ProcessRentalDeadlines } from '../../src/rentals/use-cases/process-rental-deadlines';
 import {
   clientPrincipal,
   testIdentities,
@@ -17,10 +21,11 @@ import {
   GamePlatform,
   Platform,
   Rental,
+  RentalItem,
   Renter,
 } from '../../src/database/entities';
 import type { CreatedRentalDto } from '../../src/rentals/rentals.dto';
-import { aCatalog, aRenter } from '../integration/testkit/builders';
+import { aCatalog, aRenter, aRental, aRentalItem } from '../integration/testkit/builders';
 import { startPostgres } from '../integration/testkit/postgres';
 import type { PostgresTestkit } from '../integration/testkit/postgres';
 
@@ -49,6 +54,7 @@ describe('Rental HTTP API (full AppModule)', () => {
       PORT: '3000',
       LOG_LEVEL: 'error',
       TIMEOUT_MS: '5000',
+      RENTAL_DEADLINES_ENABLED: 'false',
     };
     const previous = Object.fromEntries(Object.keys(overrides).map(key => [key, process.env[key]]));
     restoreEnvironment = () => {
@@ -109,6 +115,38 @@ describe('Rental HTTP API (full AppModule)', () => {
       },
     };
   }
+
+  it('registers one five-minute cron, honors disablement and executes real deadline processing', async () => {
+    const schedulerRegistry = app.get(SchedulerRegistry);
+    expect(schedulerRegistry.getCronJobs().size).toBe(1);
+    const cronJob = schedulerRegistry.getCronJob(RENTAL_DEADLINES_JOB);
+    expect(cronJob.waitForCompletion).toBe(true);
+    const nextRun = cronJob.nextDate().toJSDate();
+    expect(nextRun.getMinutes() % 5).toBe(0);
+    expect(nextRun.getSeconds()).toBe(0);
+    const configService = app.get(ConfigService);
+    const processor = app.get(ProcessRentalDeadlines);
+    const executeSpy = jest.spyOn(processor, 'execute');
+    try {
+      await cronJob.fireOnTick();
+      expect(executeSpy).not.toHaveBeenCalled();
+      const { renter, catalogFixture } = await fixture();
+      const rental = await kit.dataSource.getRepository(Rental).save(aRental(renter.renterId));
+      await kit.dataSource
+        .getRepository(RentalItem)
+        .save(aRentalItem(rental.rentalId, catalogFixture.copy.gameCopyId));
+      configService.set('RENTAL_DEADLINES_ENABLED', true);
+      await cronJob.fireOnTick();
+      expect(executeSpy).toHaveBeenCalledTimes(1);
+      expect(
+        (await kit.dataSource.getRepository(Rental).findOneByOrFail({ rentalId: rental.rentalId }))
+          .status,
+      ).toBe('OVERDUE');
+    } finally {
+      configService.set('RENTAL_DEADLINES_ENABLED', false);
+      executeSpy.mockRestore();
+    }
+  });
 
   it('rejects anonymous rental access while the catalog remains public', async () => {
     const response = await request(app.getHttpServer()).get('/rentals').expect(401);

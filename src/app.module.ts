@@ -1,3 +1,5 @@
+import { ScheduleModule } from '@nestjs/schedule';
+import { RentalDeadlinesModule } from './rentals/rental-deadlines.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -13,7 +15,9 @@ import { CatalogModule } from './catalog/catalog.module';
       ignoreEnvFile: true,
       validate: validateEnvConfig,
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
+    RentalDeadlinesModule,
     RentalsModule,
     CatalogModule,
   ],

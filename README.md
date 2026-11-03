@@ -107,8 +107,8 @@ bookings have no issue/due dates. Cancellation records its time, reason and
 optional actor. The migration preserves historical issue/return dates, marks
 fully returned rentals `RETURNED`, and leaves active/partially returned rentals
 `ACTIVE`. Historical booking dates remain unknown (`NULL`); historical due
-dates are backfilled as exactly 24 hours after issue. An overdue worker can
-process those old active rentals in a later step.
+dates are backfilled as exactly 24 hours after issue. The deadline scheduler
+also processes those historical active rentals.
 
 A database-maintained `rental_items.released_at` separates freeing a copy
 from physically returning it. The partial unique index
@@ -126,9 +126,9 @@ and [transactional trigger behavior](https://www.postgresql.org/docs/16/trigger-
 HTTP creation now books a copy; issue and return are separate commands (step 3).
 The internal CLI/demo `checkout()` retains immediate `ACTIVE` checkout,
 charging and its existing confirmation job. A compatibility insert trigger
-supplies its one-day `due_at`. The five-minute scheduler, status emails and
-realtime transports are subsequent steps. Until the scheduler is added,
-expired bookings remain held, but issue already rejects them.
+supplies its one-day `due_at`. The API now runs the five-minute deadline
+scheduler described below. Status emails and realtime transports are subsequent
+steps. Issue rejects expired bookings before the next scheduler run.
 
 Rollback is supported for legacy-only data. It deliberately refuses to remove
 the new schema once bookings or new overdue states exist, rather than dropping
@@ -146,6 +146,45 @@ if Testcontainers cannot locate the Docker context socket, set `DOCKER_HOST`
 to the endpoint shown by `docker context inspect` and
 `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` for the VM-side
 Ryuk mount.
+
+### Automatic rental deadlines (homework 18, step 4)
+
+The API registers one named `rental-deadlines` cron through `@nestjs/schedule`
+(`ScheduleModule.forRoot()` and `@Cron`, at minute 0, 5, 10, …).
+`RENTAL_DEADLINES_ENABLED=true` is the default; set it to `false` and restart
+to disable processing for isolated fixtures or contract verification. Compose
+forwards this setting. Legacy CLI/worker modules do not import the scheduler.
+
+`RentalDeadlinesScheduler` calls `ProcessRentalDeadlines`, which finds overdue
+candidates in pages of 100 using the existing partial deadline indexes.
+`ExpireBooking` cancels BOOKED rentals at/after `bookingExpiresAt`, recording
+`cancelledBy: null` and a stable system reason. The existing trigger releases
+the reservation without a physical return or refund. `MarkRentalOverdue`
+changes ACTIVE to OVERDUE at/after `dueAt`, retaining the dates and held copies.
+
+Each rental has its own transaction. The use case locks the parent (and items
+for expiry), reads database time after waiting, and calls the pure
+`nextDeadlineStatus` rule against the current row. Manual issue/cancellation/
+return and another scheduler instance therefore cannot apply the same
+transition twice. A stale, future, missing or already processed candidate is
+a no-op. The cron's `waitForCompletion` also prevents overlap in one process;
+row locks and the status recheck provide correctness across processes.
+
+Each scan has a fixed database cutoff and advances by deadline/rental ID;
+its internal text timestamp cursor preserves PostgreSQL microseconds. A failed
+rental rolls back, is logged and retried on the next run; the current scan
+continues with other rows. Cron logs counts of expired, overdue and failed
+rentals. If the process is down, stored deadlines remain the source of truth:
+the next scheduled run after restart catches up without restoring timers.
+Automatic status changes can lag a deadline by roughly five minutes in normal
+operation, longer during outages or a long-running scan.
+
+There are no new HTTP routes or deadline email jobs in this step. The next
+email step will add jobs inside these same transition transactions. Tests call
+the processor or fire the registered cron directly, using past/future fixtures
+and pure boundary tests instead of waiting five minutes.
+
+See [Nest scheduling](https://docs.nestjs.com/techniques/task-scheduling).
 
 ### Booking and rental commands (homework 18, step 3)
 

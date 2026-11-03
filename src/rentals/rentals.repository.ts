@@ -21,6 +21,12 @@ interface NewCheckout {
   emailTo: string;
 }
 
+export interface RentalDeadlineCandidate {
+  rentalId: string;
+  // Preserve PostgreSQL microseconds when advancing the keyset cursor.
+  deadlineAt: string;
+}
+
 @Injectable()
 export class RentalsRepository {
   constructor(private readonly dataSource: DataSource) {}
@@ -163,7 +169,7 @@ export class RentalsRepository {
     manager: EntityManager,
     rentalId: string,
     at: Date,
-    actorId: string,
+    actorId: string | null,
     reason: string,
   ): Promise<void> {
     // The cancellation trigger releases all reserved items in the same transaction.
@@ -179,6 +185,27 @@ export class RentalsRepository {
     // Preserve dates of any historical partial returns; release only outstanding items.
     await manager.update(RentalItem, { rentalId, returnedAt: IsNull() }, { returnedAt: at });
     await manager.update(Rental, rentalId, { status: 'RETURNED' });
+  }
+
+  async markOverdue(manager: EntityManager, rentalId: string): Promise<void> {
+    await manager.update(Rental, rentalId, { status: 'OVERDUE' });
+  }
+
+  findDeadlineCandidates(
+    status: 'BOOKED' | 'ACTIVE',
+    cutoff: Date,
+    limit: number,
+    after?: RentalDeadlineCandidate,
+  ): Promise<RentalDeadlineCandidate[]> {
+    const deadlineColumn = status === 'BOOKED' ? 'booking_expires_at' : 'due_at';
+    return this.dataSource.query<RentalDeadlineCandidate[]>(
+      `SELECT rental_id AS "rentalId", ${deadlineColumn}::text AS "deadlineAt"
+       FROM rentals
+       WHERE status = $1 AND ${deadlineColumn} <= $2
+         AND ($3::timestamptz IS NULL OR (${deadlineColumn}, rental_id) > ($3::timestamptz, $4::uuid))
+       ORDER BY ${deadlineColumn}, rental_id LIMIT $5`,
+      [status, cutoff, after?.deadlineAt ?? null, after?.rentalId ?? null, limit],
+    );
   }
 
   async reserveRequest(manager: EntityManager, key: string, hash: string) {

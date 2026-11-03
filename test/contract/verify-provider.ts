@@ -43,6 +43,7 @@ async function main(): Promise<void> {
     PORT: '3000',
     LOG_LEVEL: 'error',
     TIMEOUT_MS: '5000',
+    RENTAL_DEADLINES_ENABLED: 'false',
   };
   const previous = Object.fromEntries(Object.keys(overrides).map(key => [key, process.env[key]]));
   try {

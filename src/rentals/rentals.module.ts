@@ -1,3 +1,6 @@
+import { ExpireBooking } from './use-cases/expire-booking';
+import { MarkRentalOverdue } from './use-cases/mark-rental-overdue';
+import { ProcessRentalDeadlines } from './use-cases/process-rental-deadlines';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { RentalsService } from './rentals.service';
@@ -18,7 +21,18 @@ import { RentalsRepository } from './rentals.repository';
     IssueRental,
     CancelRental,
     ReturnRental,
+    ExpireBooking,
+    MarkRentalOverdue,
+    ProcessRentalDeadlines,
   ],
-  exports: [RentalsService, IssueRental, CancelRental, ReturnRental],
+  exports: [
+    RentalsService,
+    IssueRental,
+    CancelRental,
+    ReturnRental,
+    ExpireBooking,
+    MarkRentalOverdue,
+    ProcessRentalDeadlines,
+  ],
 })
 export class RentalsModule {}
