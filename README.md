@@ -23,6 +23,65 @@ PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
 ## HTTP API and OpenAPI (homework 16, step 3; homework 9 requirements)
 
+### Rental lifecycle schema (homework 18, step 1)
+
+`AddRentalLifecycle` adds the schema and pure transition rules for
+`BOOKED → ACTIVE → OVERDUE → RETURNED`, with `ACTIVE → RETURNED` for
+on-time returns and `BOOKED → CANCELLED` for cancellations. No state-machine
+library is needed. `nextRentalStatus` validates state/command pairs; a `null`
+result means that command has already reached its target state. Authorization,
+time checks, transactional effects and request idempotency belong to the
+business service and are not provided by this pure function.
+
+`booked_at` and `booking_expires_at` describe the reservation; `rented_at`
+and `due_at` describe physical issue and the paid rental period. Unissued
+bookings have no issue/due dates. Cancellation records its time, reason and
+optional actor. The migration preserves historical issue/return dates, marks
+fully returned rentals `RETURNED`, and leaves active/partially returned rentals
+`ACTIVE`. Historical booking dates remain unknown (`NULL`); historical due
+dates are backfilled as exactly 24 hours after issue. An overdue worker can
+process those old active rentals in a later step.
+
+A database-maintained `rental_items.released_at` separates freeing a copy
+from physically returning it. The partial unique index
+`one_active_rental_per_copy` now uses `released_at IS NULL`. Returns release
+at `returned_at`; cancellation releases all reserved items at `cancelled_at`
+without manufacturing physical return dates. An item trigger derives this
+value and locks its parent rental; acquire the parent before its items in
+future business transactions. Availability queries use the same predicate.
+Partial historical returns retain their individual dates and free only the
+returned copies; the future return command will return all remaining items.
+The database mechanisms are described in PostgreSQL's documentation on
+[partial unique indexes](https://www.postgresql.org/docs/16/indexes-partial.html)
+and [transactional trigger behavior](https://www.postgresql.org/docs/16/trigger-definition.html).
+
+This schema step retains immediate checkout in `POST /rentals` and the legacy
+scripts. Those writes still create `ACTIVE` rentals, charge once, and queue the
+existing confirmation email. A compatibility insert trigger supplies their
+one-day `due_at`. Booking/issue/return endpoints, auth, the five-minute
+scheduler, status emails and realtime transports are subsequent steps.
+Rental reads permit `rentedAt: null` for future bookings; existing issued
+rentals keep the same response values.
+
+Rollback is supported for legacy-only data. It deliberately refuses to remove
+the new schema once bookings or new overdue states exist, rather than dropping
+history or inventing issue dates. Run migration checks only on a disposable DB.
+
+```bash
+pnpm test -- --runInBand
+pnpm test:integration
+```
+
+The lifecycle integration suite uses its own Testcontainers PostgreSQL and
+checks fresh/upgrade migrations, legacy histories, cancellation release,
+concurrent claims, constraints and rollback protection. With Rancher Desktop,
+if Testcontainers cannot locate the Docker context socket, set `DOCKER_HOST`
+to the endpoint shown by `docker context inspect` and
+`TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` for the VM-side
+Ryuk mount.
+
+### Existing HTTP contract
+
 Apply the migrations with the migration role before using the domain endpoints
 (see [Grading](#grading)); existing databases also need `AddRentalRequests`.
 The API still connects through PgBouncer and never runs migrations at startup.

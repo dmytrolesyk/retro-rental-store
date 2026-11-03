@@ -47,7 +47,7 @@ export class CreatedRentalDto implements RentalReceipt {
 export class RentalSummaryDto {
   @ApiProperty({ format: 'uuid' }) rentalId: string;
   @ApiProperty({ format: 'uuid' }) renterId: string;
-  @ApiProperty({ format: 'date-time' }) rentedAt: string;
+  @ApiProperty({ type: String, format: 'date-time', nullable: true }) rentedAt: string | null;
 }
 
 export class RentalItemDto {

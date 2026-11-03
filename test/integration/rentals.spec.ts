@@ -33,11 +33,12 @@ describe('Rental repository (PostgreSQL)', () => {
     const db = kit.dataSource;
     const renter = await db.getRepository(Renter).save(aRenter());
     const rental = aRental(renter.renterId);
+    const expected = { ...rental };
     await db.getRepository(Rental).save(rental);
 
     await expect(
       db.getRepository(Rental).findOneByOrFail({ rentalId: rental.rentalId }),
-    ).resolves.toMatchObject(rental);
+    ).resolves.toMatchObject(expected);
     await expect(db.getRepository(Rental).count()).resolves.toBe(1);
   });
 
@@ -75,6 +76,7 @@ describe('Rental repository (PostgreSQL)', () => {
         returnedAt: new Date(rental.rentedAt.getTime() + 86400000),
       }),
     ];
+    const expectedItems = items.map(item => ({ ...item }));
     await db.getRepository(RentalItem).save([
       ...items,
       aRentalItem(otherRental.rentalId, unrelated.copy.gameCopyId, {
@@ -94,7 +96,7 @@ describe('Rental repository (PostgreSQL)', () => {
     expect(result.rentalId).toBe(rental.rentalId);
     expect(result.renter).toMatchObject(renter);
     expect(result.items).toHaveLength(2);
-    for (const item of items) {
+    for (const item of expectedItems) {
       expect(result.items).toContainEqual(expect.objectContaining(item));
     }
   });

@@ -129,7 +129,7 @@ describe('Rental HTTP API (full AppModule)', () => {
     expect(read.body).toEqual({
       rentalId: created.rentalId,
       renterId: renter.renterId,
-      rentedAt: stored.rentedAt.toISOString(),
+      rentedAt: stored.rentedAt?.toISOString() ?? null,
       items: [
         { gameCopyId: data.copy.gameCopyId, costPerDay: data.copy.pricePerDay, returnedAt: null },
       ],

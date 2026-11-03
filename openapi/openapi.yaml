@@ -412,6 +412,7 @@ components:
         rentedAt:
           type: string
           format: date-time
+          nullable: true
       required:
         - rentalId
         - renterId
@@ -460,6 +461,7 @@ components:
         rentedAt:
           type: string
           format: date-time
+          nullable: true
         items:
           type: array
           items:

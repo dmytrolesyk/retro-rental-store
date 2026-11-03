@@ -1,4 +1,5 @@
 import { GameCondition } from '../entities';
+import type { Rental } from '../../rentals/entities/rental.entity';
 import type { readRetronianCatalog } from './retronian-catalog';
 
 // The order is fixed: copy IDs, dates and prices never depend on query order or time.
@@ -71,11 +72,14 @@ export function createHomeworkData(catalog: ReturnType<typeof readRetronianCatal
     phoneNumber: `+380000000${String(index + 1).padStart(3, '0')}`,
   }));
 
-  const rentals = renters.map((renter, index) => ({
-    rentalId: homeworkId('30000000', index),
-    renterId: renter.renterId,
-    rentedAt: new Date(Date.UTC(2026, 8, 1 + index * 3, 10)),
-  }));
+  const rentals = renters.map<Pick<Rental, 'rentalId' | 'renterId' | 'rentedAt' | 'status'>>(
+    (renter, index) => ({
+      rentalId: homeworkId('30000000', index),
+      renterId: renter.renterId,
+      rentedAt: new Date(Date.UTC(2026, 8, 1 + index * 3, 10)),
+      status: index === renters.length - 1 ? 'ACTIVE' : 'RETURNED',
+    }),
+  );
 
   // Two positions per rental. Returned copies can be rented again.
   // Only the last rental is active, so its two copies never conflict.

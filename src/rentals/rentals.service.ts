@@ -19,7 +19,7 @@ function summary(rental: Rental) {
   return {
     rentalId: rental.rentalId,
     renterId: rental.renterId,
-    rentedAt: rental.rentedAt.toISOString(),
+    rentedAt: rental.rentedAt?.toISOString() ?? null,
   };
 }
 

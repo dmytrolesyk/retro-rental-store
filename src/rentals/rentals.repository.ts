@@ -49,7 +49,7 @@ export class RentalsRepository {
            AND ($3::uuid IS NULL OR c.game_copy_id > $3::uuid)
            AND NOT EXISTS (
              SELECT 1 FROM rental_items i
-             WHERE i.game_copy_id = c.game_copy_id AND i.returned_at IS NULL
+             WHERE i.game_copy_id = c.game_copy_id AND i.released_at IS NULL
            )
          ORDER BY c.game_copy_id
          LIMIT 1
@@ -62,7 +62,7 @@ export class RentalsRepository {
       // The SELECT snapshot predates any lock wait. Recheck in a fresh READ
       // COMMITTED statement, then advance in UUID order if this copy was taken.
     } while (
-      await manager.existsBy(RentalItem, { gameCopyId: copy.gameCopyId, returnedAt: IsNull() })
+      await manager.existsBy(RentalItem, { gameCopyId: copy.gameCopyId, releasedAt: IsNull() })
     );
     return copy;
   }
