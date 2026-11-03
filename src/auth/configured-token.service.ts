@@ -15,18 +15,18 @@ function digest(token: string): string {
  */
 @Injectable()
 export class ConfiguredTokenService {
-  private readonly principals = new Map<string, Principal>();
+  private readonly principalsByTokenDigest = new Map<string, Principal>();
 
   constructor(@Inject(AUTH_IDENTITIES) identities: unknown) {
     for (const { token, ...principal } of parseAuthIdentities(identities)) {
-      this.principals.set(digest(token), Object.freeze(principal));
+      this.principalsByTokenDigest.set(digest(token), Object.freeze(principal));
     }
   }
 
   authenticate(token: unknown): Principal {
     if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(token))
       throw new UnauthorizedException();
-    const principal = this.principals.get(digest(token));
+    const principal = this.principalsByTokenDigest.get(digest(token));
     if (!principal) throw new UnauthorizedException();
     return principal;
   }

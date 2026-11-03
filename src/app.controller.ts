@@ -7,7 +7,7 @@ const started = Date.now();
 @ApiExcludeController()
 @Controller('/')
 export class AppController {
-  constructor(private readonly db: DataSource) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   @Get('health')
   @HttpCode(200)
@@ -16,7 +16,7 @@ export class AppController {
   }
   @Get('db')
   async checkDb() {
-    const queryResult = await this.db.query<
+    const queryResult = await this.dataSource.query<
       {
         current_user: string;
         now: string;

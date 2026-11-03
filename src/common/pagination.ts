@@ -11,11 +11,11 @@ export interface PageQuery {
 }
 
 export class PaginationPipe implements PipeTransform<unknown, Promise<PageQuery>> {
-  private readonly validation = new ValidationPipe(HTTP_VALIDATION_OPTIONS);
+  private readonly validationPipe = new ValidationPipe(HTTP_VALIDATION_OPTIONS);
   constructor(private readonly resource: Resource) {}
 
   async transform(value: unknown): Promise<PageQuery> {
-    const { limit, cursor } = (await this.validation.transform(value, {
+    const { limit, cursor } = (await this.validationPipe.transform(value, {
       type: 'query',
       metatype: PaginationQueryDto,
     })) as PaginationQueryDto;
@@ -25,7 +25,7 @@ export class PaginationPipe implements PipeTransform<unknown, Promise<PageQuery>
       const decoded = Buffer.from(cursor, 'base64url');
       // Buffer decoding is permissive; accept only the canonical unpadded representation.
       if (decoded.toString('base64url') !== cursor) throw new Error();
-      const token = (await this.validation.transform(
+      const token = (await this.validationPipe.transform(
         JSON.parse(decoded.toString('utf8')) as unknown,
         {
           type: 'custom',

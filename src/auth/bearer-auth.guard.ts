@@ -10,7 +10,7 @@ interface AuthenticatedRequest extends Request {
 
 @Injectable()
 export class BearerAuthGuard implements CanActivate {
-  constructor(private readonly tokens: ConfiguredTokenService) {}
+  constructor(private readonly configuredTokenService: ConfiguredTokenService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -21,7 +21,7 @@ export class BearerAuthGuard implements CanActivate {
     const match =
       typeof header === 'string' ? /^Bearer ([A-Za-z0-9_-]{32,256})$/i.exec(header) : null;
     if (!match || count !== 1) throw new UnauthorizedException();
-    request.principal = this.tokens.authenticate(match[1]);
+    request.principal = this.configuredTokenService.authenticate(match[1]);
     return true;
   }
 }

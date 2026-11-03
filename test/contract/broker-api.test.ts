@@ -57,7 +57,7 @@ void test('gate accepts only an explicit positive Broker decision', () => {
   assert.doesNotThrow(() => {
     assertDeployable({ summary: { deployable: true } });
   });
-  for (const result of [
+  for (const deploymentDecision of [
     { summary: { deployable: false } },
     { summary: { deployable: null, unknown: 1 } },
     { summary: {} },
@@ -66,7 +66,7 @@ void test('gate accepts only an explicit positive Broker decision', () => {
     { summary: { deployable: 'true' } },
   ])
     assert.throws(() => {
-      assertDeployable(result);
+      assertDeployable(deploymentDecision);
     });
 });
 

@@ -90,22 +90,22 @@ describe('Rental HTTP API (full AppModule)', () => {
   });
 
   async function fixture() {
-    const data = aCatalog();
-    const db = kit.dataSource;
-    await db.getRepository(Game).save(data.game);
-    await db.getRepository(Platform).save(data.platform);
-    await db.getRepository(GamePlatform).save(data.gamePlatform);
-    await db.getRepository(GameCopy).save(data.copy);
-    const renter = await db
+    const catalogFixture = aCatalog();
+    const dataSource = kit.dataSource;
+    await dataSource.getRepository(Game).save(catalogFixture.game);
+    await dataSource.getRepository(Platform).save(catalogFixture.platform);
+    await dataSource.getRepository(GamePlatform).save(catalogFixture.gamePlatform);
+    await dataSource.getRepository(GameCopy).save(catalogFixture.copy);
+    const renter = await dataSource
       .getRepository(Renter)
       .save(aRenter({ renterId: clientPrincipal.renterId }));
     return {
-      data,
+      catalogFixture,
       renter,
       input: {
         renterId: renter.renterId,
-        gameId: data.game.gameId,
-        platformId: data.platform.platformId,
+        gameId: catalogFixture.game.gameId,
+        platformId: catalogFixture.platform.platformId,
       },
     };
   }
@@ -116,64 +116,89 @@ describe('Rental HTTP API (full AppModule)', () => {
     await request(app.getHttpServer()).get('/games').expect(200);
   });
 
-  it('creates a rental over HTTP and reads it from its Location', async () => {
-    const { data, renter, input } = await fixture();
-    const result = await request(app.getHttpServer())
+  it('books, issues and returns a copy through the real HTTP application', async () => {
+    const { catalogFixture, renter, input } = await fixture();
+    const response = await request(app.getHttpServer())
       .post('/rentals')
       .set('Authorization', clientAuthorization)
       .set('Idempotency-Key', `e2e-${randomUUID()}`)
       .send(input)
       .expect(201);
-    const created = result.body as CreatedRentalDto;
-    expect(created.rentalId).toEqual(expect.any(String));
-    expect(created).toEqual({
-      rentalId: created.rentalId,
-      gameCopyId: data.copy.gameCopyId,
-      chargedAmount: data.copy.pricePerDay,
-      balance: renter.balance - data.copy.pricePerDay,
+    const created = response.body as CreatedRentalDto;
+    expect(created).toMatchObject({
+      status: 'BOOKED',
+      gameCopyId: catalogFixture.copy.gameCopyId,
+      costPerDay: catalogFixture.copy.pricePerDay,
     });
-    const location = result.get('Location');
+    const location = response.get('Location');
     expect(location).toBe(`/rentals/${created.rentalId}`);
     if (!location) throw new Error('POST /rentals did not return Location');
-    expect(result.get('Idempotency-Replay')).toBe('false');
-
-    // Fixture/migration pool reads effects committed by AppModule's own connection pool.
-    const stored = await kit.dataSource.getRepository(Rental).findOneByOrFail({
-      rentalId: created.rentalId,
-    });
+    expect(response.get('Idempotency-Replay')).toBe('false');
+    const stored = await kit.dataSource
+      .getRepository(Rental)
+      .findOneByOrFail({ rentalId: created.rentalId });
+    expect(stored.status).toBe('BOOKED');
+    expect(stored.rentedAt).toBeNull();
     const read = await request(app.getHttpServer())
       .get(location)
-      .set('Authorization', staffAuthorization)
+      .set('Authorization', clientAuthorization)
       .expect(200);
-    expect(read.body).toEqual({
+    expect(read.body).toMatchObject({
       rentalId: created.rentalId,
       renterId: renter.renterId,
-      rentedAt: stored.rentedAt?.toISOString() ?? null,
+      status: 'BOOKED',
+      rentedAt: null,
       items: [
-        { gameCopyId: data.copy.gameCopyId, costPerDay: data.copy.pricePerDay, returnedAt: null },
+        {
+          gameCopyId: catalogFixture.copy.gameCopyId,
+          costPerDay: catalogFixture.copy.pricePerDay,
+          returnedAt: null,
+          releasedAt: null,
+        },
       ],
     });
     await expect(
       kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: renter.renterId }),
-    ).resolves.toMatchObject({ balance: created.balance });
+    ).resolves.toMatchObject({ balance: renter.balance });
+    const issued = await request(app.getHttpServer())
+      .post(`${location}/issue`)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
+    expect(issued.body).toHaveProperty('rentedAt', expect.any(String));
+    expect(issued.body).toHaveProperty('dueAt', expect.any(String));
+    expect(issued.body).toMatchObject({
+      status: 'ACTIVE',
+    });
+    await expect(
+      kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: renter.renterId }),
+    ).resolves.toMatchObject({ balance: renter.balance - catalogFixture.copy.pricePerDay });
+    const returned = await request(app.getHttpServer())
+      .post(`${location}/return`)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
+    expect(returned.body).toHaveProperty('items.0.returnedAt', expect.any(String));
+    expect(returned.body).toHaveProperty('items.0.releasedAt', expect.any(String));
+    expect(returned.body).toMatchObject({
+      status: 'RETURNED',
+    });
   });
 
   it('returns problem details with 404 for a valid UUID without a rental', async () => {
     const path = `/rentals/${randomUUID()}`;
-    const result = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .get(path)
       .set('Authorization', staffAuthorization)
       .expect(404);
-    expectProblem(result, 404, path);
+    expectProblem(response, 404, path);
   });
 
   it('returns problem details with 400 for a malformed rental UUID', async () => {
     const path = '/rentals/not-a-uuid';
-    const result = await request(app.getHttpServer())
+    const response = await request(app.getHttpServer())
       .get(path)
       .set('Authorization', staffAuthorization)
       .expect(400);
-    expectProblem(result, 400, path);
+    expectProblem(response, 400, path);
   });
 
   it('validates body and headers through the shared application configuration', async () => {

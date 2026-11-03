@@ -1,6 +1,8 @@
 import { Catch, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { InvalidRentalTransitionError } from '../rentals/rental-lifecycle';
+import { InvalidRentalIssueError } from '../rentals/rental-issue';
 import { CheckoutError } from '../rentals/checkout';
 import {
   INTERNAL_ERROR_DETAIL,
@@ -23,7 +25,10 @@ export class ProblemFilter implements ExceptionFilter {
   catch(error: unknown, host: ArgumentsHost): void {
     let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
     let detail = INTERNAL_ERROR_DETAIL;
-    if (error instanceof CheckoutError) {
+    if (error instanceof InvalidRentalTransitionError || error instanceof InvalidRentalIssueError) {
+      status = HttpStatus.CONFLICT;
+      detail = error.message;
+    } else if (error instanceof CheckoutError) {
       status = CHECKOUT_ERROR_STATUS[error.code];
       detail = error.message;
     } else if (error instanceof HttpException) {

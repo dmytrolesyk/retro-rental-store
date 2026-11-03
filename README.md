@@ -21,6 +21,11 @@ entry point to `dist/main.js`. `experimentalDecorators` and
 TypeORM and `@nestjs/typeorm` are runtime dependencies; `pg` provides the
 PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
+Injected dependencies use descriptive role names: `rentalsRepository`,
+`rentalsService`, `issueRentalUseCase`, `dataSource`. Local names describe their
+contents, such as `nextStatus`, `rentalItems`, `bookingReceipt` and `response`.
+Collection names such as `rentals` remain appropriate for actual collections.
+
 ## HTTP API and OpenAPI (homework 16, step 3; homework 9 requirements)
 
 ### Temporary authentication (homework 18, step 2)
@@ -63,10 +68,10 @@ curl -s http://localhost:3000/rentals -H "Authorization: Bearer $CLIENT_TOKEN"
 ```
 
 Client reads are owner-only; list filtering happens in SQL before pagination.
-The existing checkout POST checks that body `renterId` matches the verified
-client before reserving its idempotency key or charging. Staff can read all
-rentals but cannot use this client-only POST. Shared policy also defines
-staff-only issue/return and owner-or-staff cancellation for future commands.
+The booking POST checks that body `renterId` matches the verified client
+before reserving its idempotency key or copy. Staff can read all rentals but
+cannot use this client-only POST. Issue/return require staff; cancellation
+is available to the owner or staff.
 Token failures return `401` with a Bearer challenge; known identities without
 access receive `403`, both as problem+json. The existing global Idempotency-Key
 namespace is unchanged: generate unique keys. Ownership is checked before replay.
@@ -111,20 +116,19 @@ from physically returning it. The partial unique index
 at `returned_at`; cancellation releases all reserved items at `cancelled_at`
 without manufacturing physical return dates. An item trigger derives this
 value and locks its parent rental; acquire the parent before its items in
-future business transactions. Availability queries use the same predicate.
+business transactions. Availability queries use the same predicate.
 Partial historical returns retain their individual dates and free only the
-returned copies; the future return command will return all remaining items.
+returned copies; the return command returns all remaining items.
 The database mechanisms are described in PostgreSQL's documentation on
 [partial unique indexes](https://www.postgresql.org/docs/16/indexes-partial.html)
 and [transactional trigger behavior](https://www.postgresql.org/docs/16/trigger-definition.html).
 
-This schema step retains immediate checkout in `POST /rentals` and the legacy
-scripts. Those writes still create `ACTIVE` rentals, charge once, and queue the
-existing confirmation email. A compatibility insert trigger supplies their
-one-day `due_at`. Booking/issue/return endpoints, the five-minute
-scheduler, status emails and realtime transports are subsequent steps.
-Rental reads permit `rentedAt: null` for future bookings; existing issued
-rentals keep the same response values.
+HTTP creation now books a copy; issue and return are separate commands (step 3).
+The internal CLI/demo `checkout()` retains immediate `ACTIVE` checkout,
+charging and its existing confirmation job. A compatibility insert trigger
+supplies its one-day `due_at`. The five-minute scheduler, status emails and
+realtime transports are subsequent steps. Until the scheduler is added,
+expired bookings remain held, but issue already rejects them.
 
 Rollback is supported for legacy-only data. It deliberately refuses to remove
 the new schema once bookings or new overdue states exist, rather than dropping
@@ -143,28 +147,31 @@ to the endpoint shown by `docker context inspect` and
 `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` for the VM-side
 Ryuk mount.
 
-### Existing HTTP contract
+### Booking and rental commands (homework 18, step 3)
 
 Apply the migrations with the migration role before using the domain endpoints
 (see [Grading](#grading)); existing databases also need `AddRentalRequests`.
 The API still connects through PgBouncer and never runs migrations at startup.
 
-| Method | Path | Response |
-| --- | --- | --- |
-| GET | `/games?limit=20&cursor=…` | Game summaries: `items`, `next_cursor` |
-| GET | `/games/{gameId}` | Game details and supported platform IDs |
-| POST | `/rentals` | One-copy, one-day checkout: `rentalId`, `gameCopyId`, `chargedAmount`, `balance` |
-| GET | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor` |
-| GET | `/rentals/{rentalId}` | Rental, renter ID and item price/return snapshots |
+| Method | Path                         | Response                                                                                                |
+| ------ | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| GET    | `/games?limit=20&cursor=…`   | Game summaries: `items`, `next_cursor`                                                                  |
+| GET    | `/games/{gameId}`            | Game details and supported platform IDs                                                                 |
+| POST   | `/rentals`                   | Client books one copy: `rentalId`, `gameCopyId`, `status`, `bookedAt`, `bookingExpiresAt`, `costPerDay` |
+| GET    | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor`                                                                |
+| GET    | `/rentals/{rentalId}`        | Rental status/dates, cancellation and item price/return snapshots                                       |
+| POST   | `/rentals/{rentalId}/issue`  | Staff issues a BOOKED rental; returns updated details                                                   |
+| POST   | `/rentals/{rentalId}/cancel` | Owner/staff cancels BOOKED; body `{ "reason": "…" }`; returns details                                   |
+| POST   | `/rentals/{rentalId}/return` | Staff accepts ACTIVE/OVERDUE items; returns updated details                                             |
 
 Money is in integer kopecks. The request DTO is separate from the TypeORM entity;
-internal confirmation job IDs are not exposed. Swagger UI is at `/docs`, and
+internal entities and job IDs are not exposed. Swagger UI is at `/docs`, and
 the running application's OpenAPI JSON is at `/docs-json`. `/health` and `/db`
 remain operational endpoints, excluded from the public OpenAPI document.
 
 ```bash
 curl -s 'http://localhost:3000/games?limit=2'
-# Set these three variables to existing IDs with an available game copy and renter credit.
+# Set these three variables to existing IDs with an available game copy.
 curl -i -X POST http://localhost:3000/rentals \
   -H "Authorization: Bearer $CLIENT_TOKEN" \
   -H 'Content-Type: application/json' \
@@ -172,21 +179,77 @@ curl -i -X POST http://localhost:3000/rentals \
   -d "{\"renterId\":\"$RENTER_ID\",\"gameId\":\"$GAME_ID\",\"platformId\":\"$PLATFORM_ID\"}"
 ```
 
-POST accepts exactly `renterId`, `gameId`, `platformId` (UUIDs) and requires
-`Idempotency-Key`: 8–128 visible ASCII characters, no spaces. A successful
-request returns 201, a relative `Location`, and `Idempotency-Replay: false`.
-Repeating its key and validated body returns the original 201/body/Location
-with `Idempotency-Replay: true`. JSON property order and UUID letter case do not
-change request identity. The balance in a replay is the original post-checkout
-balance, not a fresh balance query. Reusing a successful key for another body
-returns 422. Failed requests roll back and do not reserve their keys.
+`POST /rentals` accepts exactly `renterId`, `gameId`, `platformId` (UUIDs)
+and requires `Idempotency-Key`: 8–128 visible ASCII characters, no spaces.
+It reserves a copy for exactly 24 hours, snapshots its daily price, and creates
+`BOOKED` without debiting the balance or queuing a checkout email. Zero balance
+does not prevent booking. The response returns 201, a relative `Location`,
+and `Idempotency-Replay: false`. Repeating its key and validated body returns
+the original 201/body/Location with `Idempotency-Replay: true`, even after issue
+or cancellation; use GET for the current status. JSON property order and UUID
+letter case do not change request identity. Another body with the same key
+returns 422; failed requests do not reserve their keys.
 
-The key/hash/response live in `rental_requests`, not process memory. Its unique
-key coordinates concurrent requests; key allocation, checkout debit, rental,
-item, confirmation job and saved response commit in one READ COMMITTED
-transaction using the same EntityManager. A failure rolls everything back.
-Keys currently have no expiry. The legacy `checkout(DataSource, request)` entry
-point remains available to scripts without HTTP idempotency semantics.
+This changes the previous immediate-checkout POST contract: booking receipts
+no longer contain `chargedAmount` or `balance`. Existing paid-checkout receipts
+in `rental_requests` remain intact; reusing one returns 409 and requires a new
+key. Their JSON is read as a legacy receipt, without a data migration or rewriting
+history. Keys currently have no expiry and retain their global namespace.
+The legacy `checkout(DataSource, request)` entry point remains available to
+scripts without HTTP idempotency semantics.
+
+After setting `RENTAL_ID` from the booking response, issue with a staff token:
+
+```bash
+curl -i -X POST "http://localhost:3000/rentals/$RENTAL_ID/issue" \
+  -H "Authorization: Bearer $STAFF_TOKEN"
+curl -i -X POST "http://localhost:3000/rentals/$RENTAL_ID/return" \
+  -H "Authorization: Bearer $STAFF_TOKEN"
+# Alternatively, cancel a booking before issue:
+curl -i -X POST "http://localhost:3000/rentals/$RENTAL_ID/cancel" \
+  -H "Authorization: Bearer $CLIENT_TOKEN" \
+  -H 'Content-Type: application/json' -d '{"reason":"Plans changed"}'
+```
+
+Issue charges the booked price once and starts a paid 24-hour period from
+physical issue, regardless of later catalog price changes. Insufficient balance
+or expiry returns 409 and leaves the booking unchanged. Cancellation requires
+a trimmed nonblank reason of up to 500 characters and records the verified
+principal ID; it frees the copy without a refund or invented return date.
+Return accepts ACTIVE or OVERDUE (including ACTIVE past its due date), returns
+all outstanding items, and preserves historical partial-return dates.
+
+Commands return 200 with current details. A repeat already in the command's
+target state is a no-op: no second charge or changed cancellation/return dates.
+An incompatible state returns 409, such as issue after RETURNED or cancel after
+ACTIVE. Commands do not require an Idempotency-Key; creation uses a persisted
+key to distinguish retrying one booking from requesting another.
+
+`RentalsService` handles booking and reads. Issue, cancellation and return each
+have a dedicated injectable use case (`IssueRental`, `CancelRental`,
+`ReturnRental`) called directly by the controller. Each `execute()` owns its
+READ COMMITTED transaction, with explicit inputs and no action switch or bus.
+Transition/access rules, the repository and pure response mappers are shared.
+The use cases are exported by `RentalsModule` for other application callers.
+
+Issue follows Functional Core / Imperative Shell: `prepareIssueTerms` accepts
+booking/item snapshots and an explicit time, checks business rules, and returns
+the amount and issue/due dates. It has no Nest, TypeORM or I/O dependencies.
+`IssueRental` acquires locks, reads database time, calls that function, debits
+atomically and persists the result. The insufficient-balance decision remains
+with the conditional database update. Pure rule failures become HTTP 409 in
+`ProblemFilter`; the core itself does not depend on HTTP exceptions.
+
+Booking commits the key, reservation, item and saved receipt together. Commands
+lock the parent rental, then its items in stable order; issue also locks the renter before
+checking expiry and conditionally debiting the balance. The status change and
+all effects commit together, and a failure rolls everything back. Time is read
+with PostgreSQL `clock_timestamp()` after blocking locks: `now()` would retain
+the transaction start time and could allow an expired booking after a lock wait.
+See [row locks](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS)
+and [current time functions](https://www.postgresql.org/docs/16/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT).
+Status emails will be added in their own plan step; these HTTP commands do not
+yet enqueue them.
 
 Both lists use stable UUID ordering, `limit` from 1 to 100 (default 20), and
 an opaque resource-specific cursor. Pass `next_cursor` unchanged; null marks
@@ -201,14 +264,14 @@ explicit transformations. PaginationPipe uses the same validation policy for
 query/cursor DTOs, then decodes the resource-specific cursor; ParseUUIDPipe
 validates path IDs. Zod remains in configuration, fixture parsing and the
 standalone checkout input guard. Controllers delegate business work to services.
-RentalsService owns the transaction and idempotency decisions; one
-RentalsRepository contains rental reads, checkout persistence/locking and
-idempotency SQL. Its write methods require the transaction's EntityManager.
+RentalsService owns booking transaction/idempotency decisions; each command
+use case owns its transaction. One RentalsRepository contains rental reads,
+booking/command persistence, legacy checkout and idempotency SQL. Its write methods require the transaction's EntityManager.
 CreateRentalResponseInterceptor sets Location/Idempotency-Replay through the
 Nest HTTP adapter and unwraps the public receipt. A shared global
 exception filter returns `application/problem+json` with required
 `type`, `title`, `status`, `detail`, `instance`: 400 for validation, 404 for
-missing resources/renters, 409 for unavailable copies/insufficient balance,
+missing resources/renters, 409 for unavailable copies/insufficient balance, expired bookings or invalid transitions,
 422 for a conflicting key and a generic 500 for internal failures. The same
 `configureApp` function registers validation, the filter and docs in all bootstraps;
 parameter pipes are attached to the controllers. The temporary authentication

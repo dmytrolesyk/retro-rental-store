@@ -19,7 +19,7 @@ interface RetryOptions {
 export class TransactionRetryService {
   private readonly logger = new Logger(TransactionRetryService.name);
 
-  constructor(private readonly db: DataSource) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async run<T>(
     isolation: IsolationLevel,
@@ -37,7 +37,7 @@ export class TransactionRetryService {
       try {
         // TypeORM rolls back and releases the connection before a rejected
         // transaction reaches catch. Each retry starts a fresh transaction.
-        return await this.db.transaction(isolation, manager => work(manager, attempt));
+        return await this.dataSource.transaction(isolation, manager => work(manager, attempt));
       } catch (error: unknown) {
         const code = retryableCode(error);
         if (!code || attempt >= maxAttempts) throw error;

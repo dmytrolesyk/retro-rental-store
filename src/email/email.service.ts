@@ -14,19 +14,20 @@ export const EMAIL_FROM = Symbol('EMAIL_FROM');
 @Injectable()
 export class EmailService {
   constructor(
-    @Inject(RESEND_CLIENT) private readonly client: { emails: Pick<Resend['emails'], 'send'> },
-    @Inject(EMAIL_FROM) private readonly from: string,
+    @Inject(RESEND_CLIENT)
+    private readonly resendClient: { emails: Pick<Resend['emails'], 'send'> },
+    @Inject(EMAIL_FROM) private readonly senderAddress: string,
   ) {}
 
   async send(message: EmailMessage): Promise<string> {
     const { to, subject, text, idempotencyKey } = message;
-    const { data, error } = await this.client.emails.send(
-      { from: this.from, to, subject, text },
+    const { data: emailReceipt, error } = await this.resendClient.emails.send(
+      { from: this.senderAddress, to, subject, text },
       { idempotencyKey },
     );
     if (error) throw new Error(`Resend: ${error.message}`);
-    if (!data.id) throw new Error('Resend did not return an email ID');
+    if (!emailReceipt.id) throw new Error('Resend did not return an email ID');
     // API acceptance is not proof of inbox delivery.
-    return data.id;
+    return emailReceipt.id;
   }
 }

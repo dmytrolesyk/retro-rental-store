@@ -43,14 +43,16 @@ async function latestBackup() {
     .sort();
   if (!names.length) throw new Error(`No completed backups in ${directory}`);
   const filename = join(directory, names.at(-1));
-  const result = metadataSchema.safeParse(JSON.parse(await readFile(`${filename}.json`, 'utf8')));
-  if (!result.success) {
-    const issues = result.error.issues
+  const validationResult = metadataSchema.safeParse(
+    JSON.parse(await readFile(`${filename}.json`, 'utf8')),
+  );
+  if (!validationResult.success) {
+    const issues = validationResult.error.issues
       .map(issue => `  ${issue.path.join('.')}: ${issue.message}`)
       .join('\n');
     throw new Error(`Invalid backup metadata:\n${issues}`);
   }
-  return { filename, metadata: result.data };
+  return { filename, metadata: validationResult.data };
 }
 
 async function main() {

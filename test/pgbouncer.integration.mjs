@@ -56,7 +56,7 @@ async function withClient(connection, run) {
 async function withAppDataSource(run) {
   const connection = appConnection();
   // Use the application's options factory, with host-side connection settings.
-  const db = new DataSource(
+  const dataSource = new DataSource(
     createDataSourceOptions({
       DB_HOST: connection.host,
       DB_PORT: connection.port,
@@ -66,10 +66,10 @@ async function withAppDataSource(run) {
     }),
   );
   try {
-    await db.initialize();
-    return await run(db);
+    await dataSource.initialize();
+    return await run(dataSource);
   } finally {
-    if (db.isInitialized) await db.destroy();
+    if (dataSource.isInitialized) await dataSource.destroy();
   }
 }
 
@@ -142,8 +142,8 @@ async function assertApiQuery() {
 
 test('API and TypeORM transactions use the transaction pool', async () => {
   await assertApiQuery();
-  await withAppDataSource(db =>
-    db.transaction(async manager => {
+  await withAppDataSource(dataSource =>
+    dataSource.transaction(async manager => {
       const [first] = await manager.query('SELECT pg_backend_pid() AS pid');
       const [second] = await manager.query('SELECT pg_backend_pid() AS pid, current_user AS name');
       assert.equal(first.pid, second.pid);
@@ -269,8 +269,8 @@ test('rotation preserves a transaction, rejects the old password and authenticat
     await poolerAdmin.query(`KILL_CLIENT ${id}`);
   }
   await assertApiQuery();
-  await withAppDataSource(async db => {
-    const [row] = await db.query('SELECT 1 AS value');
+  await withAppDataSource(async dataSource => {
+    const [row] = await dataSource.query('SELECT 1 AS value');
     assert.equal(row.value, 1);
   });
   assert.deepEqual(containerState('pgbouncer'), poolerBefore);

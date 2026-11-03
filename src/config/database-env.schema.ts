@@ -17,12 +17,12 @@ export const databaseEnvSchema = z
 export type DatabaseEnv = z.infer<typeof databaseEnvSchema>;
 
 export function validateDatabaseEnv(raw: Record<string, unknown>): DatabaseEnv {
-  const result = databaseEnvSchema.safeParse(raw);
-  if (!result.success) {
-    const issues = result.error.issues
+  const validationResult = databaseEnvSchema.safeParse(raw);
+  if (!validationResult.success) {
+    const issues = validationResult.error.issues
       .map(issue => `  ${issue.path.join('.')}: ${issue.message}`)
       .join('\n');
     throw new Error(`Invalid database configuration:\n${issues}`);
   }
-  return result.data;
+  return validationResult.data;
 }

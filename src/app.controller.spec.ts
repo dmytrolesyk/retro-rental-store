@@ -4,14 +4,14 @@ import { DataSource } from 'typeorm';
 
 describe('AppController', () => {
   let appController: AppController;
-  const dbMock = {
+  const dataSourceMock = {
     query: jest.fn().mockResolvedValue([{ current_user: 'db_app', now: 'now' }]),
   };
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [{ provide: DataSource, useValue: dbMock }],
+      providers: [{ provide: DataSource, useValue: dataSourceMock }],
     }).compile();
 
     appController = app.get<AppController>(AppController);
@@ -25,9 +25,9 @@ describe('AppController', () => {
 
   describe('db', () => {
     it('should return the query result', async () => {
-      const result = await appController.checkDb();
-      expect(dbMock.query).toHaveBeenCalled();
-      expect(result.dbQuery.current_user).toBe('db_app');
+      const databaseStatus = await appController.checkDb();
+      expect(dataSourceMock.query).toHaveBeenCalled();
+      expect(databaseStatus.dbQuery.current_user).toBe('db_app');
     });
   });
 });

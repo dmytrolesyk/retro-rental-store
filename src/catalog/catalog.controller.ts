@@ -10,7 +10,7 @@ import { ApiProblems } from '../common/api-problems.decorator';
 @ApiTags('games')
 @Controller('games')
 export class CatalogController {
-  constructor(private readonly catalog: CatalogService) {}
+  constructor(private readonly catalogService: CatalogService) {}
 
   @Get()
   @ApiOperation({ operationId: 'listGames', summary: 'List games in stable UUID order' })
@@ -18,7 +18,7 @@ export class CatalogController {
   @ApiOkResponse({ type: GamePageDto, description: 'One page of games.' })
   @ApiProblems(400, 500)
   list(@Query(new PaginationPipe('games')) page: PageQuery): Promise<GamePageDto> {
-    return this.catalog.list(page);
+    return this.catalogService.list(page);
   }
 
   @Get(':gameId')
@@ -30,6 +30,6 @@ export class CatalogController {
   })
   @ApiProblems(400, 404, 500)
   get(@Param('gameId', new ParseUUIDPipe()) gameId: string): Promise<GameDetailDto> {
-    return this.catalog.get(gameId);
+    return this.catalogService.get(gameId);
   }
 }

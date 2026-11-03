@@ -7,17 +7,17 @@ import { JobsService } from './jobs.service';
 @Injectable()
 export class RentalConfirmationWorker {
   constructor(
-    private readonly jobs: JobsService,
-    private readonly email: EmailService,
+    private readonly jobsService: JobsService,
+    private readonly emailService: EmailService,
   ) {}
 
   run(jobIds: string[]): Promise<void> {
-    return this.jobs.runWorker('email-worker', job => this.process(job), jobIds);
+    return this.jobsService.runWorker('email-worker', job => this.process(job), jobIds);
   }
 
   async process(job: RentalJob): Promise<void> {
     // Build rental-specific content from immutable task data so retries match.
-    await this.email.send({
+    await this.emailService.send({
       to: job.emailTo,
       subject: 'Підтвердження оренди — Retro Games Rental',
       text: `Вашу оренду №${job.rentalId} успішно оформлено. Дякуємо!`,

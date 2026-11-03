@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import type { RentalReceipt } from '../rentals.types';
+import type { BookingReceipt, LegacyCheckoutReceipt } from '../rentals.types';
 
 @Entity('rental_requests')
 export class RentalRequest {
@@ -8,7 +8,7 @@ export class RentalRequest {
   @Column({ name: 'request_hash', type: 'varchar', length: 64 })
   requestHash: string;
   @Column({ type: 'jsonb', nullable: true })
-  response: RentalReceipt | null;
+  response: BookingReceipt | LegacyCheckoutReceipt | null;
   @Column({ name: 'created_at', type: 'timestamptz', default: () => 'now()' })
   createdAt: Date;
 }

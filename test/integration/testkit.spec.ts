@@ -28,14 +28,14 @@ describe('PostgreSQL testkit', () => {
   });
 
   it('applies the real migrations on PostgreSQL 16', async () => {
-    const db = kit.dataSource;
-    const [server] = await db.query<{ version: number }[]>(
+    const dataSource = kit.dataSource;
+    const [server] = await dataSource.query<{ version: number }[]>(
       "SELECT current_setting('server_version_num')::int AS version",
     );
     expect(server.version).toBeGreaterThanOrEqual(160000);
     expect(server.version).toBeLessThan(170000);
-    await expect(db.showMigrations()).resolves.toBe(false);
-    await expect(db.getRepository(RentalJob).count()).resolves.toBe(0);
+    await expect(dataSource.showMigrations()).resolves.toBe(false);
+    await expect(dataSource.getRepository(RentalJob).count()).resolves.toBe(0);
   });
 
   it('persists renter builders with unique defaults and explicit overrides', async () => {
@@ -53,22 +53,22 @@ describe('PostgreSQL testkit', () => {
   });
 
   it('persists a valid catalog and resets data without losing the migrated schema', async () => {
-    const db = kit.dataSource;
+    const dataSource = kit.dataSource;
     const catalog = aCatalog({ pricePerDay: 3500 });
-    await db.getRepository(Game).save(catalog.game);
-    await db.getRepository(Platform).save(catalog.platform);
-    await db.getRepository(GamePlatform).save(catalog.gamePlatform);
-    await db.getRepository(GameCopy).save(catalog.copy);
-    await db.getRepository(Renter).save(aRenter());
+    await dataSource.getRepository(Game).save(catalog.game);
+    await dataSource.getRepository(Platform).save(catalog.platform);
+    await dataSource.getRepository(GamePlatform).save(catalog.gamePlatform);
+    await dataSource.getRepository(GameCopy).save(catalog.copy);
+    await dataSource.getRepository(Renter).save(aRenter());
 
     await expect(
-      db.getRepository(GameCopy).findOneByOrFail({ gameCopyId: catalog.copy.gameCopyId }),
+      dataSource.getRepository(GameCopy).findOneByOrFail({ gameCopyId: catalog.copy.gameCopyId }),
     ).resolves.toMatchObject(catalog.copy);
 
     await kit.reset();
     for (const table of ['renters', 'game_copies', 'game_platforms', 'games', 'platforms']) {
-      await expect(db.getRepository(table).count()).resolves.toBe(0);
+      await expect(dataSource.getRepository(table).count()).resolves.toBe(0);
     }
-    await expect(db.showMigrations()).resolves.toBe(false);
+    await expect(dataSource.showMigrations()).resolves.toBe(false);
   });
 });

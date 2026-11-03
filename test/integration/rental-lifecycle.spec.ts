@@ -37,13 +37,13 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
   });
 
   async function fixture() {
-    const db = kit.dataSource;
-    const renter = await db.getRepository(Renter).save(aRenter());
+    const dataSource = kit.dataSource;
+    const renter = await dataSource.getRepository(Renter).save(aRenter());
     const catalog = aCatalog();
-    await db.getRepository(Game).save(catalog.game);
-    await db.getRepository(Platform).save(catalog.platform);
-    await db.getRepository(GamePlatform).save(catalog.gamePlatform);
-    await db.getRepository(GameCopy).save(catalog.copy);
+    await dataSource.getRepository(Game).save(catalog.game);
+    await dataSource.getRepository(Platform).save(catalog.platform);
+    await dataSource.getRepository(GamePlatform).save(catalog.gamePlatform);
+    await dataSource.getRepository(GameCopy).save(catalog.copy);
     return { renter, catalog };
   }
 
@@ -112,8 +112,12 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
       book(renter.renterId, catalog.copy.gameCopyId),
       book(renter.renterId, catalog.copy.gameCopyId),
     ]);
-    expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1);
-    expect(results.filter(result => result.status === 'rejected')).toHaveLength(1);
+    expect(results.filter(checkoutReceipt => checkoutReceipt.status === 'fulfilled')).toHaveLength(
+      1,
+    );
+    expect(results.filter(checkoutReceipt => checkoutReceipt.status === 'rejected')).toHaveLength(
+      1,
+    );
     const [row] = await kit.dataSource.query<{ count: number }[]>(
       'SELECT count(*)::int AS count FROM rental_items WHERE released_at IS NULL',
     );
@@ -185,62 +189,61 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
 
   it('legacy checkout creates ACTIVE dates and physical returns release the copy', async () => {
     const { renter, catalog } = await fixture();
-    const result = await checkout(kit.dataSource, {
+    const checkoutReceipt = await checkout(kit.dataSource, {
       renterId: renter.renterId,
       gameId: catalog.game.gameId,
       platformId: catalog.platform.platformId,
     });
     const [rental] = await kit.dataSource.query<RentalRow[]>(
       'SELECT * FROM rentals WHERE rental_id = $1',
-      [result.rentalId],
+      [checkoutReceipt.rentalId],
     );
     expect(rental.status).toBe('ACTIVE');
     expect(rental.rented_at).toBeInstanceOf(Date);
     expect(rental.due_at.getTime() - rental.rented_at.getTime()).toBe(86400000);
     const returned = new Date(rental.rented_at.getTime() + 1000);
     await kit.dataSource.query('UPDATE rental_items SET returned_at = $2 WHERE rental_id = $1', [
-      result.rentalId,
+      checkoutReceipt.rentalId,
       returned,
     ]);
     const [item] = await kit.dataSource.query<ItemRow[]>(
       'SELECT * FROM rental_items WHERE rental_id = $1',
-      [result.rentalId],
+      [checkoutReceipt.rentalId],
     );
     expect(item.released_at).toEqual(returned);
     // Existing date triggers must still reject impossible physical histories.
     await expect(
       kit.dataSource.query('UPDATE rentals SET rented_at = $2 WHERE rental_id = $1', [
-        result.rentalId,
+        checkoutReceipt.rentalId,
         new Date(returned.getTime() + 1000),
       ]),
     ).rejects.toThrow();
   });
 
   it('migrates existing active, fully returned, and partially returned histories without losing dates', async () => {
-    const db = kit.dataSource;
-    await db.undoLastMigration();
+    const dataSource = kit.dataSource;
+    await dataSource.undoLastMigration();
     try {
       const { renter, catalog } = await fixture();
       const ids = [randomUUID(), randomUUID(), randomUUID()];
       const otherCopy = randomUUID();
-      await db.query(
+      await dataSource.query(
         `INSERT INTO game_copies SELECT $1, game_id, platform_id, photo_url,
         condition, format, price_per_day FROM game_copies WHERE game_copy_id = $2`,
         [otherCopy, catalog.copy.gameCopyId],
       );
       for (const id of ids)
-        await db.query('INSERT INTO rentals (rental_id, renter_id, rented_at) VALUES ($1,$2,$3)', [
-          id,
-          renter.renterId,
-          start,
-        ]);
-      await db.query(
+        await dataSource.query(
+          'INSERT INTO rentals (rental_id, renter_id, rented_at) VALUES ($1,$2,$3)',
+          [id, renter.renterId, start],
+        );
+      await dataSource.query(
         `INSERT INTO rental_items (rental_id, game_copy_id, cost_per_day, returned_at)
         VALUES ($1,$4,2500,$6), ($2,$4,2500,NULL), ($3,$5,2500,NULL), ($3,$4,2500,$6)`,
         [...ids, catalog.copy.gameCopyId, otherCopy, nextDay],
       );
-      await db.runMigrations();
-      const rows = await db.query<RentalRow[]>('SELECT * FROM rentals ORDER BY rental_id');
+      await dataSource.runMigrations();
+      const rows = await dataSource.query<RentalRow[]>('SELECT * FROM rentals ORDER BY rental_id');
       for (const id of ids) {
         const row = rows.find((r: { rental_id: string }) => r.rental_id === id);
         expect(row).toMatchObject({
@@ -251,18 +254,20 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
           due_at: nextDay,
         });
       }
-      const items = await db.query<ItemRow[]>('SELECT returned_at, released_at FROM rental_items');
+      const items = await dataSource.query<ItemRow[]>(
+        'SELECT returned_at, released_at FROM rental_items',
+      );
       expect(items).toHaveLength(4);
       for (const item of items) expect(item.released_at).toEqual(item.returned_at);
-      await db.undoLastMigration();
+      await dataSource.undoLastMigration();
       expect(
-        (await db.query<{ rented_at: Date }[]>('SELECT rented_at FROM rentals')).map(
+        (await dataSource.query<{ rented_at: Date }[]>('SELECT rented_at FROM rentals')).map(
           (r: { rented_at: Date }) => r.rented_at,
         ),
       ).toEqual([start, start, start]);
-      await db.runMigrations();
+      await dataSource.runMigrations();
     } finally {
-      await db.runMigrations();
+      await dataSource.runMigrations();
     }
   });
 
@@ -275,9 +280,9 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
   });
 
   it('checks rollback safety after waiting for concurrent booking writes', async () => {
-    const db = kit.dataSource;
+    const dataSource = kit.dataSource;
     const { renter } = await fixture();
-    const writer = db.createQueryRunner();
+    const writer = dataSource.createQueryRunner();
     await writer.connect();
     await writer.startTransaction();
     let rollback: Promise<boolean> | undefined;
@@ -294,14 +299,14 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
           new Date('2026-01-02T13:00:00Z'),
         ],
       );
-      rollback = db.undoLastMigration().then(
+      rollback = dataSource.undoLastMigration().then(
         () => false,
         () => true,
       );
       // Wait for a real DDL lock request, not an assumed transaction interleaving.
       let waiting = false;
       for (let attempt = 0; attempt < 100; attempt++) {
-        const [row] = await db.query<{ waiting: boolean }[]>(`SELECT EXISTS (
+        const [row] = await dataSource.query<{ waiting: boolean }[]>(`SELECT EXISTS (
           SELECT 1 FROM pg_locks WHERE relation = 'rentals'::regclass
           AND mode = 'AccessExclusiveLock' AND NOT granted) AS waiting`);
         if (row.waiting) {
@@ -313,13 +318,13 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
       expect(waiting).toBe(true);
       await writer.commitTransaction();
       expect(await rollback).toBe(true);
-      const [row] = await db.query<{ booked_at: Date }[]>('SELECT booked_at FROM rentals');
+      const [row] = await dataSource.query<{ booked_at: Date }[]>('SELECT booked_at FROM rentals');
       expect(row.booked_at).toEqual(start);
     } finally {
       if (writer.isTransactionActive) await writer.rollbackTransaction();
       await writer.release();
       await rollback;
-      await db.runMigrations();
+      await dataSource.runMigrations();
     }
   });
 

@@ -20,16 +20,16 @@ async function main(): Promise<void> {
     abortOnError: false,
   });
   try {
-    const db = app.get(DataSource);
-    const fixture = await db.transaction(createRaceData);
+    const dataSource = app.get(DataSource);
+    const fixture = await dataSource.transaction(createRaceData);
     const jobIds: string[] = [];
     for (const renter of fixture.renters.slice(0, raceSettings.copies)) {
-      const result = await app.get(RentalsService).checkout({
+      const checkoutReceipt = await app.get(RentalsService).checkout({
         renterId: renter.renterId,
         gameId: fixture.gameId,
         platformId: fixture.platformId,
       });
-      jobIds.push(result.jobId);
+      jobIds.push(checkoutReceipt.jobId);
     }
     const durationMs = 500;
     const started = performance.now();
@@ -43,7 +43,7 @@ async function main(): Promise<void> {
     for (const outcome of outcomes) {
       if (outcome.status === 'rejected') throw outcome.reason;
     }
-    const jobs = await db.getRepository(RentalJob).findBy({ jobId: In(jobIds) });
+    const jobs = await dataSource.getRepository(RentalJob).findBy({ jobId: In(jobIds) });
     const distribution: Record<string, number> = {};
     for (const job of jobs) {
       if (job.worker) distribution[job.worker] = (distribution[job.worker] ?? 0) + 1;

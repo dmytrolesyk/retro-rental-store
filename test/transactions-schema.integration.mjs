@@ -50,39 +50,39 @@ test('balance and job migration enforces constraints and preserves existing rent
     await baseline.destroy();
   }
 
-  const db = new DataSource({
+  const dataSource = new DataSource({
     ...connection,
     migrations: [fileURLToPath(new URL('../dist/migrations/*.js', import.meta.url))],
   });
-  await db.initialize();
+  await dataSource.initialize();
   try {
-    const applied = await db.runMigrations();
+    const applied = await dataSource.runMigrations();
     assert.equal(applied.length, 2, 'A new migration must extend the existing homework schema');
     const existingId = '20000000-0000-4000-8000-000000000001';
     assert.equal(
-      (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
+      (await dataSource.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
       0,
     );
 
-    const renter = await db.getRepository(Renter).save({
+    const renter = await dataSource.getRepository(Renter).save({
       name: 'New renter',
       email: 'new@example.test',
       phoneNumber: '+380000000002',
     });
     assert.equal(renter.balance, 0);
-    await db.getRepository(Renter).update(renter.renterId, { balance: 10000 });
+    await dataSource.getRepository(Renter).update(renter.renterId, { balance: 10000 });
     await assert.rejects(
-      db.query('UPDATE renters SET balance = -1 WHERE renter_id = $1', [renter.renterId]),
+      dataSource.query('UPDATE renters SET balance = -1 WHERE renter_id = $1', [renter.renterId]),
       { code: '23514' },
     );
     await assert.rejects(
-      db.query('UPDATE renters SET balance = NULL WHERE renter_id = $1', [renter.renterId]),
+      dataSource.query('UPDATE renters SET balance = NULL WHERE renter_id = $1', [renter.renterId]),
       { code: '23502' },
     );
 
     const { RentalJob } = require('../dist/database/entities');
     const rentalId = '30000000-0000-4000-8000-000000000001';
-    const jobs = db.getRepository(RentalJob);
+    const jobs = dataSource.getRepository(RentalJob);
     const job = await jobs.save({ rentalId, emailTo: 'existing@example.test' });
     assert.equal(job.status, 'new');
     assert.equal(job.processed, 0);
@@ -97,19 +97,19 @@ test('balance and job migration enforces constraints and preserves existing rent
       code: '23503',
     });
     await assert.rejects(
-      db.query("UPDATE rental_jobs SET status = 'invalid' WHERE job_id = $1", [job.jobId]),
+      dataSource.query("UPDATE rental_jobs SET status = 'invalid' WHERE job_id = $1", [job.jobId]),
       { code: '23514' },
     );
     await assert.rejects(
-      db.query('UPDATE rental_jobs SET processed = -1 WHERE job_id = $1', [job.jobId]),
+      dataSource.query('UPDATE rental_jobs SET processed = -1 WHERE job_id = $1', [job.jobId]),
       { code: '23514' },
     );
     await assert.rejects(
-      db.query('UPDATE rental_jobs SET processed = NULL WHERE job_id = $1', [job.jobId]),
+      dataSource.query('UPDATE rental_jobs SET processed = NULL WHERE job_id = $1', [job.jobId]),
       { code: '23502' },
     );
     await assert.rejects(
-      db.getRepository(Rental).delete(rentalId),
+      dataSource.getRepository(Rental).delete(rentalId),
       error =>
         ['23001', '23503'].includes(error.code) &&
         error.constraint === 'rental_jobs_rental_id_fkey',
@@ -118,46 +118,47 @@ test('balance and job migration enforces constraints and preserves existing rent
     assert.equal((await jobs.findOneByOrFail({ jobId: job.jobId })).processed, 1);
 
     // Compare the migration with ORM metadata, including existing manual schema objects.
-    const diff = await db.driver.createSchemaBuilder().log();
+    const diff = await dataSource.driver.createSchemaBuilder().log();
     assert.deepEqual(
       diff.upQueries.map(query => query.query),
       [],
       'Entities and migrated schema must agree',
     );
 
-    await db.undoLastMigration();
-    await db.query("UPDATE renters SET email = 'backfill@example.test' WHERE renter_id = $1", [
-      existingId,
-    ]);
-    assert.equal((await db.runMigrations()).length, 1);
+    await dataSource.undoLastMigration();
+    await dataSource.query(
+      "UPDATE renters SET email = 'backfill@example.test' WHERE renter_id = $1",
+      [existingId],
+    );
+    assert.equal((await dataSource.runMigrations()).length, 1);
     assert.equal(
       (await jobs.findOneByOrFail({ jobId: job.jobId })).emailTo,
       'backfill@example.test',
     );
-    await db.undoLastMigration();
-    await db.undoLastMigration();
-    assert.equal((await db.query('SELECT count(*)::int AS n FROM rentals'))[0].n, 1);
-    assert.equal((await db.query('SELECT count(*)::int AS n FROM renters'))[0].n, 2);
+    await dataSource.undoLastMigration();
+    await dataSource.undoLastMigration();
+    assert.equal((await dataSource.query('SELECT count(*)::int AS n FROM rentals'))[0].n, 1);
+    assert.equal((await dataSource.query('SELECT count(*)::int AS n FROM renters'))[0].n, 2);
     assert.equal(
-      (await db.query("SELECT to_regclass('public.rental_jobs') AS name"))[0].name,
+      (await dataSource.query("SELECT to_regclass('public.rental_jobs') AS name"))[0].name,
       null,
     );
     assert.equal(
       (
-        await db.query(
+        await dataSource.query(
           "SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'renters' AND column_name = 'balance'",
         )
       )[0].n,
       0,
     );
 
-    assert.equal((await db.runMigrations()).length, 2);
+    assert.equal((await dataSource.runMigrations()).length, 2);
     assert.equal(
-      (await db.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
+      (await dataSource.getRepository(Renter).findOneByOrFail({ renterId: existingId })).balance,
       0,
     );
     assert.equal(await jobs.count(), 0);
   } finally {
-    await db.destroy();
+    await dataSource.destroy();
   }
 });

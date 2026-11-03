@@ -30,7 +30,7 @@ export function nextRentalStatus(
   command: RentalCommand,
 ): RentalStatus | null {
   if (completed[command] === status) return null;
-  const next = transitions[status][command];
-  if (!next) throw new InvalidRentalTransitionError(status, command);
-  return next;
+  const nextStatus = transitions[status][command];
+  if (nextStatus === undefined) throw new InvalidRentalTransitionError(status, command);
+  return nextStatus;
 }

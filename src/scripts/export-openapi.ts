@@ -9,6 +9,9 @@ import { CatalogController } from '../catalog/catalog.controller';
 import { CatalogService } from '../catalog/catalog.service';
 import { RentalsController } from '../rentals/rentals.controller';
 import { RentalsService } from '../rentals/rentals.service';
+import { IssueRental } from '../rentals/use-cases/issue-rental';
+import { CancelRental } from '../rentals/use-cases/cancel-rental';
+import { ReturnRental } from '../rentals/use-cases/return-rental';
 import { createApiDocument } from '../openapi';
 
 // Metadata only: real controllers/DTOs, no handlers invoked and no database/network startup.
@@ -18,6 +21,9 @@ import { createApiDocument } from '../openapi';
   providers: [
     { provide: CatalogService, useValue: {} },
     { provide: RentalsService, useValue: {} },
+    { provide: IssueRental, useValue: {} },
+    { provide: CancelRental, useValue: {} },
+    { provide: ReturnRental, useValue: {} },
   ],
 })
 class DocumentationModule {}

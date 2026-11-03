@@ -34,10 +34,10 @@ const requestSchema = z.object({ renterId: z.uuid(), gameId: z.uuid(), platformI
 export async function checkout(
   dataSource: DataSource,
   request: CheckoutRequest,
-  rentals: RentalsRepository = new RentalsRepository(dataSource),
+  rentalsRepository: RentalsRepository = new RentalsRepository(dataSource),
 ): Promise<CheckoutResult> {
   return dataSource.transaction('READ COMMITTED', manager =>
-    checkoutInTransaction(manager, request, rentals),
+    checkoutInTransaction(manager, request, rentalsRepository),
   );
 }
 
@@ -45,7 +45,7 @@ export async function checkout(
 export async function checkoutInTransaction(
   manager: EntityManager,
   request: CheckoutRequest,
-  rentals: RentalsRepository,
+  rentalsRepository: RentalsRepository,
 ): Promise<CheckoutResult> {
   const parsed = requestSchema.safeParse(request);
   if (!parsed.success) {
@@ -53,17 +53,17 @@ export async function checkoutInTransaction(
   }
   const { renterId, gameId, platformId } = parsed.data;
 
-  const renter = await rentals.findRenterForCheckout(manager, renterId);
+  const renter = await rentalsRepository.findRenterForCheckout(manager, renterId);
   if (!renter) throw new CheckoutError('RENTER_NOT_FOUND', 'Renter does not exist');
-  const copy = await rentals.findAvailableCopyForUpdate(manager, gameId, platformId);
+  const copy = await rentalsRepository.findAvailableCopyForUpdate(manager, gameId, platformId);
   if (!copy)
     throw new CheckoutError('COPY_UNAVAILABLE', 'No available copy for this game and platform');
-  const balance = await rentals.debitBalance(manager, renterId, copy.pricePerDay);
+  const balance = await rentalsRepository.debitBalance(manager, renterId, copy.pricePerDay);
   // The renter is held by KEY SHARE, so no returned balance means insufficient funds.
   if (balance === null)
     throw new CheckoutError('INSUFFICIENT_BALANCE', 'Renter has insufficient balance');
 
-  const saved = await rentals.saveCheckout(manager, {
+  const saved = await rentalsRepository.saveCheckout(manager, {
     renterId,
     gameCopyId: copy.gameCopyId,
     costPerDay: copy.pricePerDay,

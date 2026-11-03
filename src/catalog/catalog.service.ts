@@ -17,10 +17,10 @@ function summary(game: Game) {
 
 @Injectable()
 export class CatalogService {
-  constructor(private readonly db: DataSource) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async list(page: PageQuery): Promise<GamePageDto> {
-    const query = this.db
+    const query = this.dataSource
       .getRepository(Game)
       .createQueryBuilder('game')
       .orderBy('game.gameId', 'ASC')
@@ -30,7 +30,7 @@ export class CatalogService {
   }
 
   async get(gameId: string): Promise<GameDetailDto> {
-    const game = await this.db
+    const game = await this.dataSource
       .getRepository(Game)
       .findOne({ where: { gameId }, relations: { gamePlatforms: { platform: true } } });
     if (!game) throw new NotFoundException('Game not found');

@@ -14,7 +14,7 @@ let directory;
 let archive;
 let metadata;
 let url;
-let db;
+let dataSource;
 
 function docker(...args) {
   return execFileSync('docker', args, {
@@ -69,7 +69,7 @@ before(async () => {
   const user = process.env.DB_MIGRATION_USER ?? 'db_migrator';
   const password = process.env.DB_MIGRATION_PASSWORD ?? 'migration_dev';
   url = `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@127.0.0.1:${port}/rental`;
-  db = new DataSource(
+  dataSource = new DataSource(
     createDataSourceOptions({
       DB_HOST: '127.0.0.1',
       DB_PORT: port,
@@ -78,21 +78,21 @@ before(async () => {
       DB_NAME: 'rental',
     }),
   );
-  await db.initialize();
-  await db.runMigrations();
+  await dataSource.initialize();
+  await dataSource.runMigrations();
   const game = randomUUID();
   const platform = randomUUID();
-  await db.query(
+  await dataSource.query(
     `INSERT INTO games (game_id, name, name_uk, description, description_uk)
      VALUES ($1, 'Restore test', 'Тест відновлення', '', '')`,
     [game],
   );
-  await db.query(
+  await dataSource.query(
     `INSERT INTO platforms (platform_id, name, description, description_uk, release_date)
      VALUES ($1, $2, '', '', '2000-01-01')`,
     [platform, platform],
   );
-  await db.query(
+  await dataSource.query(
     `INSERT INTO game_copies
      (game_copy_id, game_id, platform_id, condition, format, price_per_day)
      VALUES ($1, $2, $3, 'good', 'cartridge', 2500)`,
@@ -103,11 +103,11 @@ before(async () => {
   archive = backup.stdout;
   metadata = JSON.parse(await readFile(`${archive}.json`, 'utf8'));
   // Changes after the snapshot must not change what the drill expects.
-  await db.query('UPDATE game_copies SET price_per_day = 3000 WHERE game_id = $1', [game]);
+  await dataSource.query('UPDATE game_copies SET price_per_day = 3000 WHERE game_id = $1', [game]);
 });
 
 after(async () => {
-  if (db?.isInitialized) await db.destroy();
+  if (dataSource?.isInitialized) await dataSource.destroy();
   if (directory) await rm(directory, { recursive: true, force: true });
 });
 
@@ -117,30 +117,30 @@ test('restores the latest completed snapshot twice into separate clean resources
   // Neither unfinished archives nor orphaned JSON should be selected.
   await writeFile(join(directory, 'rental-9999.dump.part'), 'unfinished');
   await writeFile(join(directory, 'rental-9999.dump.json'), '{}');
-  const [before] = await db.query(
+  const [before] = await dataSource.query(
     'SELECT count(*)::text AS rows, sum(price_per_day)::text AS sum FROM game_copies',
   );
   const names = [];
   for (let i = 0; i < 2; i++) {
     // Recovery must not require access to the source database or its Compose stack.
-    const result = await run('restore-drill', {
+    const restoreResult = await run('restore-drill', {
       DATABASE_URL: 'postgresql://unavailable:unavailable@127.0.0.1:1/offline',
       COMPOSE_PROJECT_NAME: `${process.env.COMPOSE_PROJECT_NAME}-missing`,
     });
-    context.diagnostic(result.stdout);
-    assert.equal(result.code, 0, result.stderr);
-    assert.match(result.stdout, /^MATCH /m);
+    context.diagnostic(restoreResult.stdout);
+    assert.equal(restoreResult.code, 0, restoreResult.stderr);
+    assert.match(restoreResult.stdout, /^MATCH /m);
     assert.ok(
-      result.stdout.includes(
+      restoreResult.stdout.includes(
         `rows=${metadata.control.rows} sumPricePerDay=${metadata.control.sumPricePerDay}`,
       ),
     );
-    assert.match(result.stdout, /pg_restore: [\d.]+ seconds/);
-    assert.match(result.stdout, /RTO \(create through verification\): [\d.]+ seconds/);
-    names.push(assertCleaned(result.stdout));
+    assert.match(restoreResult.stdout, /pg_restore: [\d.]+ seconds/);
+    assert.match(restoreResult.stdout, /RTO \(create through verification\): [\d.]+ seconds/);
+    names.push(assertCleaned(restoreResult.stdout));
   }
   assert.notEqual(names[0], names[1]);
-  const [after] = await db.query(
+  const [after] = await dataSource.query(
     'SELECT count(*)::text AS rows, sum(price_per_day)::text AS sum FROM game_copies',
   );
   assert.deepEqual(after, before);
@@ -161,28 +161,28 @@ test('a mismatching aggregate fails and still removes its container and volume',
   const target = await alteredBackup('mismatch', async (_file, value) => {
     value.control.sumPricePerDay = String(BigInt(value.control.sumPricePerDay) + 1n);
   });
-  const result = await run('restore-drill', { BACKUP_DIR: target });
-  assert.notEqual(result.code, 0);
-  assert.match(result.stderr, /MISMATCH/);
-  assert.doesNotMatch(result.stdout, /^MATCH /m);
-  assertCleaned(result.stdout);
+  const restoreResult = await run('restore-drill', { BACKUP_DIR: target });
+  assert.notEqual(restoreResult.code, 0);
+  assert.match(restoreResult.stderr, /MISMATCH/);
+  assert.doesNotMatch(restoreResult.stdout, /^MATCH /m);
+  assertCleaned(restoreResult.stdout);
 });
 
 test('a damaged archive fails during restore and still cleans up', async () => {
   const target = await alteredBackup('corrupt', async file => {
     await writeFile(file, 'this is not a PostgreSQL archive');
   });
-  const result = await run('restore-drill', { BACKUP_DIR: target });
-  assert.notEqual(result.code, 0);
-  assert.match(result.stderr, /pg_restore/);
-  assertCleaned(result.stdout);
+  const restoreResult = await run('restore-drill', { BACKUP_DIR: target });
+  assert.notEqual(restoreResult.code, 0);
+  assert.match(restoreResult.stderr, /pg_restore/);
+  assertCleaned(restoreResult.stdout);
 });
 
 test('SIGTERM after resource creation exits unsuccessfully and cleans up', async () => {
-  const result = await run('restore-drill', {}, true);
-  assert.notEqual(result.code, 0);
-  assert.doesNotMatch(result.stdout, /^MATCH /m);
-  assertCleaned(result.stdout);
+  const restoreResult = await run('restore-drill', {}, true);
+  assert.notEqual(restoreResult.code, 0);
+  assert.doesNotMatch(restoreResult.stdout, /^MATCH /m);
+  assertCleaned(restoreResult.stdout);
 });
 
 test('missing backups and invalid metadata fail before allocating resources', async () => {
@@ -232,11 +232,11 @@ test('an unmigrated snapshot fails the drill instead of reporting MATCH', async 
     emptyUrl.pathname = `/${name}`;
     const backup = await run('backup', { BACKUP_DIR: target, DATABASE_URL: emptyUrl.href });
     assert.equal(backup.code, 0, backup.stderr);
-    const result = await run('restore-drill', { BACKUP_DIR: target });
-    assert.notEqual(result.code, 0);
-    assert.match(result.stderr, /public\.game_copies.*absent/);
-    assert.doesNotMatch(result.stdout, /^MATCH /m);
-    assertCleaned(result.stdout);
+    const restoreResult = await run('restore-drill', { BACKUP_DIR: target });
+    assert.notEqual(restoreResult.code, 0);
+    assert.match(restoreResult.stderr, /public\.game_copies.*absent/);
+    assert.doesNotMatch(restoreResult.stdout, /^MATCH /m);
+    assertCleaned(restoreResult.stdout);
   } finally {
     adminSql(`DROP DATABASE ${name}`);
   }

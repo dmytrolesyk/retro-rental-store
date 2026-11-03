@@ -5,7 +5,7 @@ export function createApiDocument(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Retro Games Rental API')
     .setDescription(
-      'Catalog and single-copy rental API. Monetary amounts are integer kopecks. Rental operations require configured opaque Bearer credentials; the game catalog is public.',
+      'Catalog and single-copy booking/rental API. Monetary amounts are integer kopecks. Rental operations require configured opaque Bearer credentials; the game catalog is public.',
     )
     .setVersion('1.0.0')
     .addBearerAuth({
@@ -16,12 +16,17 @@ export function createApiDocument(app: INestApplication) {
     })
     .addServer('http://localhost:3000', 'Local server; override the URL for your deployment.')
     .addTag('games', 'Game catalog and supported platforms.')
-    .addTag('rentals', 'Single-copy rentals, one day per checkout.')
+    .addTag(
+      'rentals',
+      'Reserve for 24 hours; staff issues for one paid day, accepts returns, or cancels bookings.',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, { ...config, security: [] });
   // Swagger cannot infer the global ValidationPipe's forbidNonWhitelisted policy.
-  const input = document.components?.schemas?.CreateRentalDto;
-  if (input && !('$ref' in input)) input.additionalProperties = false;
+  for (const name of ['CreateRentalDto', 'CancelRentalDto']) {
+    const input = document.components?.schemas?.[name];
+    if (input && !('$ref' in input)) input.additionalProperties = false;
+  }
   return document;
 }
 

@@ -8,7 +8,7 @@ type JobHandler = (job: RentalJob) => Promise<unknown>;
 
 @Injectable()
 export class JobsService {
-  constructor(private readonly db: DataSource) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async runWorker(worker: string, handle: JobHandler, jobIds?: string[]): Promise<void> {
     const where = jobIds
@@ -17,7 +17,7 @@ export class JobsService {
     // This loop ends only once the queue has no remaining new tasks.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     while (true) {
-      const processed = await this.db.transaction('READ COMMITTED', async manager => {
+      const processed = await this.dataSource.transaction('READ COMMITTED', async manager => {
         const job = await manager
           .getRepository(RentalJob)
           .createQueryBuilder('job')
@@ -48,6 +48,6 @@ export class JobsService {
   }
 
   private hasPendingJobs(where: FindOptionsWhere<RentalJob>): Promise<boolean> {
-    return this.db.getRepository(RentalJob).existsBy(where);
+    return this.dataSource.getRepository(RentalJob).existsBy(where);
   }
 }

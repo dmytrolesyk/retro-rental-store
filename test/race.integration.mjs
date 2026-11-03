@@ -7,7 +7,7 @@ import { after, before, test } from 'node:test';
 const require = createRequire(import.meta.url);
 const { DataSource } = require('typeorm');
 const { rentalEntities } = require('../dist/database/entities');
-let db;
+let dataSource;
 let demoEnv;
 
 before(async () => {
@@ -15,7 +15,7 @@ before(async () => {
   assert.ok(url, 'Set TEST_DATABASE_URL to an empty, disposable PostgreSQL database');
   const parsed = new URL(url);
   assert.match(parsed.pathname, /^\/retro_hw14_test_[a-z0-9_]+$/);
-  db = new DataSource({
+  dataSource = new DataSource({
     type: 'postgres',
     url,
     entities: rentalEntities,
@@ -23,12 +23,12 @@ before(async () => {
     installExtensions: false,
     migrations: [fileURLToPath(new URL('../dist/migrations/*.js', import.meta.url))],
   });
-  await db.initialize();
-  const [{ tables }] = await db.query(
+  await dataSource.initialize();
+  const [{ tables }] = await dataSource.query(
     `SELECT count(*)::int AS tables FROM information_schema.tables WHERE table_schema = 'public'`,
   );
   assert.equal(tables, 0, 'Use an empty database; this test does not reset existing data');
-  await db.runMigrations();
+  await dataSource.runMigrations();
   demoEnv = {
     ...process.env,
     DB_HOST: parsed.hostname,
@@ -42,7 +42,7 @@ before(async () => {
 });
 
 after(async () => {
-  if (db?.isInitialized) await db.destroy();
+  if (dataSource?.isInitialized) await dataSource.destroy();
 });
 
 function runDemo() {
@@ -55,7 +55,7 @@ function runDemo() {
 }
 
 test('race CLI rents exactly ten copies in fifty attempts and can rerun without resetting prior data', async () => {
-  await db.query(`INSERT INTO renters (name, email, phone_number, balance)
+  await dataSource.query(`INSERT INTO renters (name, email, phone_number, balance)
     VALUES ('Existing renter', 'sentinel@example.test', 'sentinel', 12345)`);
   const firstRun = runDemo();
   assert.equal(firstRun.status, 0, firstRun.stderr);
@@ -78,25 +78,25 @@ test('race CLI rents exactly ten copies in fifty attempts and can rerun without 
   assert.notEqual(second.gameId, first.gameId);
   assert.equal(second.successful, 10);
   assert.equal(second.finalStock, 0);
-  assert.equal((await db.query('SELECT count(*)::int AS n FROM rentals'))[0].n, 20);
-  assert.equal((await db.query('SELECT count(*)::int AS n FROM rental_jobs'))[0].n, 20);
+  assert.equal((await dataSource.query('SELECT count(*)::int AS n FROM rentals'))[0].n, 20);
+  assert.equal((await dataSource.query('SELECT count(*)::int AS n FROM rental_jobs'))[0].n, 20);
   assert.equal(
-    (await db.query("SELECT balance FROM renters WHERE email = 'sentinel@example.test'"))[0]
+    (await dataSource.query("SELECT balance FROM renters WHERE email = 'sentinel@example.test'"))[0]
       .balance,
     12345,
   );
 });
 
 test('race CLI fails on unexpected database errors and waits for all rollbacks', async () => {
-  const [{ n: before }] = await db.query('SELECT count(*)::int AS n FROM rentals');
-  await db.query(`CREATE FUNCTION reject_race_job() RETURNS trigger LANGUAGE plpgsql AS $$
+  const [{ n: before }] = await dataSource.query('SELECT count(*)::int AS n FROM rentals');
+  await dataSource.query(`CREATE FUNCTION reject_race_job() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN RAISE EXCEPTION 'forced race job failure'; END; $$`);
   try {
-    await db.query(`CREATE TRIGGER reject_race_job BEFORE INSERT ON rental_jobs
+    await dataSource.query(`CREATE TRIGGER reject_race_job BEFORE INSERT ON rental_jobs
       FOR EACH ROW EXECUTE FUNCTION reject_race_job()`);
-    const result = runDemo();
-    assert.equal(result.status, 1, result.stderr);
-    const report = JSON.parse(result.stdout);
+    const demoProcessResult = runDemo();
+    assert.equal(demoProcessResult.status, 1, demoProcessResult.stderr);
+    const report = JSON.parse(demoProcessResult.stdout);
     assert.equal(report.attempts, 50);
     assert.equal(report.successful, 0);
     assert.equal(report.unexpectedErrors.length, 50);
@@ -104,31 +104,31 @@ test('race CLI fails on unexpected database errors and waits for all rollbacks',
     assert.equal(report.totalCharged, 0);
     assert.equal(report.rentals, 0);
     assert.equal(report.jobs, 0);
-    assert.equal((await db.query('SELECT count(*)::int AS n FROM rentals'))[0].n, before);
+    assert.equal((await dataSource.query('SELECT count(*)::int AS n FROM rentals'))[0].n, before);
   } finally {
-    await db.query('DROP TRIGGER IF EXISTS reject_race_job ON rental_jobs');
-    await db.query('DROP FUNCTION reject_race_job()');
+    await dataSource.query('DROP TRIGGER IF EXISTS reject_race_job ON rental_jobs');
+    await dataSource.query('DROP FUNCTION reject_race_job()');
   }
 });
 
 test('race CLI fails if the database charges an incorrect total', async () => {
-  await db.query(`CREATE FUNCTION change_race_payment() RETURNS trigger LANGUAGE plpgsql AS $$
+  await dataSource.query(`CREATE FUNCTION change_race_payment() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN
       UPDATE renters SET balance = balance + 1
       WHERE renter_id = (SELECT renter_id FROM rentals WHERE rental_id = NEW.rental_id);
       RETURN NEW;
     END; $$`);
   try {
-    await db.query(`CREATE TRIGGER change_race_payment AFTER INSERT ON rental_jobs
+    await dataSource.query(`CREATE TRIGGER change_race_payment AFTER INSERT ON rental_jobs
       FOR EACH ROW EXECUTE FUNCTION change_race_payment()`);
-    const result = runDemo();
-    assert.equal(result.status, 1, result.stderr);
-    const report = JSON.parse(result.stdout);
+    const demoProcessResult = runDemo();
+    assert.equal(demoProcessResult.status, 1, demoProcessResult.stderr);
+    const report = JSON.parse(demoProcessResult.stdout);
     assert.equal(report.successful, 10);
     assert.equal(report.totalCharged, 24990);
     assert.deepEqual(report.unexpectedErrors, []);
   } finally {
-    await db.query('DROP TRIGGER IF EXISTS change_race_payment ON rental_jobs');
-    await db.query('DROP FUNCTION change_race_payment()');
+    await dataSource.query('DROP TRIGGER IF EXISTS change_race_payment ON rental_jobs');
+    await dataSource.query('DROP FUNCTION change_race_payment()');
   }
 });
