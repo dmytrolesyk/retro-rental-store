@@ -1,7 +1,7 @@
 # Realtime-комунікація: WebSockets, SSE та RxJS
 
 Джерело: https://lms.robotdreams.cc/course/5467/lesson/104324
-Отримано: 2026-10-12T13:43:59.875Z
+Отримано: 2026-10-30T12:54:50.327Z
 
 ## Домашнє завдання
 

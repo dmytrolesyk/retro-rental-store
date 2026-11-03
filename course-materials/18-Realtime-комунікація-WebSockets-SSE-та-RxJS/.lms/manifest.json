@@ -12,17 +12,17 @@
     "translationStatus": "available",
     "startsAt": "2026-09-24T15:30:00+00:00",
     "hidden": false,
-    "accessStatus": "in_process",
+    "accessStatus": "done",
     "available": true,
     "url": "https://lms.robotdreams.cc/course/5467/lesson/104324"
   },
   "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS",
   "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/.lms/manifest.json",
-  "fetchedAt": "2026-10-12T13:44:14.976Z",
+  "fetchedAt": "2026-10-30T12:54:57.593Z",
   "status": "complete",
   "homework": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T13:43:59.875Z",
+    "fetchedAt": "2026-10-30T12:54:50.327Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/homework.md"
     ],
@@ -36,7 +36,7 @@
         "translationStatus": "available",
         "startsAt": "2026-09-24T15:30:00+00:00",
         "hidden": false,
-        "accessStatus": "in_process",
+        "accessStatus": "done",
         "available": true,
         "url": "https://lms.robotdreams.cc/course/5467/lesson/104324"
       },
@@ -54,12 +54,12 @@
           "url": "https://lms.robotdreams.cc/course/5467/lesson/104324/homework/54350"
         }
       ],
-      "fetchedAt": "2026-10-12T13:43:59.875Z"
+      "fetchedAt": "2026-10-30T12:54:50.327Z"
     }
   },
   "materials": {
     "status": "fresh",
-    "fetchedAt": "2026-10-12T13:44:08.156Z",
+    "fetchedAt": "2026-10-30T12:54:57.570Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/additional-materials.md",
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/presentation.pdf",
@@ -77,7 +77,7 @@
         "translationStatus": "available",
         "startsAt": "2026-09-24T15:30:00+00:00",
         "hidden": false,
-        "accessStatus": "in_process",
+        "accessStatus": "done",
         "available": true,
         "url": "https://lms.robotdreams.cc/course/5467/lesson/104324"
       },
@@ -105,12 +105,12 @@
               "role": "material",
               "status": "downloaded",
               "file": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/presentation.pdf",
-              "bytes": 1602541,
+              "bytes": 1585627,
               "contentType": "application/pdf",
               "etag": null,
               "lastModified": null,
-              "sha256": "880a99910fb455a2a0f897637135736649d0fd71c6958a39dcce35fc8f38b3f7",
-              "fetchedAt": "2026-10-12T13:44:06.251Z"
+              "sha256": "4a06b31d5b16737c56ce48781c9a1bf372d40300756c1a1fceb93ee89c633fce",
+              "fetchedAt": "2026-10-30T12:54:56.206Z"
             }
           ]
         },
@@ -164,7 +164,7 @@
               "etag": null,
               "lastModified": "Fri, 25 Sep 2026 10:45:34 GMT",
               "sha256": "2ff7a1a7fd460fe863ab3c575e4df686fda53a37cbf28390f4b1b709a5ba0381",
-              "fetchedAt": "2026-10-12T13:44:08.155Z"
+              "fetchedAt": "2026-10-30T12:54:57.570Z"
             }
           ]
         }
@@ -173,11 +173,11 @@
       "transcriptStatus": "available",
       "directory": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS",
       "manifestPath": "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/.lms/materials-manifest.json",
-      "fetchedAt": "2026-10-12T13:44:08.156Z"
+      "fetchedAt": "2026-10-30T12:54:57.570Z"
     }
   },
   "video": {
-    "status": "fresh",
+    "status": "not_requested",
     "fetchedAt": "2026-10-12T13:44:14.976Z",
     "files": [
       "/Users/dmytrolesyk/dev/robotdreams/retro-games-rental/course-materials/18-Realtime-комунікація-WebSockets-SSE-та-RxJS/lecture.mp4",
