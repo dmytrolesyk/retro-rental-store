@@ -36,7 +36,7 @@ export class IssueRental {
       if (remainingBalance === null)
         throw new CheckoutError('INSUFFICIENT_BALANCE', 'Renter has insufficient balance');
       await this.rentalsRepository.issue(manager, rentalId, terms.rentedAt, terms.dueAt);
-      await this.rentalsRepository.queueStatusEmail(manager, rentalId, now);
+      await this.rentalsRepository.recordStatusChange(manager, rentalId, rental.status, now);
       const updatedRental = await this.rentalsRepository.findForUpdate(manager, rentalId);
       if (!updatedRental) throw new InternalServerErrorException('Rental disappeared while locked');
       return rentalDetail(

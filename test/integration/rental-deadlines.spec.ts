@@ -8,7 +8,7 @@ import {
   Platform,
   Rental,
   RentalItem,
-  RentalJob,
+  RentalOutboxEvent,
   Renter,
 } from '../../src/database/entities';
 import { RentalsRepository } from '../../src/rentals/rentals.repository';
@@ -85,7 +85,7 @@ describe('Rental deadline processing (PostgreSQL)', () => {
   const readRental = (rentalId: string) =>
     kit.dataSource.getRepository(Rental).findOneByOrFail({ rentalId });
 
-  it('expires a booking once, records a system reason, frees its copy without return/refund, and queues cancellation email', async () => {
+  it('expires a booking once, records a system reason, frees its copy without return/refund, and records cancellation event', async () => {
     const { rental, renter, catalogFixture } = await fixture();
     expect(await expireBookingUseCase.execute(rental.rentalId)).toBe(true);
     const cancelledRental = await readRental(rental.rentalId);
@@ -106,7 +106,7 @@ describe('Rental deadline processing (PostgreSQL)', () => {
       (await kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: renter.renterId }))
         .balance,
     ).toBe(renter.balance);
-    expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(1);
+    expect(await kit.dataSource.getRepository(RentalOutboxEvent).count()).toBe(1);
     const availableCopy = await kit.dataSource.transaction(manager =>
       rentalsRepository.findAvailableCopyForUpdate(
         manager,

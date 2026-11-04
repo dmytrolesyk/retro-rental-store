@@ -2,6 +2,9 @@ import { SchedulerRegistry } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
 import { RENTAL_DEADLINES_JOB } from '../../src/rentals/rental-deadlines.scheduler';
 import { ProcessRentalDeadlines } from '../../src/rentals/use-cases/process-rental-deadlines';
+import { RentalOutboxDispatcher } from '../../src/outbox/rental-outbox.dispatcher';
+import { ProcessRentalOutbox } from '../../src/outbox/process-rental-outbox';
+import { RentalEventsService } from '../../src/realtime/rental-events.service';
 import {
   clientPrincipal,
   testIdentities,
@@ -23,6 +26,7 @@ import {
   Rental,
   RentalItem,
   Renter,
+  RentalJob,
 } from '../../src/database/entities';
 import type { CreatedRentalDto } from '../../src/rentals/rentals.dto';
 import { aCatalog, aRenter, aRental, aRentalItem } from '../integration/testkit/builders';
@@ -55,6 +59,7 @@ describe('Rental HTTP API (full AppModule)', () => {
       LOG_LEVEL: 'error',
       TIMEOUT_MS: '5000',
       RENTAL_DEADLINES_ENABLED: 'false',
+      RENTAL_OUTBOX_ENABLED: 'false',
     };
     const previous = Object.fromEntries(Object.keys(overrides).map(key => [key, process.env[key]]));
     restoreEnvironment = () => {
@@ -148,6 +153,46 @@ describe('Rental HTTP API (full AppModule)', () => {
     }
   });
 
+  it('honors relay disablement and dispatches after commit without waiting for a cron tick', async () => {
+    const dispatcher = app.get(RentalOutboxDispatcher);
+    const configService = app.get(ConfigService);
+    const executeSpy = jest.spyOn(app.get(ProcessRentalOutbox), 'execute');
+    const received: string[] = [];
+    const subscription = app
+      .get(RentalEventsService)
+      .events$.subscribe(event => received.push(event.status));
+    try {
+      const { input } = await fixture();
+      const booking = await request(app.getHttpServer())
+        .post('/rentals')
+        .set('Authorization', clientAuthorization)
+        .set('Idempotency-Key', randomUUID())
+        .send(input)
+        .expect(201);
+      await dispatcher.waitForIdle();
+      expect(executeSpy).not.toHaveBeenCalled();
+      expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(0);
+      configService.set('RENTAL_OUTBOX_ENABLED', true);
+      dispatcher.onApplicationBootstrap();
+      await dispatcher.waitForIdle();
+      expect(executeSpy).toHaveBeenCalledTimes(1);
+      expect(received).toEqual(['BOOKED']);
+      const rentalId = (booking.body as CreatedRentalDto).rentalId;
+      await request(app.getHttpServer())
+        .post(`/rentals/${rentalId}/issue`)
+        .set('Authorization', staffAuthorization)
+        .expect(200);
+      await dispatcher.waitForIdle();
+      expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(2);
+      expect(received).toEqual(['BOOKED', 'ACTIVE']);
+    } finally {
+      configService.set('RENTAL_OUTBOX_ENABLED', false);
+      await dispatcher.waitForIdle();
+      subscription.unsubscribe();
+      executeSpy.mockRestore();
+    }
+  });
+
   it('rejects anonymous rental access while the catalog remains public', async () => {
     const response = await request(app.getHttpServer()).get('/rentals').expect(401);
     expectProblem(response, 401, '/rentals');
@@ -225,8 +270,8 @@ describe('Rental HTTP API (full AppModule)', () => {
     const path = `/rentals/${randomUUID()}`;
     const response = await request(app.getHttpServer())
       .get(path)
-      .set('Authorization', staffAuthorization)
-      .expect(404);
+      .set('Authorization', staffAuthorization);
+    expect(response.body).toMatchObject({ status: 404, detail: 'Rental not found' });
     expectProblem(response, 404, path);
   });
 

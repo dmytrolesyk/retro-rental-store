@@ -23,6 +23,7 @@ import {
   Rental,
   RentalItem,
   RentalJob,
+  RentalOutboxEvent,
   Renter,
 } from '../../src/database/entities';
 import { RentalRequest } from '../../src/rentals/entities/rental-request.entity';
@@ -132,14 +133,15 @@ describe('Rental booking and commands', () => {
     ).balance;
   }
 
-  it('reserves for exactly a day without payment and queues a booking email, then charges the booked price once at issue', async () => {
+  it('reserves for exactly a day without payment and records a booking event, then charges the booked price once at issue', async () => {
     const { booking, catalogFixture } = await book();
     expect(booking.status).toBe('BOOKED');
+    expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(0);
     expect(
       new Date(booking.bookingExpiresAt).getTime() - new Date(booking.bookedAt).getTime(),
     ).toBe(86400000);
     expect(await balance()).toBe(10000);
-    expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(1);
+    expect(await kit.dataSource.getRepository(RentalOutboxEvent).count()).toBe(1);
     await kit.dataSource
       .getRepository(GameCopy)
       .update(catalogFixture.copy.gameCopyId, { pricePerDay: 9000 });
@@ -158,7 +160,7 @@ describe('Rental booking and commands', () => {
       expect(response.body).toEqual(first.body);
     }
     expect(await balance()).toBe(7500);
-    expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(2);
+    expect(await kit.dataSource.getRepository(RentalOutboxEvent).count()).toBe(2);
   });
 
   it('permits booking without funds but failed issue has no partial effects and is retryable after replenishment', async () => {
@@ -352,13 +354,13 @@ describe('Rental booking and commands', () => {
     expect(await balance()).toBe(7500);
   });
 
-  it('rolls back issue and debit if its email cannot be enqueued', async () => {
+  it('rolls back issue and debit if its outbox event cannot be recorded', async () => {
     const { booking } = await book();
     const dataSource = kit.dataSource;
     await dataSource.query(`CREATE FUNCTION fail_test_email() RETURNS trigger LANGUAGE plpgsql AS $$
-      BEGIN IF NEW.notification_status = 'ACTIVE' THEN RAISE EXCEPTION 'Injected enqueue failure'; END IF; RETURN NEW; END $$`);
+      BEGIN IF NEW.status = 'ACTIVE' THEN RAISE EXCEPTION 'Injected enqueue failure'; END IF; RETURN NEW; END $$`);
     await dataSource.query(
-      'CREATE TRIGGER fail_test_email BEFORE INSERT ON rental_jobs FOR EACH ROW EXECUTE FUNCTION fail_test_email()',
+      'CREATE TRIGGER fail_test_email BEFORE INSERT ON rental_outbox_events FOR EACH ROW EXECUTE FUNCTION fail_test_email()',
     );
     try {
       await command(booking.rentalId, 'issue').expect(500);
@@ -366,14 +368,14 @@ describe('Rental booking and commands', () => {
       expect(
         await dataSource.getRepository(Rental).findOneByOrFail({ rentalId: booking.rentalId }),
       ).toMatchObject({ status: 'BOOKED', rentedAt: null });
-      expect(await dataSource.getRepository(RentalJob).count()).toBe(1);
+      expect(await dataSource.getRepository(RentalOutboxEvent).count()).toBe(1);
     } finally {
-      await dataSource.query('DROP TRIGGER fail_test_email ON rental_jobs');
+      await dataSource.query('DROP TRIGGER fail_test_email ON rental_outbox_events');
       await dataSource.query('DROP FUNCTION fail_test_email()');
     }
     await command(booking.rentalId, 'issue').expect(200);
     expect(await balance()).toBe(7500);
-    expect(await dataSource.getRepository(RentalJob).count()).toBe(2);
+    expect(await dataSource.getRepository(RentalOutboxEvent).count()).toBe(2);
   });
 
   it('rechecks expiry after waiting for the renter balance lock', async () => {

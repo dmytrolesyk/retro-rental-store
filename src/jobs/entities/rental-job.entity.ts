@@ -11,8 +11,13 @@ import type { Relation } from 'typeorm';
 import { Rental } from '../../rentals/entities/rental.entity';
 import type { RentalNotification } from '../rental-notification';
 import type { PreparedEmail } from '../../email/email.service';
+import { RentalOutboxEvent } from '../../outbox/entities/rental-outbox-event.entity';
 
 @Entity('rental_jobs')
+@Index('idx_rental_jobs_outbox_event', ['outboxEventId'], {
+  unique: true,
+  where: 'outbox_event_id IS NOT NULL',
+})
 @Check('rental_jobs_status_check', "\"status\" IN ('new', 'done', 'failed')")
 @Check('rental_jobs_processed_check', '"processed" >= 0')
 @Check('rental_jobs_attempts_check', 'attempts >= 0')
@@ -35,6 +40,16 @@ export class RentalJob {
 
   @Column({ name: 'rental_id', type: 'uuid' })
   rentalId: string;
+
+  @Column({ name: 'outbox_event_id', type: 'uuid', nullable: true })
+  outboxEventId: string | null;
+
+  @ManyToOne(() => RentalOutboxEvent, { nullable: true, onDelete: 'RESTRICT' })
+  @JoinColumn({
+    name: 'outbox_event_id',
+    foreignKeyConstraintName: 'rental_jobs_outbox_event_fkey',
+  })
+  outboxEvent: Relation<RentalOutboxEvent> | null;
 
   // Recipient snapshot: changing a renter profile must not change a retry payload.
   @Column({ name: 'email_to', type: 'varchar', length: 120 })

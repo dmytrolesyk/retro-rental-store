@@ -127,7 +127,8 @@ HTTP creation now books a copy; issue and return are separate commands (step 3).
 The internal CLI/demo `checkout()` retains immediate `ACTIVE` checkout,
 charging and its existing confirmation job. A compatibility insert trigger
 supplies its one-day `due_at`. The API now runs the five-minute deadline
-scheduler described below. Status email jobs are queued transactionally; realtime
+scheduler described below. Status changes now persist outbox events; the
+API relay queues email jobs and publishes to a local event bus. Realtime
 transports are subsequent steps. Issue rejects expired bookings before the next scheduler run.
 
 Rollback is supported for legacy-only data. It deliberately refuses to remove
@@ -179,7 +180,7 @@ the next scheduled run after restart catches up without restoring timers.
 Automatic status changes can lag a deadline by roughly five minutes in normal
 operation, longer during outages or a long-running scan.
 
-The deadline transitions also enqueue status emails in the same transactions.
+The deadline transitions also record outbox events in the same transactions.
 There are no new HTTP routes. Tests call
 the processor or fire the registered cron directly, using past/future fixtures
 and pure boundary tests instead of waiting five minutes.
@@ -221,7 +222,7 @@ curl -i -X POST http://localhost:3000/rentals \
 `POST /rentals` accepts exactly `renterId`, `gameId`, `platformId` (UUIDs)
 and requires `Idempotency-Key`: 8–128 visible ASCII characters, no spaces.
 It reserves a copy for exactly 24 hours, snapshots its daily price, and creates
-`BOOKED` without debiting the balance, with a booking status email job. Zero balance
+`BOOKED` without debiting the balance, with a booking outbox event. Zero balance
 does not prevent booking. The response returns 201, a relative `Location`,
 and `Idempotency-Replay: false`. Repeating its key and validated body returns
 the original 201/body/Location with `Idempotency-Replay: true`, even after issue
@@ -287,8 +288,9 @@ with PostgreSQL `clock_timestamp()` after blocking locks: `now()` would retain
 the transaction start time and could allow an expired booking after a lock wait.
 See [row locks](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS)
 and [current time functions](https://www.postgresql.org/docs/16/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT).
-Each actual transition queues one status email in the same transaction.
-No-op commands and idempotency replays enqueue nothing.
+Each actual transition records one outbox event in the same transaction.
+The relay creates its email job later. No-op commands and idempotency replays
+record nothing.
 
 Both lists use stable UUID ordering, `limit` from 1 to 100 (default 20), and
 an opaque resource-specific cursor. Pass `next_cursor` unchanged; null marks
@@ -788,9 +790,9 @@ run. Compose uses that name for every command, including count checks.
 No repository files need editing, and no host credential files need creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
 
 Both `migrate:show` calls must mark all migrations `[X]` (with their
-journal IDs). There are six migrations. Revert rolls back only the latest,
-`AddRentalNotifications1793750400000`, and preserves legacy-only jobs, balances
-and rentals. It refuses to discard new notification/delivery data. Earlier,
+journal IDs). There are seven migrations. Revert rolls back only the latest,
+`AddRentalOutbox1793836800000`, and preserves existing jobs, balances
+and rentals when no outbox history exists. It refuses to discard persisted events. Earlier,
 `AddJobEmailRecipient1792051200001` added the recipient snapshot; reverting
 `AddRentalBalanceAndJobs1792051200000` removes the queue and renter balances.
 Reverting the initial migration removes business data. Run rollback checks only
@@ -1877,16 +1879,18 @@ pnpm run test:db:checkout
 ### Rental status emails (homework 18)
 
 Booking and every real transition (`BOOKED`, `ACTIVE`, `OVERDUE`, `RETURNED`,
-`CANCELLED`) insert a `rental_jobs` row **inside the business transaction**.
-This includes expiry/overdue processing. An insert failure rolls back the status,
-copy release and any debit; provider failure happens later and cannot break an
-HTTP command. Repeated commands and replayed bookings create no extra jobs.
+`CANCELLED`) persist a `RentalStatusChanged` event and two delivery intents
+**inside the business transaction**. This includes expiry/overdue processing.
+An outbox insert failure rolls back the status, copy release and any debit.
+The API relay creates an email job later; failures there retain the event for
+retry and cannot roll back an already completed HTTP command. Repeated commands
+and replayed bookings create no extra events.
 
-`rentalNotification()` is a pure function. It freezes the status, event time,
-applicable deadlines, cancellation reason and rendered subject/text. The recipient
-is copied from the renter at enqueue time. A partial unique index allows one
-status notification per rental/status (the current lifecycle never revisits a
-status). Existing jobs have a null notification snapshot and remain confirmations.
+`rentalNotification()` freezes the email status, event time, applicable deadlines,
+cancellation reason and rendered subject/text when the event is recorded. The
+recipient is also copied at that time. The relay copies this private snapshot to
+`rental_jobs`; profile/template changes while it is delayed do not rewrite it.
+Existing jobs keep their original snapshots or legacy confirmation semantics.
 
 After migrating, export the usual `DB_*`, private `RESEND_API_KEY` and verified
 `EMAIL_FROM`, then start the separate consumer:
@@ -1938,6 +1942,86 @@ concurrent workers, immutable sender, retry backoff and permanent failure.
 
 References: [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys),
 [provider errors](https://resend.com/docs/api-reference/errors).
+
+### Transactional rental outbox (homework 18)
+
+The business transaction writes `rental_outbox_events` and two
+`rental_outbox_deliveries` rows (`email`, `realtime`). It does not publish an
+in-memory event before commit. A stable UUID identifies the event; a versioned,
+explicit public payload contains the rental ID, previous/new status, event time
+and lifecycle dates/reason. Recipient and rendered email remain separate private
+columns. Neither an entity nor email context is published directly.
+
+The API-only `RentalOutboxDispatcher` checks for pending work at application
+startup and wakes after a transaction containing a new outbox event commits.
+`OutboxCommitSubscriber` uses TypeORM transaction hooks and tracks nested
+savepoints: an inner commit cannot publish uncommitted work, and rollback/no-op
+transactions do not wake the relay. Wake failures never change the result of an
+already committed business transaction. Dispatch runs asynchronously; HTTP does
+not wait for email creation or publication to finish.
+
+Wakes coalesce into a single active dispatcher flight. Signals received during
+processing or retry planning are retained. After each full 100-attempt batch,
+the dispatcher yields to the event loop and immediately processes the next
+batch, continuing until no ready work remains. The batch size limits one pass,
+not the queue: 250 ready deliveries are processed as 100 + 100 + 50 without
+waiting for a periodic tick. One event normally has two consumer deliveries.
+
+When idle, the next wake is scheduled for the earliest eligible retry or a
+30-second fallback rescan, whichever comes first. Retry planning uses database
+time and the same per-rental/consumer ordering rule as processing. The timer has
+a one-second minimum to avoid spinning on already-due but externally locked work.
+Fallback scans recover missed hints and events inserted by other processes or raw
+SQL, which cannot emit this API's local signal. Shutdown cancels timers and awaits
+the current processing/planning flight; further batches are left safely pending.
+
+`RENTAL_OUTBOX_ENABLED` defaults to `true`; `false` disables startup, signal and
+timer-driven work. No Resend credentials are required by the API. The existing
+`--watch` email worker must still run separately to send jobs. Legacy CLI/worker
+entry points do not run the outbox relay. No extra schema migration is needed
+for this hybrid scheduling change.
+
+`ProcessRentalOutbox` handles at most 100 delivery attempts per scan, alternating
+consumers. Each attempt locks one delivery with `FOR UPDATE SKIP LOCKED`:
+
+- `email`: insert the frozen notification into `rental_jobs` and acknowledge
+  this delivery in the same transaction. A unique `outbox_event_id` makes retries
+  idempotent. Existing pre-outbox jobs keep a null event ID.
+- `realtime`: publish the public payload through `RentalEventsService`, then
+  acknowledge. An acknowledgement/commit failure can repeat publication with the
+  same `eventId`; consumers must handle duplicates. Published values are frozen.
+
+Handler and acknowledgement execute inside a savepoint. An SQL error rolls back
+both before retry metadata is committed by the surrounding transaction. Failures
+retain `processed_at = NULL`, increment `attempts`, set `last_error` to a safe
+code and use exponential backoff (2s, capped at 60s). Repair poison events rather
+than silently discarding them. Inspect event ID, consumer, attempts,
+`next_attempt_at`, `last_error` and the relevant application/database diagnostics.
+After repair, let the next scheduled retry run; an operator can advance only that
+pending delivery's `next_attempt_at` to `clock_timestamp()` to expedite it.
+
+Earlier unprocessed events, including delayed or locked ones, block later events
+**for the same rental and consumer**. Other rentals and the other branch proceed.
+This orders email job creation; subsequent email delivery can still be reordered
+by provider retries or concurrent email workers. The internal bigint `position`
+orders insertion. Parent rental locks serialize that rental's events; it is not
+a global commit cursor for a future SSE implementation.
+
+The relay and RxJS Subject run **inside one API instance**. A separate relay
+process cannot access that Subject. Multiple API replicas need a cross-process
+broadcast mechanism; claiming one realtime delivery does not broadcast to every
+replica. A realtime acknowledgement means local publication, not browser receipt.
+SSE/Socket.IO and reconnect/replay remain separate next steps. Events are retained
+in PostgreSQL; this step adds neither automatic pruning nor HTTP history access.
+The future replay design must account for duplicate event IDs and process restart.
+
+Migration `AddRentalOutbox1793836800000` creates no historical events, preserves
+pending/done/failed jobs and refuses rollback if event history exists. Tests use
+disposable PostgreSQL and a fake email transport. The approach follows the
+lecturer's `22_DistributedPatterns/src/02-outbox.ts` and
+`03-relay-skip-locked.ts`; this application dispatches locally instead of using
+the demo's RabbitMQ broker.
+See [transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
 
 ### Source layout and module ownership
 

@@ -4,6 +4,10 @@ import { databaseEnvSchema } from './database-env.schema';
 
 export const envSchema = databaseEnvSchema.safeExtend({
   AUTH_IDENTITIES: authIdentitiesEnvSchema,
+  RENTAL_OUTBOX_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform(value => value === 'true'),
   RENTAL_DEADLINES_ENABLED: z
     .enum(['true', 'false'])
     .default('true')

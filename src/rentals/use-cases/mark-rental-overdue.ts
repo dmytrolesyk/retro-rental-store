@@ -18,7 +18,7 @@ export class MarkRentalOverdue {
       const now = await this.rentalsRepository.currentTime(manager);
       if (nextDeadlineStatus(rental, now) !== 'OVERDUE') return false;
       await this.rentalsRepository.markOverdue(manager, rentalId);
-      await this.rentalsRepository.queueStatusEmail(manager, rentalId, now);
+      await this.rentalsRepository.recordStatusChange(manager, rentalId, rental.status, now);
       return true;
     });
   }

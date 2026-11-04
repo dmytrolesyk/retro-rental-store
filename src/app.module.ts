@@ -7,6 +7,7 @@ import { validateEnvConfig } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { RentalsModule } from './rentals/rentals.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { RentalOutboxModule } from './outbox/rental-outbox.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CatalogModule } from './catalog/catalog.module';
     ScheduleModule.forRoot(),
     DatabaseModule,
     RentalDeadlinesModule,
+    RentalOutboxModule,
     RentalsModule,
     CatalogModule,
   ],

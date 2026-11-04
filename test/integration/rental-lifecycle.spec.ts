@@ -222,6 +222,7 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
 
   it('migrates existing active, fully returned, and partially returned histories without losing dates', async () => {
     const dataSource = kit.dataSource;
+    await dataSource.undoLastMigration(); // Outbox has separate rollback coverage.
     await dataSource.undoLastMigration(); // Notification schema has its own rollback coverage.
     await dataSource.undoLastMigration();
     try {
@@ -260,6 +261,7 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
       );
       expect(items).toHaveLength(4);
       for (const item of items) expect(item.released_at).toEqual(item.returned_at);
+      await dataSource.undoLastMigration(); // Outbox has separate rollback coverage.
       await dataSource.undoLastMigration(); // Notification schema has its own rollback coverage.
       await dataSource.undoLastMigration();
       expect(
@@ -276,6 +278,7 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
   it('refuses a lossy rollback after bookings exist', async () => {
     const { renter, catalog } = await fixture();
     await book(renter.renterId, catalog.copy.gameCopyId);
+    await kit.dataSource.undoLastMigration(); // Outbox has no events in this schema fixture.
     await kit.dataSource.undoLastMigration(); // Notifications have no rows in this fixture.
     await expect(kit.dataSource.undoLastMigration()).rejects.toThrow();
     await kit.dataSource.runMigrations();
@@ -285,7 +288,8 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
 
   it('checks rollback safety after waiting for concurrent booking writes', async () => {
     const dataSource = kit.dataSource;
-    await dataSource.undoLastMigration();
+    await dataSource.undoLastMigration(); // Outbox.
+    await dataSource.undoLastMigration(); // Notification.
     const { renter } = await fixture();
     const writer = dataSource.createQueryRunner();
     await writer.connect();

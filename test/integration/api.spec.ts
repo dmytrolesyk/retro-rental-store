@@ -33,6 +33,8 @@ import {
   Rental,
   RentalItem,
   RentalJob,
+  RentalOutboxEvent,
+  RentalOutboxDelivery,
   Renter,
 } from '../../src/database/entities';
 import { RentalRequest } from '../../src/rentals/entities/rental-request.entity';
@@ -219,7 +221,14 @@ describe('API contracts with real PostgreSQL', () => {
       .set('Idempotency-Key', 'forged-role-0001')
       .send({ ...input, role: 'staff' })
       .expect(400);
-    for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
+    for (const table of [
+      Rental,
+      RentalItem,
+      RentalJob,
+      RentalRequest,
+      RentalOutboxEvent,
+      RentalOutboxDelivery,
+    ]) {
       expect(await kit.dataSource.getRepository(table).count()).toBe(0);
     }
     expect(
@@ -273,7 +282,9 @@ describe('API contracts with real PostgreSQL', () => {
       new RentalsRepository(kit.dataSource),
     ).create(input, 'parallel-0001', clientPrincipal);
     expect(replay).toEqual({ response: responses[0].body as CreatedRental, replayed: true });
-    for (const table of [Rental, RentalItem, RentalRequest, RentalJob]) {
+    expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(0);
+    expect(await kit.dataSource.getRepository(RentalOutboxDelivery).count()).toBe(2);
+    for (const table of [Rental, RentalItem, RentalRequest, RentalOutboxEvent]) {
       await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(1);
     }
     await expect(
@@ -340,7 +351,14 @@ describe('API contracts with real PostgreSQL', () => {
         .expect(500);
       expect(failure.body).toMatchObject({ status: 500, detail: 'Internal server error' });
       expect(JSON.stringify(failure.body)).not.toContain('Injected');
-      for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
+      for (const table of [
+        Rental,
+        RentalItem,
+        RentalJob,
+        RentalRequest,
+        RentalOutboxEvent,
+        RentalOutboxDelivery,
+      ]) {
         await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(0);
       }
       await expect(

@@ -4,6 +4,7 @@ import { Rental, RentalJob, Renter } from '../../src/database/entities';
 import { EmailService } from '../../src/email/email.service';
 import { JobsService } from '../../src/jobs/jobs.service';
 import { RentalNotificationWorker } from '../../src/jobs/rental-notification.worker';
+import { rentalNotification } from '../../src/jobs/rental-notification';
 import { RentalsRepository } from '../../src/rentals/rentals.repository';
 import { aRental, aRenter } from './testkit/builders';
 import { startPostgres } from './testkit/postgres';
@@ -39,9 +40,12 @@ describe('transactional rental email queue', () => {
     const renter = await kit.dataSource.getRepository(Renter).save(aRenter());
     const rental = await kit.dataSource.getRepository(Rental).save(aRental(renter.renterId));
     if (statusEmail)
-      await kit.dataSource.transaction(manager =>
-        rentalsRepository.queueStatusEmail(manager, rental.rentalId, rental.rentedAt),
-      );
+      await kit.dataSource.getRepository(RentalJob).save({
+        rentalId: rental.rentalId,
+        emailTo: renter.email,
+        notificationStatus: rental.status,
+        notification: rentalNotification(rental, rental.rentedAt),
+      });
     else
       await kit.dataSource
         .getRepository(RentalJob)
@@ -77,7 +81,7 @@ describe('transactional rental email queue', () => {
     await expect(
       kit.dataSource.transaction(async manager => {
         await manager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-        await rentalsRepository.queueStatusEmail(manager, rental.rentalId, new Date());
+        await rentalsRepository.recordStatusChange(manager, rental.rentalId, 'ACTIVE', new Date());
         throw new Error('Injected transaction failure');
       }),
     ).rejects.toThrow('Injected');
@@ -262,6 +266,7 @@ describe('transactional rental email queue', () => {
 
   it('migrates pending legacy jobs without inventing a lifecycle snapshot and guards rollback', async () => {
     const { job } = await queued(false);
+    await kit.dataSource.undoLastMigration(); // Outbox has no events in this worker fixture.
     await kit.dataSource.undoLastMigration();
     await kit.dataSource.runMigrations();
     expect(await readJob(job.jobId)).toMatchObject({
@@ -270,7 +275,9 @@ describe('transactional rental email queue', () => {
       attempts: 0,
     });
     await worker().tick();
+    await kit.dataSource.undoLastMigration(); // Revert outbox before testing the notification guard.
     await expect(kit.dataSource.undoLastMigration()).rejects.toThrow('Cannot discard');
+    await kit.dataSource.runMigrations();
     expect((await readJob(job.jobId)).status).toBe('done');
   });
 

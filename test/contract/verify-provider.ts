@@ -44,6 +44,7 @@ async function main(): Promise<void> {
     LOG_LEVEL: 'error',
     TIMEOUT_MS: '5000',
     RENTAL_DEADLINES_ENABLED: 'false',
+    RENTAL_OUTBOX_ENABLED: 'false',
   };
   const previous = Object.fromEntries(Object.keys(overrides).map(key => [key, process.env[key]]));
   try {
