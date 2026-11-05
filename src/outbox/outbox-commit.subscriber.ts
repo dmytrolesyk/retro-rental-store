@@ -12,13 +12,13 @@ import type {
 import { RentalOutboxEvent } from './entities/rental-outbox-event.entity';
 import { RentalOutboxDispatcher } from './rental-outbox.dispatcher';
 
-/** Transaction frames prevent a released savepoint from looking like a durable outer commit. */
+/** Track outbox inserts per transaction level so savepoint release does not trigger dispatch. */
 @Injectable()
 export class OutboxCommitSubscriber
   implements EntitySubscriberInterface<RentalOutboxEvent>, OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(OutboxCommitSubscriber.name);
-  private readonly frames = new WeakMap<QueryRunner, boolean[]>();
+  private readonly outboxInsertedByTransactionLevel = new WeakMap<QueryRunner, boolean[]>();
 
   constructor(
     private readonly dataSource: DataSource,
@@ -37,9 +37,10 @@ export class OutboxCommitSubscriber
   }
 
   afterTransactionStart(event: TransactionStartEvent): void {
-    const frames = this.frames.get(event.queryRunner) ?? [];
-    frames.push(false);
-    this.frames.set(event.queryRunner, frames);
+    const outboxInsertedByLevel =
+      this.outboxInsertedByTransactionLevel.get(event.queryRunner) ?? [];
+    outboxInsertedByLevel.push(false);
+    this.outboxInsertedByTransactionLevel.set(event.queryRunner, outboxInsertedByLevel);
   }
 
   afterInsert(event: InsertEvent<RentalOutboxEvent>): void {
@@ -47,25 +48,28 @@ export class OutboxCommitSubscriber
       this.notify();
       return;
     }
-    const frames = this.frames.get(event.queryRunner);
-    if (frames?.length) frames[frames.length - 1] = true;
+    const outboxInsertedByLevel = this.outboxInsertedByTransactionLevel.get(event.queryRunner);
+    if (outboxInsertedByLevel?.length)
+      outboxInsertedByLevel[outboxInsertedByLevel.length - 1] = true;
   }
 
   afterTransactionCommit(event: TransactionCommitEvent): void {
-    const frames = this.frames.get(event.queryRunner);
-    if (!frames) return;
-    const changed = frames.pop();
+    const outboxInsertedByLevel = this.outboxInsertedByTransactionLevel.get(event.queryRunner);
+    if (!outboxInsertedByLevel) return;
+    const hasOutboxInsert = outboxInsertedByLevel.pop();
     if (event.queryRunner.isTransactionActive) {
-      if (changed && frames.length) frames[frames.length - 1] = true;
+      if (hasOutboxInsert && outboxInsertedByLevel.length)
+        outboxInsertedByLevel[outboxInsertedByLevel.length - 1] = true;
       return;
     }
-    this.frames.delete(event.queryRunner);
-    if (changed) this.notify();
+    this.outboxInsertedByTransactionLevel.delete(event.queryRunner);
+    if (hasOutboxInsert) this.notify();
   }
 
   afterTransactionRollback(event: TransactionRollbackEvent): void {
-    this.frames.get(event.queryRunner)?.pop();
-    if (!event.queryRunner.isTransactionActive) this.frames.delete(event.queryRunner);
+    this.outboxInsertedByTransactionLevel.get(event.queryRunner)?.pop();
+    if (!event.queryRunner.isTransactionActive)
+      this.outboxInsertedByTransactionLevel.delete(event.queryRunner);
   }
 
   private notify(): void {
