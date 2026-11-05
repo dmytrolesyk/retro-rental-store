@@ -79,8 +79,7 @@ namespace is unchanged: generate unique keys. Ownership is checked before replay
 `ConfiguredTokenService` returns a frozen principal without the token.
 `BearerAuthGuard` adapts HTTP headers to this transport-independent service;
 rental services enforce access policy. Internal CLI/demo `checkout()` remains
-trusted and is not an unguarded HTTP alternative. Later SSE/Socket.IO steps
-will reuse credentials and policy. Native browser EventSource cannot set an
+trusted and is not an unguarded HTTP alternative. Socket.IO reuses these credentials and policy; the later SSE step will do the same. Native browser EventSource cannot set an
 Authorization header: a future UI needs a suitable streaming client or the
 later cookie-based login design.
 
@@ -2011,8 +2010,9 @@ The relay and RxJS Subject run **inside one API instance**. A separate relay
 process cannot access that Subject. Multiple API replicas need a cross-process
 broadcast mechanism; claiming one realtime delivery does not broadcast to every
 replica. A realtime acknowledgement means local publication, not browser receipt.
-SSE/Socket.IO remain separate next steps. Events are retained in PostgreSQL;
-there is no automatic pruning or HTTP history endpoint.
+Socket.IO live room delivery is described below; SSE remains a separate next
+step. Events are retained in PostgreSQL; there is no automatic pruning or HTTP
+history endpoint.
 
 Migration `AddRentalOutbox1793836800000` creates no historical events, preserves
 pending/done/failed jobs and refuses rollback if event history exists. Tests use
@@ -2073,7 +2073,76 @@ backpressure belongs to the later transport step.
 The lecturer's `code/18_Realtime/stages/03-sse.mjs` demonstrates reconnect from an
 in-memory history buffer. This version uses the existing durable outbox history
 so restart does not erase the replay source, and subscribes before its asynchronous
-SELECT to close the history/live race. No SSE or Socket.IO endpoint is added here.
+SELECT to close the history/live race. This replay service adds no transport endpoint; the Socket.IO gateway below uses live publication only.
+
+### Socket.IO rental rooms (homework 18, step 7)
+
+The API serves Socket.IO on the same HTTP port, at the default engine path
+`/socket.io` and root namespace `/`. Use a Socket.IO 4 client; a raw WebSocket
+client does not speak this protocol. The Nest `RentalRealtimeModule` owns this
+transport and imports the existing authentication, rental and outbox modules.
+The email worker and offline CLI entry points do not start a gateway.
+
+Connect with `auth: { token }`, using one of the opaque tokens configured in
+`AUTH_IDENTITIES`. Connection middleware authenticates through the same
+`ConfiguredTokenService` used by HTTP and stores the verified Principal on the
+server-side socket. Client-provided role/owner fields never establish identity.
+Invalid credentials refuse the connection with `connect_error`, message
+`Unauthorized`, and `error.data.code = UNAUTHORIZED`. Tokens are not echoed or
+logged. The current credentials remain the temporary coursework auth stub.
+
+After connection, emit `join` with exactly `{ rentalId: "<UUID>" }` and an
+acknowledgement callback (or the client's `emitWithAck` API). The gateway checks
+rental existence and the existing owner/staff read policy before joining the
+server-generated room `rentals:<canonical-lowercase-UUID>`. It awaits room
+membership before returning `{ ok: true, rentalId: "<canonical UUID>" }`. Repeated
+joins are idempotent; a connection may join several authorized rental rooms.
+
+Rejected joins return `{ ok: false, error: { code: "..." } }` through the ack:
+
+| Code | Meaning |
+| --- | --- |
+| `INVALID_JOIN` | Payload is not exactly an object containing a valid rental UUID. |
+| `UNAUTHORIZED` | No verified server-side Principal is available. |
+| `FORBIDDEN` | The caller cannot read that rental. |
+| `RENTAL_NOT_FOUND` | That rental does not exist. |
+| `DISCONNECTED` | The socket disconnected while access or membership was being awaited; no success is returned. |
+| `INTERNAL_ERROR` | An unexpected lookup/adapter failure occurred; private diagnostics are not returned. |
+
+These are socket acknowledgements, not HTTP problem responses. The existing
+HTTP ProblemFilter is unchanged. Validation is explicit at the message boundary.
+A closed connection cannot receive an ack; if an asynchronous adapter finishes
+joining after disconnect, the gateway removes that late membership.
+
+The gateway has one subscription to `RentalEventsService`. Each publication emits
+`rental.status` only to `rentals:<event.rentalId>`, delivering the same public
+`RentalStatusChanged` payload to every socket in that room, including multiple
+tabs of one owner. A status change still follows business transaction → durable
+outbox → dispatcher → shared Subject → gateway; client messages cannot create a
+status transition or broadcast arbitrary status data. The gateway unsubscribes
+from the bus during application shutdown, and Socket.IO removes room membership
+when a socket disconnects.
+
+This step provides live events only. Reconnect authenticates again and requires a
+fresh authorized `join`; it does not replay history or enable Socket.IO connection
+state recovery. The durable `RentalReplayService` will serve the separate SSE step.
+Outbox publication is at-least-once, so duplicate event IDs remain possible and
+clients should apply updates idempotently. Rooms and the bus remain local to one
+API instance; multiple replicas require a separately designed broadcast mechanism.
+
+Real-client tests in `test/e2e/rental-sockets.e2e-spec.ts` cover handshake rejection,
+owner/staff/foreign joins, strict payload validation, HTTP → outbox → room delivery
+to two same-room clients with a different-room control, polling and reconnect.
+`src/realtime/rental-events.gateway.spec.ts` checks delayed membership ack,
+disconnect races, safe unexpected errors and bus subscription cleanup.
+
+Course examples: `code/18_Realtime/stages/08-nest-rxjs/src/events.gateway.ts`
+(Nest gateway), `06-socketio.mjs` (rooms/ack), and `09-auth-handshake.mjs`
+(connection middleware/Principal). This app adds ownership checks and awaited
+membership and retains the existing opaque-token auth rather than adding JWT.
+Official references: [Nest gateways](https://docs.nestjs.com/websockets/gateways),
+[Socket.IO middleware](https://socket.io/docs/v4/middlewares/), and
+[Socket.IO rooms](https://socket.io/docs/v4/rooms/).
 
 ### Source layout and module ownership
 

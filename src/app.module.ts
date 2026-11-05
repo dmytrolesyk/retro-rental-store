@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { RentalsModule } from './rentals/rentals.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { RentalOutboxModule } from './outbox/rental-outbox.module';
+import { RentalRealtimeModule } from './realtime/rental-realtime.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RentalOutboxModule } from './outbox/rental-outbox.module';
     DatabaseModule,
     RentalDeadlinesModule,
     RentalOutboxModule,
+    RentalRealtimeModule,
     RentalsModule,
     CatalogModule,
   ],
