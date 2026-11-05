@@ -37,6 +37,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(error);
+  console.error(error instanceof Error ? error.message : 'Pact Broker command failed');
   process.exitCode = 1;
 });

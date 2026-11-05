@@ -33,7 +33,16 @@ export function brokerConfig() {
     throw new Error(
       'PACT_BROKER_URL must be an HTTP(S) URL without credentials, query or fragment',
     );
-  const commit = () => execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  const commit = () => {
+    try {
+      return execFileSync('git', ['rev-parse', 'HEAD'], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+    } catch {
+      throw new Error('Set CONSUMER_VERSION and PROVIDER_VERSION when Git HEAD is unavailable');
+    }
+  };
   return {
     url: url.href.replace(/\/$/, ''),
     authentication: brokerAuthentication(),

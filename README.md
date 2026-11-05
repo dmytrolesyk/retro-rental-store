@@ -1535,8 +1535,12 @@ malformed responses, HTTP failures and timeouts exit nonzero. `pnpm test:broker`
 checks this decision rule. `CONSUMER_VERSION` and `PROVIDER_VERSION` identify
 immutable Git revisions, not mutable branch names. `PACT_BROKER_URL` selects
 Broker mode; unset it to return to local-file verification.
+Versions default to Git HEAD. Outside a Git checkout, set both
+`CONSUMER_VERSION` and `PROVIDER_VERSION` explicitly; otherwise the CLI exits
+with an actionable configuration error.
 
-The GitHub Actions job `contract` runs consumer → publish → provider verification
+The GitHub Actions job `contract` runs Broker checks → integration → E2E →
+consumer → publish → provider verification
 with result publication → can-i-deploy. Configure repository secrets
 `PACT_BROKER_URL` plus `PACT_BROKER_USERNAME` and `PACT_BROKER_PASSWORD` for
 self-hosted OSS Broker. For managed PactFlow, set `PACT_BROKER_TOKEN` instead.

@@ -1,6 +1,57 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import { assertDeployable, brokerAuthentication } from './broker-api';
+
+void test('Broker CLI outside Git asks for explicit versions without a raw stack', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'broker-no-git-'));
+  try {
+    const result = spawnSync(process.execPath, [join(__dirname, 'broker-cli.js'), 'can-i-deploy'], {
+      cwd: directory,
+      env: { PATH: process.env.PATH, PACT_BROKER_URL: 'http://127.0.0.1:9292' },
+      encoding: 'utf8',
+    });
+    assert.equal(result.status, 1);
+    assert.equal(
+      result.stderr.trim(),
+      'Set CONSUMER_VERSION and PROVIDER_VERSION when Git HEAD is unavailable',
+    );
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+void test('explicit Broker versions work outside Git without invoking a fallback', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'broker-no-git-'));
+  try {
+    const result = spawnSync(
+      process.execPath,
+      [
+        '-e',
+        `console.log(JSON.stringify(require(${JSON.stringify(join(__dirname, 'broker-api.js'))}).brokerConfig()))`,
+      ],
+      {
+        cwd: directory,
+        env: {
+          PATH: process.env.PATH,
+          PACT_BROKER_URL: 'http://127.0.0.1:9292',
+          CONSUMER_VERSION: 'consumer-release',
+          PROVIDER_VERSION: 'provider-release',
+        },
+        encoding: 'utf8',
+      },
+    );
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /"consumerVersion":"consumer-release"/);
+    assert.match(result.stdout, /"providerVersion":"provider-release"/);
+    assert.equal(result.stderr, '');
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
 
 void test('gate accepts only an explicit positive Broker decision', () => {
   assert.doesNotThrow(() => {
