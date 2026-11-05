@@ -17,6 +17,25 @@ export interface RentalStatusChanged {
   readonly cancellationReason: string | null;
 }
 
+/** Shared immutable public projection for live publication and persisted replay. */
+export function publicRentalStatusEvent(event: RentalStatusChanged): RentalStatusChanged {
+  return Object.freeze({
+    eventId: event.eventId,
+    type: event.type,
+    version: event.version,
+    rentalId: event.rentalId,
+    previousStatus: event.previousStatus,
+    status: event.status,
+    occurredAt: event.occurredAt,
+    bookedAt: event.bookedAt,
+    bookingExpiresAt: event.bookingExpiresAt,
+    rentedAt: event.rentedAt,
+    dueAt: event.dueAt,
+    cancelledAt: event.cancelledAt,
+    cancellationReason: event.cancellationReason,
+  });
+}
+
 /** Explicit public contract, independent of ORM serialization or email templates. */
 export function rentalStatusChanged(
   eventId: string,

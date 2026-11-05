@@ -2005,15 +2005,14 @@ Earlier unprocessed events, including delayed or locked ones, block later events
 This orders email job creation; subsequent email delivery can still be reordered
 by provider retries or concurrent email workers. The internal bigint `position`
 orders insertion. Parent rental locks serialize that rental's events; it is not
-a global commit cursor for a future SSE implementation.
+a global commit cursor. Replay uses this order only within one rental.
 
 The relay and RxJS Subject run **inside one API instance**. A separate relay
 process cannot access that Subject. Multiple API replicas need a cross-process
 broadcast mechanism; claiming one realtime delivery does not broadcast to every
 replica. A realtime acknowledgement means local publication, not browser receipt.
-SSE/Socket.IO and reconnect/replay remain separate next steps. Events are retained
-in PostgreSQL; this step adds neither automatic pruning nor HTTP history access.
-The future replay design must account for duplicate event IDs and process restart.
+SSE/Socket.IO remain separate next steps. Events are retained in PostgreSQL;
+there is no automatic pruning or HTTP history endpoint.
 
 Migration `AddRentalOutbox1793836800000` creates no historical events, preserves
 pending/done/failed jobs and refuses rollback if event history exists. Tests use
@@ -2022,6 +2021,59 @@ lecturer's `22_DistributedPatterns/src/02-outbox.ts` and
 `03-relay-skip-locked.ts`; this application dispatches locally instead of using
 the demo's RabbitMQ broker.
 See [transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
+
+### Durable rental replay (homework 18, step 6b)
+
+`RentalReplayService.open(rentalId, principal, cursor?)` first checks rental
+existence and read access, then validates the optional cursor. It returns a cold
+Observable of public `RentalStatusChanged` events for that rental. Preparing the
+Observable sends nothing; each subscription has an independent position. The
+provider is exported by the API-only `RentalOutboxModule` for future transports.
+
+The external cursor is the UUID `eventId` of the last received event. It is
+resolved **within that rental** to an internal bigint `position` (kept as a string,
+never converted to a JavaScript number). No cursor replays all retained history;
+a cursor at the latest event waits for new events. Empty/malformed UUIDs and
+unknown, foreign or not-yet-committed event IDs all raise the same bad-request
+error after authorization. This deliberately uses UUIDs rather than the original
+homework's numeric `Last-Event-ID: 3`; that literal grading example still needs
+reconciliation when implementing the transport/demo. No historical events are
+synthesized for rentals created before the outbox migration.
+
+On subscription, the service subscribes to the rental's Subject signals **before**
+its first history SELECT. Signals mean "read again"; their payloads are not merged
+with history. A single reader fetches pages of at most 100 events after its current
+position, ordered ascending, with no delivery-state filter. It drains full pages
+without waiting for a signal. Signals during a read are coalesced into one pending
+read. Therefore a committed event is replayable even if its realtime delivery is
+pending, and a later publication of that event does not emit a duplicate. Both
+history and live publication use the same immutable field allowlist; private email
+context and internal positions never enter the public event.
+
+The order is safe only for a **single rental** because existing business writers
+hold its parent row lock until commit (creation inserts the parent and initial
+event atomically). Future writers must preserve that rule. Sequence allocation
+across rentals does not order commits, and there is no global MAX(position)
+watermark. Reads use fresh PostgreSQL READ COMMITTED statement snapshots.
+
+A database error ends the subscription; reconnect supplies the client's last
+successfully applied UUID. Disconnect and shutdown release signal subscriptions;
+an already-running SELECT may finish, but its result is discarded after closure.
+Restart needs no RAM replay buffer: both processed and pending history remain in
+the database, and the existing dispatcher recovers pending signals. No automatic
+retention or pruning is added. This still assumes one API instance with its local
+relay enabled and eventually succeeding; it is not multi-instance broadcast.
+
+Within one subscription, repeated hints do not duplicate events. Across network
+reconnects, clients must still apply events idempotently by `eventId`: server
+publication is not proof that the UI applied an event. This Observable preserves
+order but does not await an asynchronous subscriber callback; transport
+backpressure belongs to the later transport step.
+
+The lecturer's `code/18_Realtime/stages/03-sse.mjs` demonstrates reconnect from an
+in-memory history buffer. This version uses the existing durable outbox history
+so restart does not erase the replay source, and subscribes before its asynchronous
+SELECT to close the history/live race. No SSE or Socket.IO endpoint is added here.
 
 ### Source layout and module ownership
 
