@@ -2226,6 +2226,67 @@ Official references: [SSE protocol](https://html.spec.whatwg.org/multipage/serve
 [Nest SSE](https://docs.nestjs.com/techniques/server-sent-events), and
 [Node HTTP write/drain](https://nodejs.org/api/http.html#responsewritechunk-encoding-callback).
 
+### Headless room-isolation demo (homework 18, step 9)
+
+Prerequisites: Node 24.9+, pnpm 10.24.0, a running Docker daemon and full project
+(including development) dependencies. From the repository root:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+node scripts/realtime-demo.mjs
+# MODE=different-rooms
+# A_RECEIVED=1
+# B_RECEIVED=0
+
+node scripts/realtime-demo.mjs --same-room
+# MODE=same-room
+# A_RECEIVED=1
+# B_RECEIVED=1
+```
+
+Both commands must exit 0. `pnpm demo:realtime` and
+`pnpm demo:realtime --same-room` are equivalent shortcuts. On Rancher Desktop,
+if needed, set the same Docker variables as the integration tests:
+
+```sh
+export DOCKER_HOST=unix:///Users/$(whoami)/.rd/docker.sock
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
+Each run starts its own disposable PostgreSQL 16 container, runs the compiled
+migrations, seeds one owner and a catalog with two copies, then starts the real
+AppModule on an ephemeral loopback port. It creates two BOOKED rentals through
+HTTP. Credentials are randomly generated in memory, never printed or persisted.
+Existing `DB_*` and `AUTH_IDENTITIES` settings are overridden for the isolated
+process and restored on cleanup. No working database or running API is needed.
+No email worker starts; email tasks remain in the disposable database.
+
+Both Socket.IO clients use the same owner's credentials. Listeners are installed
+before connect; the command runs only after both authorized join acknowledgements.
+Default mode joins rentals A and B; `--same-room` joins A twice using the same
+runner. A real staff-authenticated `POST /rentals/:id/issue` changes A to ACTIVE,
+commits the outbox event and lets the application's dispatcher publish it.
+
+The runner counts distinct received event IDs for rental A's ACTIVE status,
+including messages arriving before the HTTP response. It observes another 1.5
+seconds after that response, so B's absence is measured over a finite window.
+Duplicate publication of the same event ID counts once. Same-room mode also
+checks that both clients received the same event ID. This demonstrates local
+room isolation; it does not prove indefinite non-delivery or multi-instance routing.
+
+Connection, join and HTTP operations have five-second timeouts. Missing events,
+unexpected counts, disconnected clients, auth/join/HTTP errors or invalid CLI
+arguments fail with exit 1. Sockets and the fixture API/database are closed in
+`finally` blocks. Startup requires a usable Docker daemon; the container library
+applies its own startup timeout. First run may need to download postgres:16-alpine.
+
+`pnpm test:realtime-demo` tests both modes and controlled failure scenarios using
+local HTTP/Socket.IO servers, without Docker. The two CLI commands above exercise
+the actual backend, migrations and transactional outbox. Source:
+`scripts/realtime-demo.mjs` (measurement) and
+`src/scripts/realtime-demo-fixture.ts` (isolated environment).
+
 ### Source layout and module ownership
 
 Entities live with their functionality:
