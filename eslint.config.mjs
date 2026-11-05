@@ -61,6 +61,7 @@ export default defineConfig(
       'scripts/backup.mjs',
       'scripts/restore-drill.mjs',
       'scripts/clean-test.mjs',
+      'scripts/realtime-demo.mjs',
     ],
     extends: [tseslint.configs.disableTypeChecked],
     languageOptions: { sourceType: 'module' },

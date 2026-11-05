@@ -87,10 +87,11 @@ paths:
         - name: Idempotency-Key
           in: header
           description: Client-generated opaque key. The same key and validated body replay
-            the original 201 response and Location, without another rental,
-            debit or job. JSON property order and UUID case do not affect
-            identity. A different body with the same key returns 422. Keys are
-            stored in PostgreSQL without automatic expiration.
+            the original 201 response and Location, without another booking. No
+            payment is taken at booking. A legacy checkout key returns 409; use
+            a new key. JSON property order and UUID case do not affect identity.
+            A different body with the same key returns 422. Keys are stored in
+            PostgreSQL without automatic expiration.
           required: true
           schema:
             type: string
@@ -105,7 +106,8 @@ paths:
               $ref: "#/components/schemas/CreateRentalDto"
       responses:
         "201":
-          description: Rental created, or its original response replayed.
+          description: Booking created, or its original BOOKED receipt replayed regardless
+            of the current lifecycle state.
           headers:
             Location:
               description: URL of the created rental.
@@ -125,6 +127,18 @@ paths:
                 $ref: "#/components/schemas/CreatedRentalDto"
         "400":
           description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
           content:
             application/problem+json:
               schema:
@@ -153,8 +167,10 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-      summary: Rent one available copy for one day
-      tags: &a2
+      security: &a2
+        - bearer: []
+      summary: Reserve one available copy for 24 hours without payment
+      tags: &a3
         - rentals
     get:
       operationId: listRentals
@@ -189,14 +205,198 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Unexpected server error
           content:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      security: *a2
       summary: List rentals in stable UUID order
-      tags: *a2
+      tags: *a3
+  /rentals/{rentalId}/issue:
+    post:
+      operationId: issueRental
+      parameters:
+        - name: rentalId
+          required: true
+          in: path
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Issued rental; repeated issue while ACTIVE returns the current
+            state without charging again.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalDetailDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: Business state conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      security: *a2
+      summary: Staff issues a booked copy and charges its fixed price once
+      tags: *a3
+  /rentals/{rentalId}/cancel:
+    post:
+      operationId: cancelRental
+      parameters:
+        - name: rentalId
+          required: true
+          in: path
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelRentalDto"
+      responses:
+        "200":
+          description: Cancelled booking; repeat preserves the first cancellation reason
+            and actor.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalDetailDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: Business state conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      security: *a2
+      summary: Owner or staff cancels a booking and releases the reserved copy
+      tags: *a3
+  /rentals/{rentalId}/return:
+    post:
+      operationId: returnRental
+      parameters:
+        - name: rentalId
+          required: true
+          in: path
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Completed rental; repeat preserves physical return dates.
+            Historical partial returns remain unchanged.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RentalDetailDto"
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "409":
+          description: Business state conflict
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      security: *a2
+      summary: Staff accepts all outstanding copies and completes the rental
+      tags: *a3
   /rentals/{rentalId}:
     get:
       operationId: getRental
@@ -220,6 +420,18 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "404":
           description: Resource not found
           content:
@@ -232,23 +444,101 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      security: *a2
       summary: Get a rental and its items
-      tags: *a2
+      tags: *a3
+  /rentals/{id}/events:
+    get:
+      operationId: streamRentalEvents
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            format: uuid
+            type: string
+        - name: Last-Event-ID
+          in: header
+          description: Last received event UUID for this rental; omitted replays all
+            retained history.
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Open SSE stream. Event name rental.status; id is the event UUID;
+            data is public RentalStatusChanged JSON. Control frames do not carry
+            IDs.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "503":
+          description: Service temporarily unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      security:
+        - bearer: []
+      summary: Stream retained and live rental status events; reconnect after a UUID
+        event cursor
+      tags:
+        - rentals
 info:
   title: Retro Games Rental API
-  description: Catalog and single-copy rental API. Monetary amounts are integer
-    kopecks. No authentication is configured yet.
+  description: Catalog and single-copy booking/rental API. Monetary amounts are
+    integer kopecks. Rental operations require configured opaque Bearer
+    credentials; the game catalog is public.
   version: 1.0.0
   contact: {}
 tags:
   - name: games
     description: Game catalog and supported platforms.
   - name: rentals
-    description: Single-copy rentals, one day per checkout.
+    description: Reserve for 24 hours; staff issues for one paid day, accepts
+      returns, or cancels bookings.
 servers:
   - url: http://localhost:3000
     description: Local server; override the URL for your deployment.
 components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: opaque
+      type: http
+      description: Configured opaque token (not a JWT).
   schemas:
     Problem:
       type: object
@@ -386,23 +676,73 @@ components:
         gameCopyId:
           type: string
           format: uuid
-        chargedAmount:
+        status:
+          type: string
+          enum:
+            - BOOKED
+        bookedAt:
+          type: string
+          format: date-time
+        bookingExpiresAt:
+          type: string
+          format: date-time
+        costPerDay:
           type: integer
           minimum: 0
-          description: Amount charged for one day, in integer kopecks.
-        balance:
-          type: integer
-          minimum: 0
-          description: Balance immediately after checkout, in kopecks. A replay returns
-            the original value.
+          description: Price fixed at booking, charged for one day at issue, in kopecks.
       required:
         - rentalId
         - gameCopyId
-        - chargedAmount
-        - balance
-    RentalSummaryDto:
+        - status
+        - bookedAt
+        - bookingExpiresAt
+        - costPerDay
+    RentalItemDto:
       type: object
       properties:
+        gameCopyId:
+          type: string
+          format: uuid
+        costPerDay:
+          type: integer
+          minimum: 0
+          description: Historical price per day in kopecks.
+        releasedAt:
+          type: string
+          nullable: true
+          format: date-time
+        returnedAt:
+          type: string
+          nullable: true
+          format: date-time
+      required:
+        - gameCopyId
+        - costPerDay
+        - releasedAt
+        - returnedAt
+    RentalDetailDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: &a4
+            - BOOKED
+            - ACTIVE
+            - OVERDUE
+            - RETURNED
+            - CANCELLED
+        bookedAt:
+          type: string
+          format: date-time
+          nullable: true
+        bookingExpiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        dueAt:
+          type: string
+          format: date-time
+          nullable: true
         rentalId:
           type: string
           format: uuid
@@ -412,7 +752,77 @@ components:
         rentedAt:
           type: string
           format: date-time
+          nullable: true
+        cancelledAt:
+          type: string
+          format: date-time
+          nullable: true
+        cancelledBy:
+          type: string
+          nullable: true
+        cancellationReason:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RentalItemDto"
       required:
+        - status
+        - bookedAt
+        - bookingExpiresAt
+        - dueAt
+        - rentalId
+        - renterId
+        - rentedAt
+        - cancelledAt
+        - cancelledBy
+        - cancellationReason
+        - items
+    CancelRentalDto:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Nonblank reason for cancellation before issue.
+      required:
+        - reason
+      additionalProperties: false
+    RentalSummaryDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: *a4
+        bookedAt:
+          type: string
+          format: date-time
+          nullable: true
+        bookingExpiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        dueAt:
+          type: string
+          format: date-time
+          nullable: true
+        rentalId:
+          type: string
+          format: uuid
+        renterId:
+          type: string
+          format: uuid
+        rentedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - status
+        - bookedAt
+        - bookingExpiresAt
+        - dueAt
         - rentalId
         - renterId
         - rentedAt
@@ -430,43 +840,4 @@ components:
       required:
         - items
         - next_cursor
-    RentalItemDto:
-      type: object
-      properties:
-        gameCopyId:
-          type: string
-          format: uuid
-        costPerDay:
-          type: integer
-          minimum: 0
-          description: Historical price per day in kopecks.
-        returnedAt:
-          type: string
-          nullable: true
-          format: date-time
-      required:
-        - gameCopyId
-        - costPerDay
-        - returnedAt
-    RentalDetailDto:
-      type: object
-      properties:
-        rentalId:
-          type: string
-          format: uuid
-        renterId:
-          type: string
-          format: uuid
-        rentedAt:
-          type: string
-          format: date-time
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/RentalItemDto"
-      required:
-        - rentalId
-        - renterId
-        - rentedAt
-        - items
 security: []

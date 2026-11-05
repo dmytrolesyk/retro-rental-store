@@ -24,9 +24,9 @@ describe('RotationPool connection retry', () => {
       )
       .mockImplementationOnce(() => Promise.resolve(client));
     const pool = new RotationPool();
-    const result = pool.connect();
+    const connectionPromise = pool.connect();
     await jest.runAllTimersAsync();
-    await expect(result).resolves.toBe(client);
+    await expect(connectionPromise).resolves.toBe(client);
     expect(connect).toHaveBeenCalledTimes(2);
     await pool.end();
   });
@@ -49,9 +49,9 @@ describe('RotationPool connection retry', () => {
       )
       .mockResolvedValueOnce(client);
     const pool = new RotationPool();
-    const result = pool.connect();
+    const connectionPromise = pool.connect();
     await jest.runAllTimersAsync();
-    await expect(result).resolves.toBe(client);
+    await expect(connectionPromise).resolves.toBe(client);
     expect(connect).toHaveBeenCalledTimes(2);
     await pool.end();
   });

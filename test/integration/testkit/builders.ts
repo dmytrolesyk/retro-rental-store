@@ -20,7 +20,7 @@ export function aRenter(overrides: Partial<RenterData> = {}): RenterData {
   };
 }
 
-type RentalData = Pick<Rental, 'rentalId' | 'renterId' | 'rentedAt'>;
+type RentalData = Pick<Rental, 'rentalId' | 'renterId'> & { rentedAt: Date };
 
 export function aRental(renterId: string, overrides: Partial<RentalData> = {}): RentalData {
   return {

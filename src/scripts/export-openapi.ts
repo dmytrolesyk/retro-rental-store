@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { AuthModule } from '../auth/auth.module';
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { stringify } from 'yaml';
@@ -8,14 +9,24 @@ import { CatalogController } from '../catalog/catalog.controller';
 import { CatalogService } from '../catalog/catalog.service';
 import { RentalsController } from '../rentals/rentals.controller';
 import { RentalsService } from '../rentals/rentals.service';
+import { IssueRental } from '../rentals/use-cases/issue-rental';
+import { CancelRental } from '../rentals/use-cases/cancel-rental';
+import { ReturnRental } from '../rentals/use-cases/return-rental';
 import { createApiDocument } from '../openapi';
+import { RentalEventsController } from '../realtime/rental-events.controller';
+import { RentalReplayService } from '../realtime/rental-replay.service';
 
 // Metadata only: real controllers/DTOs, no handlers invoked and no database/network startup.
 @Module({
-  controllers: [CatalogController, RentalsController],
+  imports: [AuthModule],
+  controllers: [CatalogController, RentalsController, RentalEventsController],
   providers: [
     { provide: CatalogService, useValue: {} },
     { provide: RentalsService, useValue: {} },
+    { provide: IssueRental, useValue: {} },
+    { provide: CancelRental, useValue: {} },
+    { provide: ReturnRental, useValue: {} },
+    { provide: RentalReplayService, useValue: {} },
   ],
 })
 class DocumentationModule {}

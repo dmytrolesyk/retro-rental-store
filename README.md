@@ -21,49 +21,276 @@ entry point to `dist/main.js`. `experimentalDecorators` and
 TypeORM and `@nestjs/typeorm` are runtime dependencies; `pg` provides the
 PostgreSQL driver and `reflect-metadata` provides runtime metadata support.
 
+Injected dependencies use descriptive role names: `rentalsRepository`,
+`rentalsService`, `issueRentalUseCase`, `dataSource`. Local names describe their
+contents, such as `nextStatus`, `rentalItems`, `bookingReceipt` and `response`.
+Collection names such as `rentals` remain appropriate for actual collections.
+
 ## HTTP API and OpenAPI (homework 16, step 3; homework 9 requirements)
+
+### Temporary authentication (homework 18, step 2)
+
+**Temporary coursework implementation — replace in the authentication homework.**
+`AUTH_IDENTITIES` and `ConfiguredTokenService` are scaffolding for HW18. Replace
+the configured credential lookup with the authentication flow implemented in
+that homework. Retain the verified `Principal` boundary and rental role/ownership
+rules, adapting transport guards to the selected session/token mechanism.
+
+All `/rentals` operations require `Authorization: Bearer <token>`. The catalog,
+health endpoints and API documentation remain public. This step uses opaque
+configured credentials, not JWTs: no password login, registration, refresh or
+expiry yet. `AUTH_IDENTITIES` defaults to `[]`, denying every rental request
+until identities are configured. Values are read at startup; restart the API
+after changing credentials to rotate/revoke them.
+
+The JSON array contains `{ id, role, token, renterId }` for a `client`, or
+`{ id, role, token }` for `staff`. IDs are UUIDs; `renterId` identifies the
+client's renter row. Tokens must be distinct, 32–256 characters from
+`A-Z a-z 0-9 _ -`; generate randomly and inject through process environment.
+Real credentials do not belong in Git or logs.
+
+For a local seeded database, generate credentials in your shell without printing
+them (the client below refers to the first existing seed renter):
+
+```bash
+export AUTH_IDENTITIES="$(node --input-type=module <<'JS'
+import { randomBytes, randomUUID } from 'node:crypto';
+console.log(JSON.stringify([
+  { id: randomUUID(), role: 'client', renterId: '20000000-0000-4000-8000-000000000001', token: randomBytes(32).toString('hex') },
+  { id: randomUUID(), role: 'staff', token: randomBytes(32).toString('hex') },
+]));
+JS
+)"
+export CLIENT_TOKEN="$(node -e 'console.log(JSON.parse(process.env.AUTH_IDENTITIES)[0].token)')"
+export STAFF_TOKEN="$(node -e 'console.log(JSON.parse(process.env.AUTH_IDENTITIES)[1].token)')"
+# Start the API in this environment, or pass it through Compose's node service.
+curl -s http://localhost:3000/rentals -H "Authorization: Bearer $CLIENT_TOKEN"
+```
+
+Client reads are owner-only; list filtering happens in SQL before pagination.
+The booking POST checks that body `renterId` matches the verified client
+before reserving its idempotency key or copy. Staff can read all rentals but
+cannot use this client-only POST. Issue/return require staff; cancellation
+is available to the owner or staff.
+Token failures return `401` with a Bearer challenge; known identities without
+access receive `403`, both as problem+json. The existing global Idempotency-Key
+namespace is unchanged: generate unique keys. Ownership is checked before replay.
+
+`ConfiguredTokenService` returns a frozen principal without the token.
+`BearerAuthGuard` adapts HTTP headers to this transport-independent service;
+rental services enforce access policy. Internal CLI/demo `checkout()` remains
+trusted and is not an unguarded HTTP alternative. Socket.IO reuses these credentials and policy; SSE uses the same policy. Native browser EventSource cannot set an
+Authorization header: a future UI needs a suitable streaming client or the
+later cookie-based login design.
+
+Nest mechanisms: [guards](https://docs.nestjs.com/guards) and
+[OpenAPI Bearer scheme](https://docs.nestjs.com/openapi/security).
+
+The Pact consumer now sends an illustrative Bearer token. Provider verification
+replaces that dummy value with an ephemeral configured staff credential; no
+real application tokens are stored in contracts.
+
+### Rental lifecycle schema (homework 18, step 1)
+
+`AddRentalLifecycle` adds the schema and pure transition rules for
+`BOOKED → ACTIVE → OVERDUE → RETURNED`, with `ACTIVE → RETURNED` for
+on-time returns and `BOOKED → CANCELLED` for cancellations. No state-machine
+library is needed. `nextRentalStatus` validates state/command pairs; a `null`
+result means that command has already reached its target state. Authorization,
+time checks, transactional effects and request idempotency belong to the
+business service and are not provided by this pure function.
+
+`booked_at` and `booking_expires_at` describe the reservation; `rented_at`
+and `due_at` describe physical issue and the paid rental period. Unissued
+bookings have no issue/due dates. Cancellation records its time, reason and
+optional actor. The migration preserves historical issue/return dates, marks
+fully returned rentals `RETURNED`, and leaves active/partially returned rentals
+`ACTIVE`. Historical booking dates remain unknown (`NULL`); historical due
+dates are backfilled as exactly 24 hours after issue. The deadline scheduler
+also processes those historical active rentals.
+
+A database-maintained `rental_items.released_at` separates freeing a copy
+from physically returning it. The partial unique index
+`one_active_rental_per_copy` now uses `released_at IS NULL`. Returns release
+at `returned_at`; cancellation releases all reserved items at `cancelled_at`
+without manufacturing physical return dates. An item trigger derives this
+value and locks its parent rental; acquire the parent before its items in
+business transactions. Availability queries use the same predicate.
+Partial historical returns retain their individual dates and free only the
+returned copies; the return command returns all remaining items.
+The database mechanisms are described in PostgreSQL's documentation on
+[partial unique indexes](https://www.postgresql.org/docs/16/indexes-partial.html)
+and [transactional trigger behavior](https://www.postgresql.org/docs/16/trigger-definition.html).
+
+HTTP creation now books a copy; issue and return are separate commands (step 3).
+The internal CLI/demo `checkout()` retains immediate `ACTIVE` checkout,
+charging and its existing confirmation job. A compatibility insert trigger
+supplies its one-day `due_at`. The API now runs the five-minute deadline
+scheduler described below. Status changes now persist outbox events; the
+API relay queues email jobs and publishes to a local event bus. Realtime
+transports are subsequent steps. Issue rejects expired bookings before the next scheduler run.
+
+Rollback is supported for legacy-only data. It deliberately refuses to remove
+the new schema once bookings or new overdue states exist, rather than dropping
+history or inventing issue dates. Run migration checks only on a disposable DB.
+
+```bash
+pnpm exec jest --runInBand
+pnpm test:integration
+```
+
+The lifecycle integration suite uses its own Testcontainers PostgreSQL and
+checks fresh/upgrade migrations, legacy histories, cancellation release,
+concurrent claims, constraints and rollback protection. With Rancher Desktop,
+if Testcontainers cannot locate the Docker context socket, set `DOCKER_HOST`
+to the endpoint shown by `docker context inspect` and
+`TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock` for the VM-side
+Ryuk mount.
+
+### Automatic rental deadlines (homework 18, step 4)
+
+The API registers one named `rental-deadlines` cron through `@nestjs/schedule`
+(`ScheduleModule.forRoot()` and `@Cron`, at minute 0, 5, 10, …).
+`RENTAL_DEADLINES_ENABLED=true` is the default; set it to `false` and restart
+to disable processing for isolated fixtures or contract verification. Compose
+forwards this setting. Legacy CLI/worker modules do not import the scheduler.
+
+`RentalDeadlinesScheduler` calls `ProcessRentalDeadlines`, which finds overdue
+candidates in pages of 100 using the existing partial deadline indexes.
+`ExpireBooking` cancels BOOKED rentals at/after `bookingExpiresAt`, recording
+`cancelledBy: null` and a stable system reason. The existing trigger releases
+the reservation without a physical return or refund. `MarkRentalOverdue`
+changes ACTIVE to OVERDUE at/after `dueAt`, retaining the dates and held copies.
+
+Each rental has its own transaction. The use case locks the parent (and items
+for expiry), reads database time after waiting, and calls the pure
+`nextDeadlineStatus` rule against the current row. Manual issue/cancellation/
+return and another scheduler instance therefore cannot apply the same
+transition twice. A stale, future, missing or already processed candidate is
+a no-op. The cron's `waitForCompletion` also prevents overlap in one process;
+row locks and the status recheck provide correctness across processes.
+
+Each scan has a fixed database cutoff and advances by deadline/rental ID;
+its internal text timestamp cursor preserves PostgreSQL microseconds. A failed
+rental rolls back, is logged and retried on the next run; the current scan
+continues with other rows. Cron logs counts of expired, overdue and failed
+rentals. If the process is down, stored deadlines remain the source of truth:
+the next scheduled run after restart catches up without restoring timers.
+Automatic status changes can lag a deadline by roughly five minutes in normal
+operation, longer during outages or a long-running scan.
+
+The deadline transitions also record outbox events in the same transactions.
+There are no new HTTP routes. Tests call
+the processor or fire the registered cron directly, using past/future fixtures
+and pure boundary tests instead of waiting five minutes.
+
+See [Nest scheduling](https://docs.nestjs.com/techniques/task-scheduling).
+
+### Booking and rental commands (homework 18, step 3)
 
 Apply the migrations with the migration role before using the domain endpoints
 (see [Grading](#grading)); existing databases also need `AddRentalRequests`.
 The API still connects through PgBouncer and never runs migrations at startup.
 
-| Method | Path | Response |
-| --- | --- | --- |
-| GET | `/games?limit=20&cursor=…` | Game summaries: `items`, `next_cursor` |
-| GET | `/games/{gameId}` | Game details and supported platform IDs |
-| POST | `/rentals` | One-copy, one-day checkout: `rentalId`, `gameCopyId`, `chargedAmount`, `balance` |
-| GET | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor` |
-| GET | `/rentals/{rentalId}` | Rental, renter ID and item price/return snapshots |
+| Method | Path                         | Response                                                                                                |
+| ------ | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| GET    | `/games?limit=20&cursor=…`   | Game summaries: `items`, `next_cursor`                                                                  |
+| GET    | `/games/{gameId}`            | Game details and supported platform IDs                                                                 |
+| POST   | `/rentals`                   | Client books one copy: `rentalId`, `gameCopyId`, `status`, `bookedAt`, `bookingExpiresAt`, `costPerDay` |
+| GET    | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor`                                                                |
+| GET    | `/rentals/{rentalId}`        | Rental status/dates, cancellation and item price/return snapshots                                       |
+| GET    | `/rentals/{id}/events`       | Authenticated SSE history/live stream; optional UUID `Last-Event-ID` |
+| POST   | `/rentals/{rentalId}/issue`  | Staff issues a BOOKED rental; returns updated details                                                   |
+| POST   | `/rentals/{rentalId}/cancel` | Owner/staff cancels BOOKED; body `{ "reason": "…" }`; returns details                                   |
+| POST   | `/rentals/{rentalId}/return` | Staff accepts ACTIVE/OVERDUE items; returns updated details                                             |
 
 Money is in integer kopecks. The request DTO is separate from the TypeORM entity;
-internal confirmation job IDs are not exposed. Swagger UI is at `/docs`, and
+internal entities and job IDs are not exposed. Swagger UI is at `/docs`, and
 the running application's OpenAPI JSON is at `/docs-json`. `/health` and `/db`
 remain operational endpoints, excluded from the public OpenAPI document.
 
 ```bash
 curl -s 'http://localhost:3000/games?limit=2'
-# Set these three variables to existing IDs with an available game copy and renter credit.
+# Set these three variables to existing IDs with an available game copy.
 curl -i -X POST http://localhost:3000/rentals \
+  -H "Authorization: Bearer $CLIENT_TOKEN" \
   -H 'Content-Type: application/json' \
   -H 'Idempotency-Key: example-rental-0001' \
   -d "{\"renterId\":\"$RENTER_ID\",\"gameId\":\"$GAME_ID\",\"platformId\":\"$PLATFORM_ID\"}"
 ```
 
-POST accepts exactly `renterId`, `gameId`, `platformId` (UUIDs) and requires
-`Idempotency-Key`: 8–128 visible ASCII characters, no spaces. A successful
-request returns 201, a relative `Location`, and `Idempotency-Replay: false`.
-Repeating its key and validated body returns the original 201/body/Location
-with `Idempotency-Replay: true`. JSON property order and UUID letter case do not
-change request identity. The balance in a replay is the original post-checkout
-balance, not a fresh balance query. Reusing a successful key for another body
-returns 422. Failed requests roll back and do not reserve their keys.
+`POST /rentals` accepts exactly `renterId`, `gameId`, `platformId` (UUIDs)
+and requires `Idempotency-Key`: 8–128 visible ASCII characters, no spaces.
+It reserves a copy for exactly 24 hours, snapshots its daily price, and creates
+`BOOKED` without debiting the balance, with a booking outbox event. Zero balance
+does not prevent booking. The response returns 201, a relative `Location`,
+and `Idempotency-Replay: false`. Repeating its key and validated body returns
+the original 201/body/Location with `Idempotency-Replay: true`, even after issue
+or cancellation; use GET for the current status. JSON property order and UUID
+letter case do not change request identity. Another body with the same key
+returns 422; failed requests do not reserve their keys.
 
-The key/hash/response live in `rental_requests`, not process memory. Its unique
-key coordinates concurrent requests; key allocation, checkout debit, rental,
-item, confirmation job and saved response commit in one READ COMMITTED
-transaction using the same EntityManager. A failure rolls everything back.
-Keys currently have no expiry. The legacy `checkout(DataSource, request)` entry
-point remains available to scripts without HTTP idempotency semantics.
+This changes the previous immediate-checkout POST contract: booking receipts
+no longer contain `chargedAmount` or `balance`. Existing paid-checkout receipts
+in `rental_requests` remain intact; reusing one returns 409 and requires a new
+key. Their JSON is read as a legacy receipt, without a data migration or rewriting
+history. Keys currently have no expiry and retain their global namespace.
+The legacy `checkout(DataSource, request)` entry point remains available to
+scripts without HTTP idempotency semantics.
+
+After setting `RENTAL_ID` from the booking response, issue with a staff token:
+
+```bash
+curl -i -X POST "http://localhost:3000/rentals/$RENTAL_ID/issue" \
+  -H "Authorization: Bearer $STAFF_TOKEN"
+curl -i -X POST "http://localhost:3000/rentals/$RENTAL_ID/return" \
+  -H "Authorization: Bearer $STAFF_TOKEN"
+# Alternatively, cancel a booking before issue:
+curl -i -X POST "http://localhost:3000/rentals/$RENTAL_ID/cancel" \
+  -H "Authorization: Bearer $CLIENT_TOKEN" \
+  -H 'Content-Type: application/json' -d '{"reason":"Plans changed"}'
+```
+
+Issue charges the booked price once and starts a paid 24-hour period from
+physical issue, regardless of later catalog price changes. Insufficient balance
+or expiry returns 409 and leaves the booking unchanged. Cancellation requires
+a trimmed nonblank reason of up to 500 characters and records the verified
+principal ID; it frees the copy without a refund or invented return date.
+Return accepts ACTIVE or OVERDUE (including ACTIVE past its due date), returns
+all outstanding items, and preserves historical partial-return dates.
+
+Commands return 200 with current details. A repeat already in the command's
+target state is a no-op: no second charge or changed cancellation/return dates.
+An incompatible state returns 409, such as issue after RETURNED or cancel after
+ACTIVE. Commands do not require an Idempotency-Key; creation uses a persisted
+key to distinguish retrying one booking from requesting another.
+
+`RentalsService` handles booking and reads. Issue, cancellation and return each
+have a dedicated injectable use case (`IssueRental`, `CancelRental`,
+`ReturnRental`) called directly by the controller. Each `execute()` owns its
+READ COMMITTED transaction, with explicit inputs and no action switch or bus.
+Transition/access rules, the repository and pure response mappers are shared.
+The use cases are exported by `RentalsModule` for other application callers.
+
+Issue follows Functional Core / Imperative Shell: `prepareIssueTerms` accepts
+booking/item snapshots and an explicit time, checks business rules, and returns
+the amount and issue/due dates. It has no Nest, TypeORM or I/O dependencies.
+`IssueRental` acquires locks, reads database time, calls that function, debits
+atomically and persists the result. The insufficient-balance decision remains
+with the conditional database update. Pure rule failures become HTTP 409 in
+`ProblemFilter`; the core itself does not depend on HTTP exceptions.
+
+Booking commits the key, reservation, item and saved receipt together. Commands
+lock the parent rental, then its items in stable order; issue also locks the renter before
+checking expiry and conditionally debiting the balance. The status change and
+all effects commit together, and a failure rolls everything back. Time is read
+with PostgreSQL `clock_timestamp()` after blocking locks: `now()` would retain
+the transaction start time and could allow an expired booking after a lock wait.
+See [row locks](https://www.postgresql.org/docs/16/explicit-locking.html#LOCKING-ROWS)
+and [current time functions](https://www.postgresql.org/docs/16/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT).
+Each actual transition records one outbox event in the same transaction.
+The relay creates its email job later. No-op commands and idempotency replays
+record nothing.
 
 Both lists use stable UUID ordering, `limit` from 1 to 100 (default 20), and
 an opaque resource-specific cursor. Pass `next_cursor` unchanged; null marks
@@ -78,18 +305,18 @@ explicit transformations. PaginationPipe uses the same validation policy for
 query/cursor DTOs, then decodes the resource-specific cursor; ParseUUIDPipe
 validates path IDs. Zod remains in configuration, fixture parsing and the
 standalone checkout input guard. Controllers delegate business work to services.
-RentalsService owns the transaction and idempotency decisions; one
-RentalsRepository contains rental reads, checkout persistence/locking and
-idempotency SQL. Its write methods require the transaction's EntityManager.
+RentalsService owns booking transaction/idempotency decisions; each command
+use case owns its transaction. One RentalsRepository contains rental reads,
+booking/command persistence, legacy checkout and idempotency SQL. Its write methods require the transaction's EntityManager.
 CreateRentalResponseInterceptor sets Location/Idempotency-Replay through the
 Nest HTTP adapter and unwraps the public receipt. A shared global
 exception filter returns `application/problem+json` with required
 `type`, `title`, `status`, `detail`, `instance`: 400 for validation, 404 for
-missing resources/renters, 409 for unavailable copies/insufficient balance,
+missing resources/renters, 409 for unavailable copies/insufficient balance, expired bookings or invalid transitions,
 422 for a conflicting key and a generic 500 for internal failures. The same
 `configureApp` function registers validation, the filter and docs in all bootstraps;
-parameter pipes are attached to the controllers. Authentication/guards are not
-part of this step.
+parameter pipes are attached to the controllers. The temporary authentication
+layer described above now guards rental endpoints.
 
 Generate and check the committed OpenAPI 3.0 document:
 
@@ -563,11 +790,13 @@ run. Compose uses that name for every command, including count checks.
 No repository files need editing, and no host credential files need creating. `unset DB_PASSWORD_FILE` selects the CLI's static password source.
 
 Both `migrate:show` calls must mark all migrations `[X]` (with their
-journal IDs). There are three migrations. Revert rolls back only the latest,
-`AddJobEmailRecipient1792051200001`: it removes `email_to` and preserves the
-queue, balances and rentals. Reverting the preceding
+journal IDs). There are seven migrations. Revert rolls back only the latest,
+`AddRentalOutbox1793836800000`, and preserves existing jobs, balances
+and rentals when no outbox history exists. It refuses to discard persisted events. Earlier,
+`AddJobEmailRecipient1792051200001` added the recipient snapshot; reverting
 `AddRentalBalanceAndJobs1792051200000` removes the queue and renter balances.
-Reverting the initial migration removes business data. Run rollback checks only against a disposable database.
+Reverting the initial migration removes business data. Run rollback checks only
+against a disposable database.
 
 Use the count command in [ORM seed](#orm-seed) after each seed run: all nine
 counts must stay unchanged. The fresh-database totals are 19,896 games,
@@ -1625,28 +1854,15 @@ Application entry points and modules:
 
 - `src/worker/main.ts` starts a standalone Nest application for selected task IDs.
 - `src/worker/worker.module.ts` composes database, queue and email dependencies.
-- `src/jobs/rental-confirmation.worker.ts` is the injectable confirmation handler.
+- `src/jobs/rental-notification.worker.ts` is the injectable email consumer.
 - `src/scripts/demo-email.ts` creates demo data and invokes that same worker.
 
-Both commands finish once their selected tasks are drained; there is no permanent
-polling service or signal-handling lifecycle in this step. The API starts separately
-through `src/main.ts` and does not start email workers implicitly.
-
-Only explicitly selected task IDs are consumed. Already completed tasks are
-skipped. The real-email command uses one worker and spaces requests by at least
-600 ms after each API response; it is not a throughput benchmark or a distributed
-rate limiter. API errors fail the command and leave the task `new` for a later
-retry. Automatic provider retries and delivery webhooks are outside this step.
-
-The `email_to` migration snapshots the recipient at checkout; existing tasks are
-backfilled from the current renter address. Message content uses the immutable
-rental ID. Keep the sender and message template unchanged when retrying pending
-tasks: Resend requires identical payloads for the same idempotency key
-`rental-confirmation/<jobId>`. A crash after API acceptance but before database
-commit can repeat the request; Resend deduplicates that key for **24 hours**.
-After that window, duplicate email remains possible. `done` means the provider
-accepted the request, not that the email reached the inbox. Database counters
-commit once; PostgreSQL cannot roll back an external email.
+Selected-ID commands finish after their jobs are processed; a failed or deferred
+job gives a nonzero exit. Locked pending jobs are waited on. `--watch` keeps
+polling, backs off failed deliveries and handles SIGINT/SIGTERM. See the status
+notification section below for the current lifecycle and retry rules.
+Legacy jobs keep their original confirmation text and `rental-confirmation/<jobId>`
+key. The offline `demo:workers` still uses the original generic transaction worker.
 
 References: [Resend Node SDK](https://resend.com/docs/send-with-nodejs),
 [idempotency and the 24-hour limit](https://resend.com/docs/dashboard/emails/idempotency-keys).
@@ -1660,7 +1876,594 @@ pnpm run test:db:transactions
 pnpm run test:db:checkout
 ```
 
-### Source layout and module ownership
+### Rental status emails (homework 18)
+
+Booking and every real transition (`BOOKED`, `ACTIVE`, `OVERDUE`, `RETURNED`,
+`CANCELLED`) persist a `RentalStatusChanged` event and two delivery intents
+**inside the business transaction**. This includes expiry/overdue processing.
+An outbox insert failure rolls back the status, copy release and any debit.
+The API relay creates an email job later; failures there retain the event for
+retry and cannot roll back an already completed HTTP command. Repeated commands
+and replayed bookings create no extra events.
+
+`rentalNotification()` freezes the email status, event time, applicable deadlines,
+cancellation reason and rendered subject/text when the event is recorded. The
+recipient is also copied at that time. The relay copies this private snapshot to
+`rental_jobs`; profile/template changes while it is delayed do not rewrite it.
+Existing jobs keep their original snapshots or legacy confirmation semantics.
+
+After migrating, export the usual `DB_*`, private `RESEND_API_KEY` and verified
+`EMAIL_FROM`, then start the separate consumer:
+
+```bash
+pnpm run start:worker -- --watch
+# Alternatively, after migration, enable the optional Compose consumer:
+docker compose --profile email up -d --build email-worker
+```
+
+The API needs no email credentials. Default Compose startup keeps the email
+profile off; enable it only when ready to send queued mail. `--watch` checks for
+new work roughly every second while idle. Restarts retain queued work. SIGINT or
+SIGTERM stops polling and lets an in-flight request finish; SDK requests have a
+10-second abort signal. No delivery webhooks are configured.
+
+Before a provider call, the worker commits the **complete request**, including
+`EMAIL_FROM` and the stable `rental-status/<jobId>` key. A second transaction locks
+that job with `FOR UPDATE SKIP LOCKED`, sends the frozen request, and marks it
+`done`. A crash or database rollback after acceptance reuses that exact payload.
+The lock is held during the bounded provider call: simple coordination at the
+cost of occupying a pool connection. Multiple workers skip each other's locks;
+600ms spacing per consumer is not a global provider rate limiter.
+
+Transient failures (network/timeout, 429, 5xx, concurrent idempotent request) retain
+`new` with exponential backoff, initially 2 seconds, capped at one hour.
+Permanent provider errors become `failed`; neither blocks unrelated jobs.
+`attempts` counts committed delivery outcomes; `processed` counts committed
+successful processing. A crash can roll back those counters after an external
+acceptance. `last_error` contains a code, not provider response bodies.
+
+Resend retains idempotency keys for 24 hours. Automatic retries stop before
+23 hours from preparation to avoid crossing that boundary. Expired/failed jobs
+remain in the database for investigation. Inspect job ID, status, attempts,
+`next_attempt_at`, `first_attempt_at`, `last_error` and the provider logs privately.
+For a permanent configuration problem, fix configuration and, only after
+confirming the frozen request remains valid and within the retry window, reset
+that job's `status` to `new`, `next_attempt_at` to `clock_timestamp()` and
+`last_error` to null. Preserve its payload, key and first-attempt time. Reconcile
+ambiguous or expired deliveries with the provider before deciding on a new
+message; do not blindly clear the snapshot or reset the clock.
+`done` means provider acceptance, not inbox delivery. Retry delays can reorder
+arrival of status emails; each message includes its original event time.
+
+The notification migration refuses rollback once snapshots or delivery state
+exist. It does not invent historical transition notifications. Tests use a fake
+transport and disposable PostgreSQL, including provider-acceptance/DB-rollback,
+concurrent workers, immutable sender, retry backoff and permanent failure.
+
+References: [Resend idempotency](https://resend.com/docs/dashboard/emails/idempotency-keys),
+[provider errors](https://resend.com/docs/api-reference/errors).
+
+### Transactional rental outbox (homework 18)
+
+The business transaction writes `rental_outbox_events` and two
+`rental_outbox_deliveries` rows (`email`, `realtime`). It does not publish an
+in-memory event before commit. A stable UUID identifies the event; a versioned,
+explicit public payload contains the rental ID, previous/new status, event time
+and lifecycle dates/reason. Recipient and rendered email remain separate private
+columns. Neither an entity nor email context is published directly.
+
+The API-only `RentalOutboxDispatcher` checks for pending work at application
+startup and wakes after a transaction containing a new outbox event commits.
+`OutboxCommitSubscriber` uses TypeORM transaction hooks and tracks nested
+savepoints: an inner commit cannot publish uncommitted work, and rollback/no-op
+transactions do not wake the relay. Wake failures never change the result of an
+already committed business transaction. Dispatch runs asynchronously; HTTP does
+not wait for email creation or publication to finish.
+
+Wakes coalesce into a single active dispatcher flight. Signals received during
+processing or retry planning are retained. After each full 100-attempt batch,
+the dispatcher yields to the event loop and immediately processes the next
+batch, continuing until no ready work remains. The batch size limits one pass,
+not the queue: 250 ready deliveries are processed as 100 + 100 + 50 without
+waiting for a periodic tick. One event normally has two consumer deliveries.
+
+When idle, the next wake is scheduled for the earliest eligible retry or a
+30-second fallback rescan, whichever comes first. Retry planning uses database
+time and the same per-rental/consumer ordering rule as processing. The timer has
+a one-second minimum to avoid spinning on already-due but externally locked work.
+Fallback scans recover missed hints and events inserted by other processes or raw
+SQL, which cannot emit this API's local signal. Shutdown cancels timers and awaits
+the current processing/planning flight; further batches are left safely pending.
+
+`RENTAL_OUTBOX_ENABLED` defaults to `true`; `false` disables startup, signal and
+timer-driven work. No Resend credentials are required by the API. The existing
+`--watch` email worker must still run separately to send jobs. Legacy CLI/worker
+entry points do not run the outbox relay. No extra schema migration is needed
+for this hybrid scheduling change.
+
+`ProcessRentalOutbox` handles at most 100 delivery attempts per scan, alternating
+consumers. Each attempt locks one delivery with `FOR UPDATE SKIP LOCKED`:
+
+- `email`: insert the frozen notification into `rental_jobs` and acknowledge
+  this delivery in the same transaction. A unique `outbox_event_id` makes retries
+  idempotent. Existing pre-outbox jobs keep a null event ID.
+- `realtime`: publish the public payload through `RentalEventsService`, then
+  acknowledge. An acknowledgement/commit failure can repeat publication with the
+  same `eventId`; consumers must handle duplicates. Published values are frozen.
+
+Handler and acknowledgement execute inside a savepoint. An SQL error rolls back
+both before retry metadata is committed by the surrounding transaction. Failures
+retain `processed_at = NULL`, increment `attempts`, set `last_error` to a safe
+code and use exponential backoff (2s, capped at 60s). Repair poison events rather
+than silently discarding them. Inspect event ID, consumer, attempts,
+`next_attempt_at`, `last_error` and the relevant application/database diagnostics.
+After repair, let the next scheduled retry run; an operator can advance only that
+pending delivery's `next_attempt_at` to `clock_timestamp()` to expedite it.
+
+Earlier unprocessed events, including delayed or locked ones, block later events
+**for the same rental and consumer**. Other rentals and the other branch proceed.
+This orders email job creation; subsequent email delivery can still be reordered
+by provider retries or concurrent email workers. The internal bigint `position`
+orders insertion. Parent rental locks serialize that rental's events; it is not
+a global commit cursor. Replay uses this order only within one rental.
+
+The relay and RxJS Subject run **inside one API instance**. A separate relay
+process cannot access that Subject. Multiple API replicas need a cross-process
+broadcast mechanism; claiming one realtime delivery does not broadcast to every
+replica. A realtime acknowledgement means local publication, not browser receipt.
+Socket.IO live delivery and SSE replay/live streaming are described below.
+Events are retained in PostgreSQL without automatic pruning.
+
+Migration `AddRentalOutbox1793836800000` creates no historical events, preserves
+pending/done/failed jobs and refuses rollback if event history exists. Tests use
+disposable PostgreSQL and a fake email transport. The approach follows the
+lecturer's `22_DistributedPatterns/src/02-outbox.ts` and
+`03-relay-skip-locked.ts`; this application dispatches locally instead of using
+the demo's RabbitMQ broker.
+See [transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
+
+The application-layer `RentalStatusEventWriter` freezes the public event, email
+snapshot and consumer delivery intents using the caller's EntityManager. Booking
+and status use cases call it inside their existing transaction after persistence;
+the writer starts no transaction and performs no publication. RentalsRepository
+owns rental persistence, while the writer owns the status-notification snapshot
+and consumer policy. The trusted legacy checkout path remains unchanged.
+
+Module ownership is explicit:
+
+| Module | Responsibility | Background relay on import/init |
+| --- | --- | --- |
+| RentalEventsModule | One API-local Subject shared by readers and publisher | No |
+| RentalReplayModule | History repository and replay service; imports the bus | No |
+| RentalOutboxModule | Processor, dispatcher and postcommit subscriber; imports the bus | Enabled by the API relay configuration |
+| RentalRealtimeModule | Socket.IO/SSE transport adapters; imports bus/replay and rental access services | No relay of its own |
+
+AppModule composes the relay and transports explicitly. Neither a standalone
+replay consumer nor RentalsModule needs to import the dispatcher module. Nest
+shares RentalEventsModule across both imports, retaining one singleton bus.
+
+### Durable rental replay (homework 18, step 6b)
+
+`RentalReplayService.open(rentalId, principal, cursor?)` first checks rental
+existence and read access, then validates the optional cursor. It returns a cold
+Observable of public `RentalStatusChanged` events for that rental. Preparing the
+Observable sends nothing; each subscription has an independent position. The
+provider is exported by `RentalReplayModule` and consumed by the SSE transport.
+Importing replay does not start the outbox relay.
+
+The external cursor is the UUID `eventId` of the last received event. It is
+resolved **within that rental** to an internal bigint `position` (kept as a string,
+never converted to a JavaScript number). No cursor replays all retained history;
+a cursor at the latest event waits for new events. Empty/malformed UUIDs and
+unknown, foreign or not-yet-committed event IDs all raise the same bad-request
+error after authorization. This deliberately uses UUIDs rather than the original
+homework's numeric `Last-Event-ID: 3`; see the explicit grading differences in
+[Homework 18 verification](#homework-18-verification). No historical events are
+synthesized for rentals created before the outbox migration.
+
+On subscription, the service subscribes to the rental's Subject signals **before**
+its first history SELECT. Signals mean "read again"; their payloads are not merged
+with history. A single reader fetches pages of at most 100 events after its current
+position, ordered ascending, with no delivery-state filter. It drains full pages
+without waiting for a signal. Signals during a read are coalesced into one pending
+read. Therefore a committed event is replayable even if its realtime delivery is
+pending, and a later publication of that event does not emit a duplicate. Both
+history and live publication use the same immutable field allowlist; private email
+context and internal positions never enter the public event.
+
+The order is safe only for a **single rental** because existing business writers
+hold its parent row lock until commit (creation inserts the parent and initial
+event atomically). Future writers must preserve that rule. Sequence allocation
+across rentals does not order commits, and there is no global MAX(position)
+watermark. Reads use fresh PostgreSQL READ COMMITTED statement snapshots.
+
+A database error ends the subscription; reconnect supplies the client's last
+successfully applied UUID. Disconnect and shutdown release signal subscriptions;
+an already-running SELECT may finish, but its result is discarded after closure.
+Restart needs no RAM replay buffer: both processed and pending history remain in
+the database, and the existing dispatcher recovers pending signals. No automatic
+retention or pruning is added. This still assumes one API instance with its local
+relay enabled and eventually succeeding; it is not multi-instance broadcast.
+
+Within one subscription, repeated hints do not duplicate events. Across network
+reconnects, clients must still apply events idempotently by `eventId`: server
+publication is not proof that the UI applied an event. This Observable preserves
+order but does not await an asynchronous subscriber callback. The Nest SSE adapter
+handles transport writes; this application does not impose a per-connection byte cap.
+
+The lecturer's `code/18_Realtime/stages/03-sse.mjs` demonstrates reconnect from an
+in-memory history buffer. This version uses the existing durable outbox history
+so restart does not erase the replay source, and subscribes before its asynchronous
+SELECT to close the history/live race. The SSE controller below consumes this replay service; the Socket.IO gateway uses live publication only.
+
+### Socket.IO rental rooms (homework 18, step 7)
+
+The API serves Socket.IO on the same HTTP port, at the default engine path
+`/socket.io` and root namespace `/`. Use a Socket.IO 4 client; a raw WebSocket
+client does not speak this protocol. The Nest `RentalRealtimeModule` owns this
+transport and imports the existing authentication, rental and outbox modules.
+The email worker and offline CLI entry points do not start a gateway.
+
+Connect with `auth: { token }`, using one of the opaque tokens configured in
+`AUTH_IDENTITIES`. Connection middleware authenticates through the same
+`ConfiguredTokenService` used by HTTP and stores the verified Principal on the
+server-side socket. Client-provided role/owner fields never establish identity.
+Invalid credentials refuse the connection with `connect_error`, message
+`Unauthorized`, and `error.data.code = UNAUTHORIZED`. Tokens are not echoed or
+logged. The current credentials remain the temporary coursework auth stub.
+
+After connection, emit `join` with exactly `{ rentalId: "<UUID>" }` and an
+acknowledgement callback (or the client's `emitWithAck` API). The gateway checks
+rental existence and the existing owner/staff read policy before joining the
+server-generated room `rentals:<canonical-lowercase-UUID>`. It awaits room
+membership before returning `{ ok: true, rentalId: "<canonical UUID>" }`. Repeated
+joins are idempotent; a connection may join several authorized rental rooms.
+
+Rejected joins return `{ ok: false, error: { code: "..." } }` through the ack:
+
+| Code | Meaning |
+| --- | --- |
+| `INVALID_JOIN` | Payload is not exactly an object containing a valid rental UUID. |
+| `UNAUTHORIZED` | No verified server-side Principal is available. |
+| `FORBIDDEN` | The caller cannot read that rental. |
+| `RENTAL_NOT_FOUND` | That rental does not exist. |
+| `DISCONNECTED` | The socket disconnected while access or membership was being awaited; no success is returned. |
+| `INTERNAL_ERROR` | An unexpected lookup/adapter failure occurred; private diagnostics are not returned. |
+
+These are socket acknowledgements, not HTTP problem responses. The existing
+HTTP ProblemFilter is unchanged. Validation is explicit at the message boundary.
+A closed connection cannot receive an ack; if an asynchronous adapter finishes
+joining after disconnect, the gateway removes that late membership.
+
+The gateway has one subscription to `RentalEventsService`. Each publication emits
+`rental.status` only to `rentals:<event.rentalId>`, delivering the same public
+`RentalStatusChanged` payload to every socket in that room, including multiple
+tabs of one owner. A status change still follows business transaction → durable
+outbox → dispatcher → shared Subject → gateway; client messages cannot create a
+status transition or broadcast arbitrary status data. The gateway unsubscribes
+from the bus during application shutdown, and Socket.IO removes room membership
+when a socket disconnects.
+
+This step provides live events only. Reconnect authenticates again and requires a
+fresh authorized `join`; it does not replay history or enable Socket.IO connection
+state recovery. The SSE endpoint below uses the durable `RentalReplayService`.
+Outbox publication is at-least-once, so duplicate event IDs remain possible and
+clients should apply updates idempotently. Rooms and the bus remain local to one
+API instance; multiple replicas require a separately designed broadcast mechanism.
+
+Real-client tests in `test/e2e/rental-sockets.e2e-spec.ts` cover handshake rejection,
+owner/staff/foreign joins, strict payload validation, HTTP → outbox → room delivery
+to two same-room clients with a different-room control, polling and reconnect.
+`src/realtime/rental-events.gateway.spec.ts` checks delayed membership ack,
+disconnect races, safe unexpected errors and bus subscription cleanup.
+
+Course examples: `code/18_Realtime/stages/08-nest-rxjs/src/events.gateway.ts`
+(Nest gateway), `06-socketio.mjs` (rooms/ack), and `09-auth-handshake.mjs`
+(connection middleware/Principal). This app adds ownership checks and awaited
+membership and retains the existing opaque-token auth rather than adding JWT.
+Official references: [Nest gateways](https://docs.nestjs.com/websockets/gateways),
+[Socket.IO middleware](https://socket.io/docs/v4/middlewares/), and
+[Socket.IO rooms](https://socket.io/docs/v4/rooms/).
+
+### SSE rental history and live events (homework 18, step 8)
+
+`GET /rentals/:id/events` uses the existing HTTP Bearer authentication and the
+owner/staff read policy. It streams the same public rental events as Socket.IO,
+with retained history and reconnect support supplied by `RentalReplayService`.
+The `@Sse()` controller belongs to the API-only `RentalRealtimeModule`.
+
+Set `CLIENT_TOKEN`, `RENTAL_ID`, and, for reconnect, `LAST_EVENT_ID` locally;
+these placeholders are not credentials to commit. Then, for example:
+
+```sh
+API_URL=http://localhost:3000
+curl -i -N -H "Authorization: Bearer ${CLIENT_TOKEN}" \
+  "${API_URL}/rentals/${RENTAL_ID}/events"
+
+curl -i -N -H "Authorization: Bearer ${CLIENT_TOKEN}" \
+  -H "Last-Event-ID: ${LAST_EVENT_ID}" \
+  "${API_URL}/rentals/${RENTAL_ID}/events"
+```
+
+The response has `Content-Type: text/event-stream`, private/no-store
+cache headers and `X-Accel-Buffering: no`. Each domain message has UUID `id`,
+`event: rental.status`, and JSON `data` containing the immutable public contract;
+a blank line terminates the frame. Embedded newlines in string values are JSON
+escaped. Private email delivery context and internal bigint positions are omitted.
+Each domain message includes `retry: 1000`. Initial `connected` and heartbeat
+comments every 15 seconds have **no ID or data** and do not move the cursor.
+
+Without `Last-Event-ID`, all retained events for that rental are replayed before
+waiting for live changes. With a known UUID from that rental, only subsequent
+events are returned. Committed events do not need to have been published or
+acknowledged by the outbox relay to appear in history. Later publication of a
+replayed event does not repeat it within that subscription. A cursor at the latest
+event opens an idle stream with comment frames and waits for new data.
+History persists across API restart, including events whose realtime deliveries
+were already processed. No events are invented for pre-outbox rentals.
+
+Authentication, rental-ID validation, cursor header shape and asynchronous
+access/cursor resolution finish **before** SSE headers are sent. Header shape
+checks reject empty/duplicate `Last-Event-ID`; the replay service checks ownership
+before validating UUID format and resolving cursor scope. Invalid/unknown/foreign
+UUID cursors return HTTP 400. Errors before opening use the existing HTTP
+problem+json responses; errors after opening close the connection with sanitized
+logging, without serializing private diagnostics or generating a replacement ID.
+Reconnect resumes using the client's last completely received UUID. End-to-end
+exactly-once application is not guaranteed; clients apply events idempotently.
+
+Nest `@Sse()` serializes `MessageEvent` values and owns HTTP writes, drain handling
+and disconnect cancellation. The controller awaits access/cursor preparation,
+then maps replay events to explicit UUID IDs and public data. A small generic
+`withSseHeartbeats` RxJS helper adds comments without knowing about rentals;
+it stops its timer when the source completes, fails or is unsubscribed.
+Replay-service shutdown completes active streams, including their heartbeats.
+Disconnect during setup does not subscribe to the prepared stream; an in-flight
+DB query may finish, but its result is discarded after cancellation.
+
+There is no custom writer, byte queue or per-connection 64 KiB cap. Nest queues
+Observable emissions for writing, so slow-client buffering is not explicitly
+bounded by this application. A byte limit would need a separate transport policy.
+Every data frame has an explicit UUID; comment-only frames have no ID. This avoids
+Nest's automatic numeric IDs for messages missing an ID. The controller catches
+stream errors and closes safely before Nest can serialize raw error details.
+The lecturer's `code/18_Realtime/stages/03-sse.mjs` illustrates SSE framing and
+reconnect; this endpoint uses durable history and checks access before opening.
+
+The native browser `EventSource` cannot set the required Authorization header;
+use an authenticated fetch-stream client, curl, or the headless HTTP client for
+now. Cookie-based browser login remains separate coursework. Socket.IO reconnect
+still requires a new authorized join and does not itself replay this history.
+The application remains a single API instance with its local relay; no Redis or
+multi-instance broadcast is added. The numeric `Last-Event-ID: 3` and literal four
+status transitions in the original homework are not claimed as fulfilled: this
+API uses UUID cursors and the agreed rental lifecycle.
+
+`test/e2e/rental-sse.e2e-spec.ts` covers real HTTP errors, wire frames, unpublished
+history, live HTTP → outbox delivery, reconnect/dedup, disconnect cleanup,
+post-header DB failure, OpenAPI and application restart. Controller and generic heartbeat unit tests cover public mapping, safe errors,
+synchronous/asynchronous completion and timer/subscription cleanup.
+Official references: [SSE protocol](https://html.spec.whatwg.org/multipage/server-sent-events.html),
+[Nest SSE](https://docs.nestjs.com/techniques/server-sent-events), and
+[Node HTTP write/drain](https://nodejs.org/api/http.html#responsewritechunk-encoding-callback).
+
+### Headless room-isolation demo (homework 18, step 9)
+
+Prerequisites: Node 24.9+, pnpm 10.24.0, a running Docker daemon and full project
+(including development) dependencies. From the repository root:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+node scripts/realtime-demo.mjs
+# MODE=different-rooms
+# A_RECEIVED=1
+# B_RECEIVED=0
+
+node scripts/realtime-demo.mjs --same-room
+# MODE=same-room
+# A_RECEIVED=1
+# B_RECEIVED=1
+```
+
+Both commands must exit 0. `pnpm demo:realtime` and
+`pnpm demo:realtime --same-room` are equivalent shortcuts. On Rancher Desktop,
+if needed, set the same Docker variables as the integration tests:
+
+```sh
+export DOCKER_HOST=unix:///Users/$(whoami)/.rd/docker.sock
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
+
+Each run starts its own disposable PostgreSQL 16 container, runs the compiled
+migrations, seeds one owner and a catalog with two copies, then starts the real
+AppModule on an ephemeral loopback port. It creates two BOOKED rentals through
+HTTP. Credentials are randomly generated in memory, never printed or persisted.
+Existing `DB_*` and `AUTH_IDENTITIES` settings are overridden for the isolated
+process and restored on cleanup. No working database or running API is needed.
+No email worker starts; email tasks remain in the disposable database.
+
+Both Socket.IO clients use the same owner's credentials. Listeners are installed
+before connect; the command runs only after both authorized join acknowledgements.
+Default mode joins rentals A and B; `--same-room` joins A twice using the same
+runner. A real staff-authenticated `POST /rentals/:id/issue` changes A to ACTIVE,
+commits the outbox event and lets the application's dispatcher publish it.
+
+The runner counts distinct received event IDs for rental A's ACTIVE status,
+including messages arriving before the HTTP response. It observes another 1.5
+seconds after that response, so B's absence is measured over a finite window.
+Duplicate publication of the same event ID counts once. Same-room mode also
+checks that both clients received the same event ID. This demonstrates local
+room isolation; it does not prove indefinite non-delivery or multi-instance routing.
+
+Connection, join and HTTP operations have five-second timeouts. Missing events,
+unexpected counts, disconnected clients, auth/join/HTTP errors or invalid CLI
+arguments fail with exit 1. Sockets and the fixture API/database are closed in
+`finally` blocks. Startup requires a usable Docker daemon; the container library
+applies its own startup timeout. First run may need to download postgres:16-alpine.
+
+`pnpm test:realtime-demo` tests both modes and controlled failure scenarios using
+local HTTP/Socket.IO servers, without Docker. The two CLI commands above exercise
+the actual backend, migrations and transactional outbox. Source:
+`scripts/realtime-demo.mjs` (measurement) and
+`src/scripts/realtime-demo-fixture.ts` (isolated environment).
+
+## Trade-offs: WebSocket vs SSE
+
+This project uses Socket.IO on the WebSocket side, with HTTP polling fallback.
+The comparison includes Socket.IO's extra protocol features; a raw WebSocket
+connection does not supply rooms, acknowledgements or automatic reconnect.
+
+| Criterion | WebSocket / Socket.IO | SSE in this application |
+| --- | --- | --- |
+| Direction | Bidirectional: commands, acknowledgements and server events share the connection. | Server → client stream; booking/issue/return commands remain HTTP requests. |
+| Reconnect and replay | Socket.IO can reconnect, but this gateway requires another authorized join and does not replay missed events. | Reconnect with the last event UUID; the replay service reads subsequent durable DB history. A fetch-based client implements its own reconnect. |
+| Infrastructure | Supports upgrades; Socket.IO may fall back to polling. Multiple nodes need coordinated fanout and polling session affinity. | Ordinary streaming HTTP; proxies must avoid buffering and allow long-lived responses. Multiple nodes still need shared history and per-node wakeups. |
+| Cost per event | WebSocket frames have compact framing; Socket.IO adds its own envelope. Current gateway fans out local bus events without reading history per client. | Text framing adds id/event/data fields. This implementation reads DB history per subscription on hints, including catch-up pages. Actual cost needs measurement. |
+| Authentication | Current handshake uses auth.token, then join checks rental access. | Current endpoint requires an Authorization header. Native browser EventSource cannot set it; use an authenticated fetch stream or a future cookie-based design. |
+| Slow clients | Delivery/buffering policy must be considered; emitting an event is not proof of UI receipt. | Nest queues writes; there is no application byte cap. A slow client can grow buffering; durable history permits reconnect but does not bound that queue. |
+
+For one-way rental notifications I would keep SSE with the existing HTTP commands
+and durable UUID replay. In this project's current Bearer-auth setup that means
+an authenticated fetch-stream client with explicit reconnect and idempotent event
+application; a later cookie login could allow native EventSource. Socket.IO is
+useful when the UI also needs frequent bidirectional realtime interactions.
+
+### Memory, restart and two API instances
+
+The Subject and Socket.IO room membership are process-local. PostgreSQL keeps
+outbox history across API restarts, including committed events not yet published;
+SSE resumes after a UUID cursor, while Socket.IO reconnects and joins again without
+history. Replay reads pages of 100 but retains no separate RAM event history;
+retained DB rows have no pruning policy, and slow SSE clients have no byte cap.
+Client code must deduplicate by eventId across reconnects and avoid treating a
+server-side publication acknowledgement as application-level receipt.
+
+With two API instances, clients on the other process can miss local publications.
+A Socket.IO adapter such as Redis forwards room emits between nodes; polling also
+needs sticky sessions, while WebSocket-only transport avoids that polling need.
+The adapter alone does not wake our SSE replay subscriptions: each replica needs
+its own cross-process invalidation subscription (or a separately designed polling
+strategy) to reread the shared DB. Competing outbox consumers that acknowledge one
+realtime delivery globally do not automatically notify every process. These are
+required design changes for scaling; they are not implemented in this homework.
+
+Sources: [Socket.IO multiple nodes](https://socket.io/docs/v4/using-multiple-nodes/),
+[Redis adapter fanout](https://socket.io/docs/v4/redis-adapter/),
+[Nest SSE lifecycle](https://docs.nestjs.com/techniques/server-sent-events).
+
+## Homework 18 verification
+
+Start from a fresh checkout of hw-18 with Node 24.9+, pnpm 10.24.0 and Docker:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+node scripts/realtime-demo.mjs
+node scripts/realtime-demo.mjs --same-room
+```
+
+The demo owns isolated fixtures, ephemeral credentials, migrations and cleanup;
+no .env file, real email provider, Redis or running development API is required.
+Use the Rancher Docker settings in the demo section if needed. The source is
+compiled with TypeScript decorator metadata; runtime imports use dist, not tsx.
+
+### Isolated curl SSE/replay smoke
+
+The following command uses the same disposable fixture and real HTTP actions.
+Credentials stay in memory and enter curl through stdin, not command arguments.
+It reads BOOKED/ACTIVE history, remembers ACTIVE's UUID, returns the rental, then
+asserts that reconnect delivers only RETURNED. Curl exit 28 is expected because
+--max-time deliberately ends each otherwise open stream; other exits fail.
+The fixture always closes in finally. This is a replay smoke; the SSE E2E suite
+below additionally tests status changes while a connection is already open.
+
+```sh
+node --input-type=module <<'JS'
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { createRealtimeDemoFixture } from './dist/scripts/realtime-demo-fixture.js';
+const fixture = await createRealtimeDemoFixture();
+try {
+  const { url, rentalA, clientToken, staffToken } = fixture;
+  async function command(action) {
+    const response = await fetch(`${url}/rentals/${rentalA}/${action}`, {
+      method: 'POST', headers: { Authorization: `Bearer ${staffToken}` },
+      signal: AbortSignal.timeout(5000),
+    });
+    assert.equal(response.status, 200);
+    await response.arrayBuffer();
+  }
+  async function stream(cursor) {
+    return new Promise((resolve, reject) => {
+      const child = spawn('curl', ['--silent', '--no-buffer', '--max-time', '2',
+        '--dump-header', '-', '--header', '@-', `${url}/rentals/${rentalA}/events`]);
+      let output = '';
+      child.stdout.on('data', chunk => { output += chunk; });
+      child.on('error', reject);
+      child.stdin.on('error', reject);
+      child.on('close', code => {
+        if (code !== 0 && code !== 28) return reject(new Error('curl failed'));
+        resolve(output);
+      });
+      child.stdin.end(`Authorization: Bearer ${clientToken}\n` +
+        (cursor ? `Last-Event-ID: ${cursor}\n` : ''));
+    });
+  }
+  await command('issue');
+  const history = await stream();
+  assert.match(history, /content-type: text\/event-stream/i);
+  const ids = [...history.matchAll(/^id: (.+)$/gm)].map(match => match[1].trim());
+  assert.equal(ids.length, 2);
+  assert.match(history, /event: rental.status/);
+  assert.match(history, /"status":"ACTIVE"/);
+  await command('return');
+  const replay = await stream(ids[1]);
+  assert.equal([...replay.matchAll(/^id: (.+)$/gm)].length, 1);
+  assert.match(replay, /"status":"RETURNED"/);
+  assert.ok(!replay.includes(`id: ${ids[1]}\n`));
+  console.log(history, replay, 'SSE_REPLAY_OK');
+} finally {
+  await fixture.close();
+}
+JS
+```
+
+### Automated checks and exact grading differences
+
+```sh
+pnpm exec jest --runInBand
+pnpm test:realtime-demo
+pnpm test:integration
+pnpm test:e2e
+pnpm test:consumer
+pnpm verify:provider
+pnpm openapi:generate
+pnpm openapi:lint
+```
+
+Run test commands sequentially: integration/E2E/consumer/provider commands share
+and rebuild dist-test. Leave PACT_BROKER_URL unset for local-file contract checks;
+consumer verification generates the Pact file needed by provider verification.
+No Broker publication is required for this local verification. OpenAPI generation
+is metadata-only and should leave openapi/openapi.yaml unchanged.
+
+| Original requirement | This repository / reproduction |
+| --- | --- |
+| orders routes, orders rooms and order.status | Agreed domain adaptation: /rentals/:id/events, rentals:<id>, rental.status. HTTP/SSE Bearer and socket auth.token are required. Anonymous literal curl commands return 401. |
+| SSE Content-Type and id/event/data | Isolated curl smoke above; full SSE E2E also checks live outbox delivery, private-field exclusion and HTTP errors before stream headers. |
+| Numeric Last-Event-ID: 3 after at least four status changes | Literal criterion is not met. The external cursor is a UUID, mapped to internal per-rental position; numeric 3 returns 400. The smoke uses legal BOOKED → ACTIVE → RETURNED history. E2E checks ordered UUID replay/restart and pending publications; it is not evidence of four literal numeric transitions. |
+| Shared Subject/history for both transports | One local bus; Socket.IO sends live publications, SSE reads durable outbox history on bus hints. Committed unpublished events are replayable, and history survives restart. |
+| Two room-isolation demo runs | Both commands above must exit 0 with A=1/B=0, then A=1/B=1. Same runner, measured event IDs. |
+| Trade-offs table and two-instance explanation | Table above and explicit adapter/sticky-session/SSE-wakeup limitations. |
+
+These domain/cursor choices were agreed during implementation; acceptance by the
+course reviewer is still external. No numeric facade, synthetic status changes
+or orders aliases are added solely to make literal commands appear compatible.
+Submit the hw-18 PR link to the LMS after reviewing and committing the final docs.
+Commit, push, PR creation and LMS submission are separate student actions.
+
+## Source layout and module ownership
 
 Entities live with their functionality:
 
@@ -1687,11 +2490,11 @@ subject, plain-text body and caller-supplied idempotency key, without knowing
 about rentals or database entities. `EmailModule` owns its Resend client and
 configuration providers, and exports only `EmailService` for other modules.
 
-`RentalConfirmationWorker` builds the rental-specific subject, body and stable
-idempotency key. `RentalConfirmationModule` owns and exports this provider,
+`RentalNotificationWorker` builds the rental-specific subject, body and stable
+idempotency key. `RentalNotificationModule` owns and exports this provider,
 importing `JobsModule` and `EmailModule`. `JobsModule` owns the queue processing
 service; using it for offline demos does not require email credentials.
-`WorkerModule` composes database and confirmation modules for the standalone
+`WorkerModule` composes database and notification modules for the standalone
 entry point. A module groups and exposes providers; a service does the work.
 
 ### Transaction retries (homework 14)

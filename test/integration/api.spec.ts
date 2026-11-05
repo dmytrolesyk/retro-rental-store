@@ -1,3 +1,14 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
+import { AuthModule } from '../../src/auth/auth.module';
+import { AUTH_IDENTITIES } from '../../src/auth/auth.config';
+import {
+  clientPrincipal,
+  otherPrincipal,
+  testIdentities,
+  clientAuthorization,
+  otherAuthorization,
+  staffAuthorization,
+} from './testkit/auth';
 import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -8,6 +19,9 @@ import { CatalogController } from '../../src/catalog/catalog.controller';
 import { CatalogService } from '../../src/catalog/catalog.service';
 import { RentalsController } from '../../src/rentals/rentals.controller';
 import { RentalsService } from '../../src/rentals/rentals.service';
+import { IssueRental } from '../../src/rentals/use-cases/issue-rental';
+import { CancelRental } from '../../src/rentals/use-cases/cancel-rental';
+import { ReturnRental } from '../../src/rentals/use-cases/return-rental';
 import { RentalsRepository } from '../../src/rentals/rentals.repository';
 import { CreateRentalResponseInterceptor } from '../../src/rentals/create-rental-response.interceptor';
 import { configureApp } from '../../src/configure-app';
@@ -20,6 +34,8 @@ import {
   Rental,
   RentalItem,
   RentalJob,
+  RentalOutboxEvent,
+  RentalOutboxDelivery,
   Renter,
 } from '../../src/database/entities';
 import { RentalRequest } from '../../src/rentals/entities/rental-request.entity';
@@ -30,8 +46,10 @@ import type { PostgresTestkit } from './testkit/postgres';
 interface CreatedRental {
   rentalId: string;
   gameCopyId: string;
-  chargedAmount: number;
-  balance: number;
+  status: 'BOOKED';
+  bookedAt: string;
+  bookingExpiresAt: string;
+  costPerDay: number;
 }
 interface Page {
   items: { gameId?: string; rentalId?: string }[];
@@ -48,15 +66,23 @@ describe('API contracts with real PostgreSQL', () => {
     cleanup = () => kit.stop();
     // Focused HTTP boundary tests. Full AppModule E2E belongs to the next plan point.
     const module = await Test.createTestingModule({
+      imports: [AuthModule],
       controllers: [CatalogController, RentalsController],
       providers: [
         CatalogService,
         RentalsService,
+        IssueRental,
+        CancelRental,
+        ReturnRental,
         RentalsRepository,
+        RentalStatusEventWriter,
         CreateRentalResponseInterceptor,
         { provide: DataSource, useValue: kit.dataSource },
       ],
-    }).compile();
+    })
+      .overrideProvider(AUTH_IDENTITIES)
+      .useValue(testIdentities)
+      .compile();
     app = module.createNestApplication<INestApplication<App>>({ logger: false });
     cleanup = async () => {
       try {
@@ -76,43 +102,164 @@ describe('API contracts with real PostgreSQL', () => {
   });
 
   async function catalog() {
-    const data = aCatalog();
-    const db = kit.dataSource;
-    await db.getRepository(Game).save(data.game);
-    await db.getRepository(Platform).save(data.platform);
-    await db.getRepository(GamePlatform).save(data.gamePlatform);
-    await db.getRepository(GameCopy).save(data.copy);
-    return data;
+    const catalogFixture = aCatalog();
+    const dataSource = kit.dataSource;
+    await dataSource.getRepository(Game).save(catalogFixture.game);
+    await dataSource.getRepository(Platform).save(catalogFixture.platform);
+    await dataSource.getRepository(GamePlatform).save(catalogFixture.gamePlatform);
+    await dataSource.getRepository(GameCopy).save(catalogFixture.copy);
+    return catalogFixture;
   }
   async function fixture() {
-    const data = await catalog();
-    const renter = await kit.dataSource.getRepository(Renter).save(aRenter());
+    const catalogFixture = await catalog();
+    const renter = await kit.dataSource
+      .getRepository(Renter)
+      .save(aRenter({ renterId: clientPrincipal.renterId }));
     return {
       renter,
-      data,
+      catalogFixture,
       input: {
         renterId: renter.renterId,
-        gameId: data.game.gameId,
-        platformId: data.platform.platformId,
+        gameId: catalogFixture.game.gameId,
+        platformId: catalogFixture.platform.platformId,
       },
     };
   }
-  const post = () => request(app.getHttpServer()).post('/rentals');
+  const post = () =>
+    request(app.getHttpServer()).post('/rentals').set('Authorization', clientAuthorization);
+
+  it.each([undefined, 'Basic abc', 'Bearer invalid', `Bearer ${'x'.repeat(64)}`])(
+    'rejects missing, malformed or unknown credentials before reading rentals',
+    async authorization => {
+      const call = request(app.getHttpServer()).get('/rentals');
+      if (authorization) call.set('Authorization', authorization);
+      const response = await call.expect(401);
+      expect(response.get('WWW-Authenticate')).toBe('Bearer');
+      expect(response.get('Content-Type')).toMatch(/application\/problem\+json/);
+      expect(JSON.stringify(response.body)).not.toContain(testIdentities[0].token);
+    },
+  );
+
+  it('rejects duplicate Authorization headers instead of choosing one identity', async () => {
+    await request(app.getHttpServer())
+      .get('/rentals')
+      .set({ Authorization: [clientAuthorization, staffAuthorization] })
+      .expect(401);
+  });
+
+  it('allows owner and staff reads, but refuses another client', async () => {
+    const renter = await kit.dataSource
+      .getRepository(Renter)
+      .save(aRenter({ renterId: clientPrincipal.renterId }));
+    const rental = await kit.dataSource.getRepository(Rental).save(aRental(renter.renterId));
+    const path = `/rentals/${rental.rentalId}`;
+    await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', clientAuthorization)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
+    await request(app.getHttpServer())
+      .get(path)
+      .set('Authorization', otherAuthorization)
+      .expect(403);
+  });
+
+  it('scopes every client page in SQL before pagination, even with another client cursor', async () => {
+    const dataSource = kit.dataSource;
+    for (const actor of [clientPrincipal, otherPrincipal]) {
+      await dataSource.getRepository(Renter).save(aRenter({ renterId: actor.renterId }));
+      await dataSource
+        .getRepository(Rental)
+        .save(Array.from({ length: 3 }, () => aRental(actor.renterId)));
+    }
+    let cursor: string | null = null;
+    const seen: string[] = [];
+    do {
+      const response = await request(app.getHttpServer())
+        .get('/rentals')
+        .set('Authorization', clientAuthorization)
+        .query({ limit: 1, ...(cursor ? { cursor } : {}) })
+        .expect(200);
+      const page = response.body as {
+        items: { rentalId: string; renterId: string }[];
+        next_cursor: string | null;
+      };
+      expect(page.items).toHaveLength(1);
+      expect(page.items[0].renterId).toBe(clientPrincipal.renterId);
+      seen.push(page.items[0].rentalId);
+      cursor = page.next_cursor;
+    } while (cursor);
+    expect(new Set(seen).size).toBe(3);
+    const other = await request(app.getHttpServer())
+      .get('/rentals?limit=1')
+      .set('Authorization', otherAuthorization)
+      .expect(200);
+    const foreignCursor = (other.body as Page).next_cursor;
+    const response = await request(app.getHttpServer())
+      .get('/rentals')
+      .set('Authorization', clientAuthorization)
+      .query({ limit: 100, cursor: foreignCursor })
+      .expect(200);
+    const page = response.body as { items: { renterId: string }[] };
+    expect(page.items.every(item => item.renterId === clientPrincipal.renterId)).toBe(true);
+  });
+
+  it('rejects owner/role spoofing before idempotency, payment or rental writes', async () => {
+    const { input } = await fixture();
+    await post()
+      .set('Idempotency-Key', 'foreign-owner-0001')
+      .send({ ...input, renterId: otherPrincipal.renterId })
+      .expect(403);
+    await request(app.getHttpServer())
+      .post('/rentals')
+      .set('Authorization', staffAuthorization)
+      .set('Idempotency-Key', 'staff-create-0001')
+      .send(input)
+      .expect(403);
+    await post()
+      .set('Idempotency-Key', 'forged-role-0001')
+      .send({ ...input, role: 'staff' })
+      .expect(400);
+    for (const table of [
+      Rental,
+      RentalItem,
+      RentalJob,
+      RentalRequest,
+      RentalOutboxEvent,
+      RentalOutboxDelivery,
+    ]) {
+      expect(await kit.dataSource.getRepository(table).count()).toBe(0);
+    }
+    expect(
+      (await kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: input.renterId }))
+        .balance,
+    ).toBe(10000);
+  });
 
   it('creates and reads a rental with a stable public response', async () => {
-    const { input, data } = await fixture();
-    const result = await post().set('Idempotency-Key', 'create-0001').send(input).expect(201);
-    const body = result.body as CreatedRental;
+    const { input, catalogFixture } = await fixture();
+    const response = await post().set('Idempotency-Key', 'create-0001').send(input).expect(201);
+    const body = response.body as CreatedRental;
     expect(body.rentalId).toEqual(expect.any(String));
+    expect(body.bookedAt).toEqual(expect.any(String));
+    expect(body.bookingExpiresAt).toEqual(expect.any(String));
     expect(body).toEqual({
       rentalId: body.rentalId,
-      gameCopyId: data.copy.gameCopyId,
-      chargedAmount: 2500,
-      balance: 7500,
+      gameCopyId: catalogFixture.copy.gameCopyId,
+      status: 'BOOKED',
+      costPerDay: 2500,
+      bookedAt: body.bookedAt,
+      bookingExpiresAt: body.bookingExpiresAt,
     });
-    expect(result.get('Location')).toBe(`/rentals/${body.rentalId}`);
-    expect(result.get('Idempotency-Replay')).toBe('false');
-    const read = await request(app.getHttpServer()).get(`/rentals/${body.rentalId}`).expect(200);
+    expect(response.get('Location')).toBe(`/rentals/${body.rentalId}`);
+    expect(response.get('Idempotency-Replay')).toBe('false');
+    const read = await request(app.getHttpServer())
+      .get(`/rentals/${body.rentalId}`)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     expect(read.body).toMatchObject({
       rentalId: body.rentalId,
       renterId: input.renterId,
@@ -122,27 +269,30 @@ describe('API contracts with real PostgreSQL', () => {
 
   it('replays concurrent retries once and persists the response across service instances', async () => {
     const { input } = await fixture();
-    const results = await Promise.all([
+    const responses = await Promise.all([
       post().set('Idempotency-Key', 'parallel-0001').send(input),
       post().set('Idempotency-Key', 'parallel-0001').send(input),
     ]);
-    expect(results.map(result => result.status)).toEqual([201, 201]);
-    expect(results[0].body).toEqual(results[1].body);
-    expect(results.map(result => result.get('Idempotency-Replay')).sort()).toEqual([
+    expect(responses.map(response => response.status)).toEqual([201, 201]);
+    expect(responses[0].body).toEqual(responses[1].body);
+    expect(responses.map(response => response.get('Idempotency-Replay')).sort()).toEqual([
       'false',
       'true',
     ]);
     const replay = await new RentalsService(
       kit.dataSource,
       new RentalsRepository(kit.dataSource),
-    ).create(input, 'parallel-0001');
-    expect(replay).toEqual({ response: results[0].body as CreatedRental, replayed: true });
-    for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
+      new RentalStatusEventWriter(),
+    ).create(input, 'parallel-0001', clientPrincipal);
+    expect(replay).toEqual({ response: responses[0].body as CreatedRental, replayed: true });
+    expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(0);
+    expect(await kit.dataSource.getRepository(RentalOutboxDelivery).count()).toBe(2);
+    for (const table of [Rental, RentalItem, RentalRequest, RentalOutboxEvent]) {
       await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(1);
     }
     await expect(
       kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: input.renterId }),
-    ).resolves.toMatchObject({ balance: 7500 });
+    ).resolves.toMatchObject({ balance: 10000 });
   });
 
   it('ignores JSON property order and UUID case but rejects a different validated body', async () => {
@@ -170,7 +320,7 @@ describe('API contracts with real PostgreSQL', () => {
   it('accepts only one of two concurrent different bodies for the same key', async () => {
     const { input } = await fixture();
     const other = await catalog();
-    const results = await Promise.all([
+    const responses = await Promise.all([
       post().set('Idempotency-Key', 'different-race-0001').send(input),
       post()
         .set('Idempotency-Key', 'different-race-0001')
@@ -180,13 +330,13 @@ describe('API contracts with real PostgreSQL', () => {
           platformId: other.platform.platformId,
         }),
     ]);
-    expect(results.map(result => result.status).sort()).toEqual([201, 422]);
-    for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
+    expect(responses.map(response => response.status).sort()).toEqual([201, 422]);
+    for (const table of [Rental, RentalItem, RentalRequest]) {
       await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(1);
     }
     await expect(
       kit.dataSource.getRepository(Renter).findOneByOrFail({ renterId: input.renterId }),
-    ).resolves.toMatchObject({ balance: 7500 });
+    ).resolves.toMatchObject({ balance: 10000 });
   });
 
   it('rolls back the key, rental, job and debit if storing the response fails', async () => {
@@ -204,7 +354,14 @@ describe('API contracts with real PostgreSQL', () => {
         .expect(500);
       expect(failure.body).toMatchObject({ status: 500, detail: 'Internal server error' });
       expect(JSON.stringify(failure.body)).not.toContain('Injected');
-      for (const table of [Rental, RentalItem, RentalJob, RentalRequest]) {
+      for (const table of [
+        Rental,
+        RentalItem,
+        RentalJob,
+        RentalRequest,
+        RentalOutboxEvent,
+        RentalOutboxDelivery,
+      ]) {
         await expect(kit.dataSource.getRepository(table).count()).resolves.toBe(0);
       }
       await expect(
@@ -217,13 +374,17 @@ describe('API contracts with real PostgreSQL', () => {
     await post().set('Idempotency-Key', 'storage-failure-0001').send(input).expect(201);
   });
 
-  it('rolls back a failed checkout so the same key can be retried after replenishing balance', async () => {
+  it('does not reserve a failed booking key and retries after the copy is released', async () => {
     const { input } = await fixture();
-    await kit.dataSource.getRepository(Renter).update(input.renterId, { balance: 0 });
-    await post().set('Idempotency-Key', 'balance-retry-0001').send(input).expect(409);
-    await expect(kit.dataSource.getRepository(RentalRequest).count()).resolves.toBe(0);
-    await kit.dataSource.getRepository(Renter).update(input.renterId, { balance: 10000 });
-    await post().set('Idempotency-Key', 'balance-retry-0001').send(input).expect(201);
+    const first = await post().set('Idempotency-Key', 'first-booking-0001').send(input).expect(201);
+    await post().set('Idempotency-Key', 'booking-retry-0001').send(input).expect(409);
+    await expect(kit.dataSource.getRepository(RentalRequest).count()).resolves.toBe(1);
+    await request(app.getHttpServer())
+      .post(`/rentals/${(first.body as CreatedRental).rentalId}/cancel`)
+      .set('Authorization', staffAuthorization)
+      .send({ reason: 'Release for retry' })
+      .expect(200);
+    await post().set('Idempotency-Key', 'booking-retry-0001').send(input).expect(201);
     await post().set('Idempotency-Key', 'copy-taken-0001').send(input).expect(409);
   });
 
@@ -251,8 +412,11 @@ describe('API contracts with real PostgreSQL', () => {
       { ...input, platformId: [input.platformId] },
       [input],
     ]) {
-      const result = await post().set('Idempotency-Key', 'invalid-dto-0001').send(body).expect(400);
-      expect(result.get('Content-Type')).toMatch(/application\/problem\+json/);
+      const response = await post()
+        .set('Idempotency-Key', 'invalid-dto-0001')
+        .send(body)
+        .expect(400);
+      expect(response.get('Content-Type')).toMatch(/application\/problem\+json/);
     }
     for (const key of ['short', 'x'.repeat(129)]) {
       await post().set('Idempotency-Key', key).send(input).expect(400);
@@ -273,44 +437,53 @@ describe('API contracts with real PostgreSQL', () => {
       ['/rentals/not-a-uuid', 400],
       ['/unknown', 404],
     ] as const) {
-      const result = await request(app.getHttpServer()).get(path).expect(status);
-      expect(result.get('Content-Type')).toMatch(/application\/problem\+json/);
-      expect(result.body).toMatchObject({ status, instance: path });
+      const response = await request(app.getHttpServer())
+        .get(path)
+        .set('Authorization', staffAuthorization)
+        .expect(status);
+      expect(response.get('Content-Type')).toMatch(/application\/problem\+json/);
+      expect(response.body).toMatchObject({ status, instance: path });
       for (const field of ['type', 'title', 'detail']) {
-        expect(result.body).toHaveProperty(field, expect.any(String));
+        expect(response.body).toHaveProperty(field, expect.any(String));
       }
     }
     const { input } = await fixture();
-    await post()
-      .set('Idempotency-Key', 'no-renter-0001')
-      .send({ ...input, renterId: randomUUID() })
-      .expect(404);
+    await kit.dataSource.getRepository(Renter).delete(input.renterId);
+    await post().set('Idempotency-Key', 'no-renter-0001').send(input).expect(404);
   });
 
   it('paginates games without duplicates and serves game details with platform IDs', async () => {
-    const data = await Promise.all([catalog(), catalog(), catalog()]);
-    const one = await request(app.getHttpServer()).get('/games?limit=2').expect(200);
+    const catalogFixtures = await Promise.all([catalog(), catalog(), catalog()]);
+    const one = await request(app.getHttpServer())
+      .get('/games?limit=2')
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     const first = one.body as Page;
     expect(first.items).toHaveLength(2);
     expect(first.next_cursor).toEqual(expect.any(String));
     const two = await request(app.getHttpServer())
       .get('/games')
+      .set('Authorization', staffAuthorization)
       .query({ limit: 2, cursor: first.next_cursor })
       .expect(200);
     const second = two.body as Page;
     expect(second.items).toHaveLength(1);
     expect(second.next_cursor).toBeNull();
     expect([...first.items, ...second.items].map(item => item.gameId)).toEqual(
-      data.map(item => item.game.gameId).sort(),
+      catalogFixtures.map(item => item.game.gameId).sort(),
     );
-    const game = data[0];
-    const detail = await request(app.getHttpServer()).get(`/games/${game.game.gameId}`).expect(200);
+    const game = catalogFixtures[0];
+    const detail = await request(app.getHttpServer())
+      .get(`/games/${game.game.gameId}`)
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     expect(detail.body).toMatchObject({
       gameId: game.game.gameId,
       platforms: [{ platformId: game.platform.platformId, name: game.platform.name }],
     });
     await request(app.getHttpServer())
       .get('/rentals')
+      .set('Authorization', staffAuthorization)
       .query({ cursor: first.next_cursor })
       .expect(400);
   });
@@ -318,15 +491,20 @@ describe('API contracts with real PostgreSQL', () => {
   it('paginates rentals and returns an empty terminal page', async () => {
     await request(app.getHttpServer())
       .get('/rentals')
+      .set('Authorization', staffAuthorization)
       .expect(200, { items: [], next_cursor: null });
     const renter = await kit.dataSource.getRepository(Renter).save(aRenter());
     const rentals = await kit.dataSource
       .getRepository(Rental)
       .save([aRental(renter.renterId), aRental(renter.renterId), aRental(renter.renterId)]);
-    const one = await request(app.getHttpServer()).get('/rentals?limit=2').expect(200);
+    const one = await request(app.getHttpServer())
+      .get('/rentals?limit=2')
+      .set('Authorization', staffAuthorization)
+      .expect(200);
     const first = one.body as Page;
     const two = await request(app.getHttpServer())
       .get('/rentals')
+      .set('Authorization', staffAuthorization)
       .query({ limit: 2, cursor: first.next_cursor })
       .expect(200);
     const second = two.body as Page;
@@ -353,21 +531,27 @@ describe('API contracts with real PostgreSQL', () => {
     'cursor=garbage',
     'extra=1',
   ])('rejects invalid pagination: %s', async query => {
-    await request(app.getHttpServer()).get(`/games?${query}`).expect(400);
+    await request(app.getHttpServer())
+      .get(`/games?${query}`)
+      .set('Authorization', staffAuthorization)
+      .expect(400);
   });
 
-  it('publishes exactly five documented operations with required idempotency and problem media types', () => {
+  it('publishes eight documented operations with required idempotency and problem media types', () => {
     const spec = createApiDocument(app);
     expect(Object.keys(spec.paths).sort()).toEqual([
       '/games',
       '/games/{gameId}',
       '/rentals',
       '/rentals/{rentalId}',
+      '/rentals/{rentalId}/cancel',
+      '/rentals/{rentalId}/issue',
+      '/rentals/{rentalId}/return',
     ]);
     const operations = Object.values(spec.paths).flatMap(path =>
       [path.get, path.post].filter(operation => operation !== undefined),
     );
-    expect(operations).toHaveLength(5);
+    expect(operations).toHaveLength(8);
     for (const operation of operations) {
       expect(operation.operationId).toEqual(expect.any(String));
       expect(operation.summary).toEqual(expect.any(String));
@@ -379,6 +563,10 @@ describe('API contracts with real PostgreSQL', () => {
         expect.objectContaining({ name: 'Idempotency-Key', in: 'header', required: true }),
       ]),
     );
+    expect(create.security).toEqual([{ bearer: [] }]);
+    expect(create.responses['401']).toHaveProperty('content.application/problem+json');
+    expect(create.responses['403']).toHaveProperty('content.application/problem+json');
+    expect(spec.paths['/games'].get?.security ?? []).toEqual([]);
     expect(create.responses['422']).toHaveProperty('content.application/problem+json');
     expect(create.responses['201']).toHaveProperty(
       'content.application/json.schema.$ref',

@@ -104,9 +104,9 @@ async function main() {
     } = await client.query("SELECT to_regclass('public.game_copies') IS NOT NULL AS exists");
     let control = { rows: '0', sumPricePerDay: '0' };
     if (table.exists) {
-      const result = await client.query(`SELECT count(*)::text AS rows,
+      const queryResult = await client.query(`SELECT count(*)::text AS rows,
         coalesce(sum(price_per_day), 0)::text AS "sumPricePerDay" FROM public.game_copies`);
-      [control] = result.rows;
+      [control] = queryResult.rows;
     }
     await dump(target, snapshot.id, partial);
     await client.query('COMMIT');

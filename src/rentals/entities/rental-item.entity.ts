@@ -7,7 +7,7 @@ import { Rental } from './rental.entity';
 @Check('rental_items_cost_per_day_check', '"cost_per_day" >= 0')
 @Index('one_active_rental_per_copy', ['gameCopyId'], {
   unique: true,
-  where: '"returned_at" IS NULL',
+  where: '"released_at" IS NULL',
 })
 export class RentalItem {
   @PrimaryColumn({ name: 'rental_id', type: 'uuid', primaryKeyConstraintName: 'rental_items_pkey' })
@@ -22,6 +22,10 @@ export class RentalItem {
 
   @Column({ name: 'returned_at', type: 'timestamptz', nullable: true })
   returnedAt: Date | null;
+
+  // Database-maintained: physical return or booking cancellation; NULL holds the copy.
+  @Column({ name: 'released_at', type: 'timestamptz', nullable: true })
+  releasedAt: Date | null;
 
   // Snapshot in kopecks: changing the copy's current price must not rewrite history.
   @Column({ name: 'cost_per_day', type: 'integer' })

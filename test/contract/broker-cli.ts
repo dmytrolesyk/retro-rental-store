@@ -26,9 +26,9 @@ async function main(): Promise<void> {
         version: config.consumerVersion,
         to: 'prod',
       });
-      const result = await brokerRequest(`/can-i-deploy?${query}`);
-      console.log(JSON.stringify(result, null, 2));
-      assertDeployable(result);
+      const deploymentDecision = await brokerRequest(`/can-i-deploy?${query}`);
+      console.log(JSON.stringify(deploymentDecision, null, 2));
+      assertDeployable(deploymentDecision);
       break;
     }
     default:

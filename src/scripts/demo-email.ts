@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { z } from 'zod';
 import { Renter } from '../database/entities';
 import { createRaceData } from '../database/fixtures/race-data';
-import { RentalConfirmationWorker } from '../jobs/rental-confirmation.worker';
+import { RentalNotificationWorker } from '../jobs/rental-notification.worker';
 import { RentalsModule } from '../rentals/rentals.module';
 import { RentalsService } from '../rentals/rentals.service';
 import { WorkerModule } from '../worker/worker.module';
@@ -22,19 +22,20 @@ async function main(): Promise<void> {
       .email()
       .max(120)
       .parse(process.env.DEMO_EMAIL_TO ?? 'delivered@resend.dev');
-    const db = app.get(DataSource);
-    const fixture = await db.transaction(createRaceData);
-    const renter = (await db.getRepository(Renter).findOneBy({ email: to })) ?? fixture.renters[0];
-    await db.getRepository(Renter).update(renter.renterId, { email: to });
-    const result = await app.get(RentalsService).checkout({
+    const dataSource = app.get(DataSource);
+    const fixture = await dataSource.transaction(createRaceData);
+    const renter =
+      (await dataSource.getRepository(Renter).findOneBy({ email: to })) ?? fixture.renters[0];
+    await dataSource.getRepository(Renter).update(renter.renterId, { email: to });
+    const checkoutReceipt = await app.get(RentalsService).checkout({
       renterId: renter.renterId,
       gameId: fixture.gameId,
       platformId: fixture.platformId,
     });
     console.log(
-      `Created email task ${result.jobId}; retry with: pnpm start:worker ${result.jobId}`,
+      `Created email task ${checkoutReceipt.jobId}; retry with: pnpm start:worker ${checkoutReceipt.jobId}`,
     );
-    await app.get(RentalConfirmationWorker).run([result.jobId]);
+    await app.get(RentalNotificationWorker).run([checkoutReceipt.jobId]);
   } finally {
     await app.close();
   }

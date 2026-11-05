@@ -11,19 +11,19 @@ export class CreateRentalResponseInterceptor implements NestInterceptor<
   CreateRentalResult,
   CreatedRentalDto
 > {
-  constructor(private readonly adapterHost: HttpAdapterHost) {}
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   intercept(
     context: ExecutionContext,
-    next: CallHandler<CreateRentalResult>,
+    callHandler: CallHandler<CreateRentalResult>,
   ): Observable<CreatedRentalDto> {
     const response = context.switchToHttp().getResponse<unknown>();
-    return next.handle().pipe(
-      map(result => {
-        const adapter = this.adapterHost.httpAdapter;
-        adapter.setHeader(response, 'Location', `/rentals/${result.response.rentalId}`);
-        adapter.setHeader(response, 'Idempotency-Replay', String(result.replayed));
-        return result.response;
+    return callHandler.handle().pipe(
+      map(creationResult => {
+        const httpAdapter = this.httpAdapterHost.httpAdapter;
+        httpAdapter.setHeader(response, 'Location', `/rentals/${creationResult.response.rentalId}`);
+        httpAdapter.setHeader(response, 'Idempotency-Replay', String(creationResult.replayed));
+        return creationResult.response;
       }),
     );
   }

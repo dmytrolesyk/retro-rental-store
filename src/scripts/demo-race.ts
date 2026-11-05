@@ -25,13 +25,13 @@ async function main(): Promise<void> {
   }
 }
 
-async function runRace(db: DataSource, rentals: RentalsService): Promise<void> {
-  const fixture = await db.transaction(createRaceData);
+async function runRace(dataSource: DataSource, rentalsService: RentalsService): Promise<void> {
+  const fixture = await dataSource.transaction(createRaceData);
   const started = performance.now();
   // Start all fifty calls before waiting; the database pool supplies connections.
   const outcomes = await Promise.allSettled(
     fixture.renters.map(renter =>
-      rentals.checkout({
+      rentalsService.checkout({
         renterId: renter.renterId,
         gameId: fixture.gameId,
         platformId: fixture.platformId,
@@ -53,7 +53,7 @@ async function runRace(db: DataSource, rentals: RentalsService): Promise<void> {
   }
 
   const state = await readRaceState(
-    db,
+    dataSource,
     fixture.gameId,
     fixture.renters.map(renter => renter.renterId),
   );
@@ -88,17 +88,17 @@ async function runRace(db: DataSource, rentals: RentalsService): Promise<void> {
   );
 }
 
-async function readRaceState(db: DataSource, gameId: string, renterIds: string[]) {
-  const copies = await db.getRepository(GameCopy).find({
+async function readRaceState(dataSource: DataSource, gameId: string, renterIds: string[]) {
+  const copies = await dataSource.getRepository(GameCopy).find({
     where: { gameId },
     relations: { rentalItems: true },
   });
-  const renters = await db.getRepository(Renter).findBy({ renterId: In(renterIds) });
-  const rentals = await db.getRepository(Rental).find({
+  const renters = await dataSource.getRepository(Renter).findBy({ renterId: In(renterIds) });
+  const rentals = await dataSource.getRepository(Rental).find({
     where: { renterId: In(renterIds) },
     relations: { items: true },
   });
-  const jobs = await db.getRepository(RentalJob).countBy({
+  const jobs = await dataSource.getRepository(RentalJob).countBy({
     rentalId: In(rentals.map(rental => rental.rentalId)),
   });
   // A physical copy has capacity 1. Two active rentals would make its stock -1.

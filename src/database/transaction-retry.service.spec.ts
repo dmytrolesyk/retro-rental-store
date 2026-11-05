@@ -24,7 +24,7 @@ describe('TransactionRetryService', () => {
       const { service, transaction } = createService();
       const attempts: number[] = [];
       const onRetry = jest.fn<undefined, [TransactionRetryEvent]>();
-      const result = service.run(
+      const transactionPromise = service.run(
         'REPEATABLE READ',
         (_manager, attempt) => {
           attempts.push(attempt);
@@ -39,7 +39,7 @@ describe('TransactionRetryService', () => {
         { onRetry },
       );
       await jest.runAllTimersAsync();
-      await expect(result).resolves.toBe(13000);
+      await expect(transactionPromise).resolves.toBe(13000);
       expect(attempts).toEqual([1, 2]);
       expect(transaction).toHaveBeenCalledTimes(2);
       expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ code, attempt: 1 }));
@@ -57,11 +57,11 @@ describe('TransactionRetryService', () => {
     const { service, transaction } = createService();
     const error = Object.assign(new Error('conflict'), { code: '40001' });
     const onRetry = jest.fn<undefined, [TransactionRetryEvent]>();
-    const result = service.run('SERIALIZABLE', () => Promise.reject(error), {
+    const transactionPromise = service.run('SERIALIZABLE', () => Promise.reject(error), {
       maxAttempts: 3,
       onRetry,
     });
-    const rejection = expect(result).rejects.toBe(error);
+    const rejection = expect(transactionPromise).rejects.toBe(error);
     await jest.runAllTimersAsync();
     await rejection;
     expect(transaction).toHaveBeenCalledTimes(3);

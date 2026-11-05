@@ -39,16 +39,18 @@ export async function startPostgres(): Promise<PostgresTestkit> {
     dataSource = new DataSource(createDataSourceOptions(environment));
     await dataSource.initialize();
     await dataSource.runMigrations();
-    const db = dataSource;
+    const initializedDataSource = dataSource;
     return {
-      dataSource: db,
+      dataSource: initializedDataSource,
       environment,
       async reset() {
         // Only mapped application tables; retain TypeORM's migration history.
-        const tables = db.entityMetadatas.map(
-          metadata => `"public".${db.driver.escape(metadata.tableName)}`,
+        const tables = initializedDataSource.entityMetadatas.map(
+          metadata => `"public".${initializedDataSource.driver.escape(metadata.tableName)}`,
         );
-        await db.query(`TRUNCATE TABLE ${tables.join(', ')} RESTART IDENTITY CASCADE`);
+        await initializedDataSource.query(
+          `TRUNCATE TABLE ${tables.join(', ')} RESTART IDENTITY CASCADE`,
+        );
       },
       stop,
     };

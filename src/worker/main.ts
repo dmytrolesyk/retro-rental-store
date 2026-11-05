@@ -1,18 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { z } from 'zod';
-import { RentalConfirmationWorker } from '../jobs/rental-confirmation.worker';
+import { RentalNotificationWorker } from '../jobs/rental-notification.worker';
 import { WorkerModule } from './worker.module';
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2).filter(arg => arg !== '--');
-  const jobIds = z.array(z.uuid()).min(1, 'Pass at least one job ID').parse(args);
+  const watch = args.length === 1 && args[0] === '--watch';
+  const jobIds = watch ? [] : z.array(z.uuid()).min(1, 'Pass job IDs or --watch').parse(args);
   const app = await NestFactory.createApplicationContext(WorkerModule, {
-    logger: false,
+    logger: ['error', 'warn'],
     abortOnError: false,
   });
+  const shutdown = new AbortController();
+  const stop = () => {
+    shutdown.abort();
+  };
+  process.once('SIGTERM', stop);
+  process.once('SIGINT', stop);
   try {
-    await app.get(RentalConfirmationWorker).run(jobIds);
+    const worker = app.get(RentalNotificationWorker);
+    if (watch) await worker.runForever(shutdown.signal);
+    else await worker.run(jobIds);
   } finally {
+    process.removeListener('SIGTERM', stop);
+    process.removeListener('SIGINT', stop);
     await app.close();
   }
 }

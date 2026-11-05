@@ -1,7 +1,17 @@
 import { z } from 'zod';
+import { authIdentitiesEnvSchema } from '../auth/auth.config';
 import { databaseEnvSchema } from './database-env.schema';
 
 export const envSchema = databaseEnvSchema.safeExtend({
+  AUTH_IDENTITIES: authIdentitiesEnvSchema,
+  RENTAL_OUTBOX_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform(value => value === 'true'),
+  RENTAL_DEADLINES_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform(value => value === 'true'),
   PORT: z.coerce.number().int().min(1).max(65535),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   TIMEOUT_MS: z.coerce.number().int().positive().default(5000),

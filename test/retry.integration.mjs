@@ -9,7 +9,7 @@ const { DataSource } = require('typeorm');
 const { rentalEntities, Renter } = require('../dist/database/entities');
 const { TransactionRetryService } = require('../dist/database/transaction-retry.service');
 const { randomUUID } = require('node:crypto');
-let db;
+let dataSource;
 let demoEnv;
 
 before(async () => {
@@ -17,7 +17,7 @@ before(async () => {
   assert.ok(url, 'Set TEST_DATABASE_URL to an empty, disposable PostgreSQL database');
   const parsed = new URL(url);
   assert.match(parsed.pathname, /^\/retro_hw14_test_[a-z0-9_]+$/);
-  db = new DataSource({
+  dataSource = new DataSource({
     type: 'postgres',
     url,
     entities: rentalEntities,
@@ -25,12 +25,12 @@ before(async () => {
     installExtensions: false,
     migrations: [fileURLToPath(new URL('../dist/migrations/*.js', import.meta.url))],
   });
-  await db.initialize();
-  const [{ tables }] = await db.query(
+  await dataSource.initialize();
+  const [{ tables }] = await dataSource.query(
     `SELECT count(*)::int AS tables FROM information_schema.tables WHERE table_schema = 'public'`,
   );
   assert.equal(tables, 0, 'Use an empty database; this test does not reset existing data');
-  await db.runMigrations();
+  await dataSource.runMigrations();
   demoEnv = {
     ...process.env,
     DB_HOST: parsed.hostname,
@@ -44,7 +44,7 @@ before(async () => {
 });
 
 after(async () => {
-  if (db?.isInitialized) await db.destroy();
+  if (dataSource?.isInitialized) await dataSource.destroy();
 });
 
 function runDemo() {
@@ -57,7 +57,7 @@ function runDemo() {
 
 async function createRenter() {
   const renterId = randomUUID();
-  await db.getRepository(Renter).insert({
+  await dataSource.getRepository(Renter).insert({
     renterId,
     name: 'Retry integration',
     email: `${renterId}@example.test`,
@@ -82,15 +82,15 @@ test('CLI causes a real 40001 and reruns safely without resetting prior balances
   const another = JSON.parse(second.stdout);
   assert.notEqual(another.renterId, report.renterId);
   assert.equal(another.finalBalance, 13000);
-  return db
+  return dataSource
     .getRepository(Renter)
     .findOneByOrFail({ renterId: report.renterId })
     .then(renter => assert.equal(renter.balance, 13000));
 });
 
 test('CLI accepts additional retryable SQL failures without rejecting a correct final balance', async () => {
-  await db.query('CREATE SEQUENCE retry_extra_conflicts');
-  await db.query(`CREATE FUNCTION add_retry_conflict() RETURNS trigger LANGUAGE plpgsql AS $$
+  await dataSource.query('CREATE SEQUENCE retry_extra_conflicts');
+  await dataSource.query(`CREATE FUNCTION add_retry_conflict() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN
       IF nextval('retry_extra_conflicts') = 1 THEN
         RAISE EXCEPTION 'additional serialization conflict' USING ERRCODE = '40001';
@@ -98,25 +98,25 @@ test('CLI accepts additional retryable SQL failures without rejecting a correct 
       RETURN NEW;
     END; $$`);
   try {
-    await db.query(`CREATE TRIGGER add_retry_conflict BEFORE UPDATE ON renters
+    await dataSource.query(`CREATE TRIGGER add_retry_conflict BEFORE UPDATE ON renters
       FOR EACH ROW WHEN (OLD.name = 'Retry demo renter') EXECUTE FUNCTION add_retry_conflict()`);
-    const result = runDemo();
-    assert.equal(result.status, 0, result.stderr);
-    const report = JSON.parse(result.stdout);
+    const demoProcessResult = runDemo();
+    assert.equal(demoProcessResult.status, 0, demoProcessResult.stderr);
+    const report = JSON.parse(demoProcessResult.stdout);
     assert.equal(report.finalBalance, 13000);
     assert.ok(report.retries.length >= 2);
     assert.equal(report.attempts.A + report.attempts.B, 2 + report.retries.length);
     assert.ok(report.retries.every(event => ['40001', '40P01'].includes(event.code)));
   } finally {
-    await db.query('DROP TRIGGER IF EXISTS add_retry_conflict ON renters');
-    await db.query('DROP FUNCTION add_retry_conflict()');
-    await db.query('DROP SEQUENCE retry_extra_conflicts');
+    await dataSource.query('DROP TRIGGER IF EXISTS add_retry_conflict ON renters');
+    await dataSource.query('DROP FUNCTION add_retry_conflict()');
+    await dataSource.query('DROP SEQUENCE retry_extra_conflicts');
   }
 });
 
 test('real 40P01 retries the victim transaction and commits both operations once', async () => {
   const ids = [await createRenter(), await createRenter()];
-  const service = new TransactionRetryService(db);
+  const service = new TransactionRetryService(dataSource);
   const retries = [];
   let lockedCount = 0;
   let release;
@@ -147,7 +147,10 @@ test('real 40P01 retries the victim transaction and commits both operations once
   assert.equal(retries.length, 1);
   assert.equal(retries[0].code, '40P01');
   for (const renterId of ids) {
-    assert.equal((await db.getRepository(Renter).findOneByOrFail({ renterId })).balance, 10200);
+    assert.equal(
+      (await dataSource.getRepository(Renter).findOneByOrFail({ renterId })).balance,
+      10200,
+    );
   }
 });
 
@@ -157,14 +160,14 @@ test('repeated real 40001 failures stop at the limit and roll back earlier write
   const attempts = [];
   const retries = [];
   await assert.rejects(
-    new TransactionRetryService(db).run(
+    new TransactionRetryService(dataSource).run(
       'REPEATABLE READ',
       async (manager, attempt) => {
         attempts.push(attempt);
         const renter = await manager.findOneByOrFail(Renter, { renterId: target });
         await manager.increment(Renter, { renterId: other }, 'balance', 500);
         // Independent committed transaction invalidates this attempt's snapshot.
-        await db.getRepository(Renter).increment({ renterId: target }, 'balance', 1);
+        await dataSource.getRepository(Renter).increment({ renterId: target }, 'balance', 1);
         await manager.update(Renter, target, { balance: renter.balance + 100 });
       },
       { maxAttempts: 3, onRetry: event => retries.push(event) },
@@ -174,33 +177,37 @@ test('repeated real 40001 failures stop at the limit and roll back earlier write
   assert.deepEqual(attempts, [1, 2, 3]);
   assert.equal(retries.length, 2);
   assert.equal(
-    (await db.getRepository(Renter).findOneByOrFail({ renterId: target })).balance,
+    (await dataSource.getRepository(Renter).findOneByOrFail({ renterId: target })).balance,
     10003,
   );
   assert.equal(
-    (await db.getRepository(Renter).findOneByOrFail({ renterId: other })).balance,
+    (await dataSource.getRepository(Renter).findOneByOrFail({ renterId: other })).balance,
     10000,
   );
 });
 
 test('unrelated SQL failure exits the CLI without hanging either coordinated transaction', async () => {
-  const beforeIds = (await db.getRepository(Renter).find()).map(renter => renter.renterId);
-  await db.query(`CREATE FUNCTION reject_retry_update() RETURNS trigger LANGUAGE plpgsql AS $$
+  const beforeIds = (await dataSource.getRepository(Renter).find()).map(renter => renter.renterId);
+  await dataSource.query(`CREATE FUNCTION reject_retry_update() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN RAISE EXCEPTION 'forced unrelated retry failure'; END; $$`);
   try {
-    await db.query(`CREATE TRIGGER reject_retry_update BEFORE UPDATE ON renters
+    await dataSource.query(`CREATE TRIGGER reject_retry_update BEFORE UPDATE ON renters
       FOR EACH ROW WHEN (OLD.name = 'Retry demo renter') EXECUTE FUNCTION reject_retry_update()`);
-    const result = runDemo();
-    assert.equal(result.status, 1, result.stderr);
-    assert.match(result.stderr, /forced unrelated retry failure/);
-    assert.equal(result.signal, null, 'The CLI should fail itself, not be killed by the timeout');
-    const newRenters = (await db.getRepository(Renter).find()).filter(
+    const demoProcessResult = runDemo();
+    assert.equal(demoProcessResult.status, 1, demoProcessResult.stderr);
+    assert.match(demoProcessResult.stderr, /forced unrelated retry failure/);
+    assert.equal(
+      demoProcessResult.signal,
+      null,
+      'The CLI should fail itself, not be killed by the timeout',
+    );
+    const newRenters = (await dataSource.getRepository(Renter).find()).filter(
       renter => !beforeIds.includes(renter.renterId),
     );
     assert.equal(newRenters.length, 1);
     assert.equal(newRenters[0].balance, 10000);
   } finally {
-    await db.query('DROP TRIGGER IF EXISTS reject_retry_update ON renters');
-    await db.query('DROP FUNCTION reject_retry_update()');
+    await dataSource.query('DROP TRIGGER IF EXISTS reject_retry_update ON renters');
+    await dataSource.query('DROP FUNCTION reject_retry_update()');
   }
 });

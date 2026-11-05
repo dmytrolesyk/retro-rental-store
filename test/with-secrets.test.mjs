@@ -19,7 +19,7 @@ const environment = { ...process.env, PATH: `${temporary}:${process.env.PATH}` }
 
 test('SKIP_VAULT uses the command directly, preserving arguments and DB settings', () => {
   const args = ['two words', 'literal $(must-not-run)'];
-  const result = spawnSync(
+  const processResult = spawnSync(
     'bash',
     [
       wrapper,
@@ -34,8 +34,8 @@ test('SKIP_VAULT uses the command directly, preserving arguments and DB settings
       encoding: 'utf8',
     },
   );
-  assert.equal(result.status, 0, result.stderr);
-  assert.deepEqual(JSON.parse(result.stdout), { args, database: 'wrapper_test' });
+  assert.equal(processResult.status, 0, processResult.stderr);
+  assert.deepEqual(JSON.parse(processResult.stdout), { args, database: 'wrapper_test' });
 });
 
 test('propagates the command exit code and rejects missing command arguments', () => {
@@ -50,12 +50,12 @@ test('propagates the command exit code and rejects missing command arguments', (
 });
 
 test('delegates environment and command arguments to Infisical when bypass is disabled', () => {
-  const result = spawnSync('bash', [wrapper, 'dev', 'node', 'script.js', 'two words'], {
+  const processResult = spawnSync('bash', [wrapper, 'dev', 'node', 'script.js', 'two words'], {
     env: { ...environment, SKIP_VAULT: '0' },
     encoding: 'utf8',
   });
-  assert.equal(result.status, 0, result.stderr);
-  assert.deepEqual(JSON.parse(result.stdout), [
+  assert.equal(processResult.status, 0, processResult.stderr);
+  assert.deepEqual(JSON.parse(processResult.stdout), [
     'run',
     '--env=dev',
     '--',

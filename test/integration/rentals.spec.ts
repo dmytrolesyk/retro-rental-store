@@ -30,15 +30,16 @@ describe('Rental repository (PostgreSQL)', () => {
   });
 
   it('saves and reads a rental for an existing renter', async () => {
-    const db = kit.dataSource;
-    const renter = await db.getRepository(Renter).save(aRenter());
+    const dataSource = kit.dataSource;
+    const renter = await dataSource.getRepository(Renter).save(aRenter());
     const rental = aRental(renter.renterId);
-    await db.getRepository(Rental).save(rental);
+    const expected = { ...rental };
+    await dataSource.getRepository(Rental).save(rental);
 
     await expect(
-      db.getRepository(Rental).findOneByOrFail({ rentalId: rental.rentalId }),
-    ).resolves.toMatchObject(rental);
-    await expect(db.getRepository(Rental).count()).resolves.toBe(1);
+      dataSource.getRepository(Rental).findOneByOrFail({ rentalId: rental.rentalId }),
+    ).resolves.toMatchObject(expected);
+    await expect(dataSource.getRepository(Rental).count()).resolves.toBe(1);
   });
 
   it('rejects a nonexistent renter with foreign key violation 23503 without creating a rental', async () => {
@@ -51,9 +52,9 @@ describe('Rental repository (PostgreSQL)', () => {
   });
 
   it('JOINs the requested rental with its renter and exactly its own items', async () => {
-    const db = kit.dataSource;
-    const renters = db.getRepository(Renter);
-    const rentals = db.getRepository(Rental);
+    const dataSource = kit.dataSource;
+    const renters = dataSource.getRepository(Renter);
+    const rentals = dataSource.getRepository(Rental);
     const renter = await renters.save(aRenter({ name: 'Марія' }));
     const otherRenter = await renters.save(aRenter({ name: 'Андрій' }));
     const rental = await rentals.save(aRental(renter.renterId));
@@ -63,10 +64,10 @@ describe('Rental repository (PostgreSQL)', () => {
     const unrelated = aCatalog({ pricePerDay: 9000 });
 
     for (const catalog of [first, second, unrelated]) {
-      await db.getRepository(Game).save(catalog.game);
-      await db.getRepository(Platform).save(catalog.platform);
-      await db.getRepository(GamePlatform).save(catalog.gamePlatform);
-      await db.getRepository(GameCopy).save(catalog.copy);
+      await dataSource.getRepository(Game).save(catalog.game);
+      await dataSource.getRepository(Platform).save(catalog.platform);
+      await dataSource.getRepository(GamePlatform).save(catalog.gamePlatform);
+      await dataSource.getRepository(GameCopy).save(catalog.copy);
     }
     const items = [
       aRentalItem(rental.rentalId, first.copy.gameCopyId),
@@ -75,7 +76,8 @@ describe('Rental repository (PostgreSQL)', () => {
         returnedAt: new Date(rental.rentedAt.getTime() + 86400000),
       }),
     ];
-    await db.getRepository(RentalItem).save([
+    const expectedItems = items.map(item => ({ ...item }));
+    await dataSource.getRepository(RentalItem).save([
       ...items,
       aRentalItem(otherRental.rentalId, unrelated.copy.gameCopyId, {
         costPerDay: 9000,
@@ -94,7 +96,7 @@ describe('Rental repository (PostgreSQL)', () => {
     expect(result.rentalId).toBe(rental.rentalId);
     expect(result.renter).toMatchObject(renter);
     expect(result.items).toHaveLength(2);
-    for (const item of items) {
+    for (const item of expectedItems) {
       expect(result.items).toContainEqual(expect.objectContaining(item));
     }
   });

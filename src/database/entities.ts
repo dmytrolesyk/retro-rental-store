@@ -10,6 +10,8 @@ import { Rental } from '../rentals/entities/rental.entity';
 import { RentalItem } from '../rentals/entities/rental-item.entity';
 import { RentalJob } from '../jobs/entities/rental-job.entity';
 import { RentalRequest } from '../rentals/entities/rental-request.entity';
+import { RentalOutboxEvent } from '../outbox/entities/rental-outbox-event.entity';
+import { RentalOutboxDelivery } from '../outbox/entities/rental-outbox-delivery.entity';
 
 export {
   Game,
@@ -22,6 +24,8 @@ export {
   Rental,
   RentalItem,
   RentalJob,
+  RentalOutboxEvent,
+  RentalOutboxDelivery,
 };
 export { GameCondition, PhysicalFormat, GameDataSource } from '../catalog/entities/enums';
 
@@ -37,4 +41,6 @@ export const rentalEntities = [
   RentalItem,
   RentalJob,
   RentalRequest,
+  RentalOutboxEvent,
+  RentalOutboxDelivery,
 ];

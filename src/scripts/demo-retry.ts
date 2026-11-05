@@ -23,10 +23,13 @@ async function main(): Promise<void> {
   }
 }
 
-async function runRetryDemo(db: DataSource, transactions: TransactionRetryService): Promise<void> {
+async function runRetryDemo(
+  dataSource: DataSource,
+  transactionRetryService: TransactionRetryService,
+): Promise<void> {
   const renterId = randomUUID();
   const initialBalance = 10000;
-  await db.getRepository(Renter).insert({
+  await dataSource.getRepository(Renter).insert({
     renterId,
     name: 'Retry demo renter',
     email: `${renterId}@example.test`,
@@ -46,7 +49,7 @@ async function runRetryDemo(db: DataSource, transactions: TransactionRetryServic
   });
 
   const addToBalance = (worker: 'A' | 'B', amount: number) =>
-    transactions.run(
+    transactionRetryService.run(
       'REPEATABLE READ',
       async (manager, attempt) => {
         attempts[worker]++;
@@ -78,7 +81,9 @@ async function runRetryDemo(db: DataSource, transactions: TransactionRetryServic
   for (const outcome of outcomes) {
     if (outcome.status === 'rejected') throw outcome.reason;
   }
-  const { balance: finalBalance } = await db.getRepository(Renter).findOneByOrFail({ renterId });
+  const { balance: finalBalance } = await dataSource
+    .getRepository(Renter)
+    .findOneByOrFail({ renterId });
   console.log(
     JSON.stringify({ renterId, initialBalance, finalBalance, attempts, retries }, null, 2),
   );
