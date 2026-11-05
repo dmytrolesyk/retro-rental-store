@@ -79,7 +79,7 @@ namespace is unchanged: generate unique keys. Ownership is checked before replay
 `ConfiguredTokenService` returns a frozen principal without the token.
 `BearerAuthGuard` adapts HTTP headers to this transport-independent service;
 rental services enforce access policy. Internal CLI/demo `checkout()` remains
-trusted and is not an unguarded HTTP alternative. Socket.IO reuses these credentials and policy; the later SSE step will do the same. Native browser EventSource cannot set an
+trusted and is not an unguarded HTTP alternative. Socket.IO reuses these credentials and policy; SSE uses the same policy. Native browser EventSource cannot set an
 Authorization header: a future UI needs a suitable streaming client or the
 later cookie-based login design.
 
@@ -199,6 +199,7 @@ The API still connects through PgBouncer and never runs migrations at startup.
 | POST   | `/rentals`                   | Client books one copy: `rentalId`, `gameCopyId`, `status`, `bookedAt`, `bookingExpiresAt`, `costPerDay` |
 | GET    | `/rentals?limit=20&cursor=…` | Rental summaries: `items`, `next_cursor`                                                                |
 | GET    | `/rentals/{rentalId}`        | Rental status/dates, cancellation and item price/return snapshots                                       |
+| GET    | `/rentals/{id}/events`       | Authenticated SSE history/live stream; optional UUID `Last-Event-ID` |
 | POST   | `/rentals/{rentalId}/issue`  | Staff issues a BOOKED rental; returns updated details                                                   |
 | POST   | `/rentals/{rentalId}/cancel` | Owner/staff cancels BOOKED; body `{ "reason": "…" }`; returns details                                   |
 | POST   | `/rentals/{rentalId}/return` | Staff accepts ACTIVE/OVERDUE items; returns updated details                                             |
@@ -2010,9 +2011,8 @@ The relay and RxJS Subject run **inside one API instance**. A separate relay
 process cannot access that Subject. Multiple API replicas need a cross-process
 broadcast mechanism; claiming one realtime delivery does not broadcast to every
 replica. A realtime acknowledgement means local publication, not browser receipt.
-Socket.IO live room delivery is described below; SSE remains a separate next
-step. Events are retained in PostgreSQL; there is no automatic pruning or HTTP
-history endpoint.
+Socket.IO live delivery and SSE replay/live streaming are described below.
+Events are retained in PostgreSQL without automatic pruning.
 
 Migration `AddRentalOutbox1793836800000` creates no historical events, preserves
 pending/done/failed jobs and refuses rollback if event history exists. Tests use
@@ -2028,7 +2028,7 @@ See [transactional outbox](https://microservices.io/patterns/data/transactional-
 existence and read access, then validates the optional cursor. It returns a cold
 Observable of public `RentalStatusChanged` events for that rental. Preparing the
 Observable sends nothing; each subscription has an independent position. The
-provider is exported by the API-only `RentalOutboxModule` for future transports.
+provider is exported by the API-only `RentalOutboxModule` and consumed by the SSE transport.
 
 The external cursor is the UUID `eventId` of the last received event. It is
 resolved **within that rental** to an internal bigint `position` (kept as a string,
@@ -2037,7 +2037,7 @@ a cursor at the latest event waits for new events. Empty/malformed UUIDs and
 unknown, foreign or not-yet-committed event IDs all raise the same bad-request
 error after authorization. This deliberately uses UUIDs rather than the original
 homework's numeric `Last-Event-ID: 3`; that literal grading example still needs
-reconciliation when implementing the transport/demo. No historical events are
+reconciliation in the grading/demo documentation; the SSE endpoint accepts UUIDs. No historical events are
 synthesized for rentals created before the outbox migration.
 
 On subscription, the service subscribes to the rental's Subject signals **before**
@@ -2067,13 +2067,13 @@ relay enabled and eventually succeeding; it is not multi-instance broadcast.
 Within one subscription, repeated hints do not duplicate events. Across network
 reconnects, clients must still apply events idempotently by `eventId`: server
 publication is not proof that the UI applied an event. This Observable preserves
-order but does not await an asynchronous subscriber callback; transport
-backpressure belongs to the later transport step.
+order but does not await an asynchronous subscriber callback. The Nest SSE adapter
+handles transport writes; this application does not impose a per-connection byte cap.
 
 The lecturer's `code/18_Realtime/stages/03-sse.mjs` demonstrates reconnect from an
 in-memory history buffer. This version uses the existing durable outbox history
 so restart does not erase the replay source, and subscribes before its asynchronous
-SELECT to close the history/live race. This replay service adds no transport endpoint; the Socket.IO gateway below uses live publication only.
+SELECT to close the history/live race. The SSE controller below consumes this replay service; the Socket.IO gateway uses live publication only.
 
 ### Socket.IO rental rooms (homework 18, step 7)
 
@@ -2125,7 +2125,7 @@ when a socket disconnects.
 
 This step provides live events only. Reconnect authenticates again and requires a
 fresh authorized `join`; it does not replay history or enable Socket.IO connection
-state recovery. The durable `RentalReplayService` will serve the separate SSE step.
+state recovery. The SSE endpoint below uses the durable `RentalReplayService`.
 Outbox publication is at-least-once, so duplicate event IDs remain possible and
 clients should apply updates idempotently. Rooms and the bus remain local to one
 API instance; multiple replicas require a separately designed broadcast mechanism.
@@ -2143,6 +2143,88 @@ membership and retains the existing opaque-token auth rather than adding JWT.
 Official references: [Nest gateways](https://docs.nestjs.com/websockets/gateways),
 [Socket.IO middleware](https://socket.io/docs/v4/middlewares/), and
 [Socket.IO rooms](https://socket.io/docs/v4/rooms/).
+
+### SSE rental history and live events (homework 18, step 8)
+
+`GET /rentals/:id/events` uses the existing HTTP Bearer authentication and the
+owner/staff read policy. It streams the same public rental events as Socket.IO,
+with retained history and reconnect support supplied by `RentalReplayService`.
+The `@Sse()` controller belongs to the API-only `RentalRealtimeModule`.
+
+Set `CLIENT_TOKEN`, `RENTAL_ID`, and, for reconnect, `LAST_EVENT_ID` locally;
+these placeholders are not credentials to commit. Then, for example:
+
+```sh
+API_URL=http://localhost:3000
+curl -i -N -H "Authorization: Bearer ${CLIENT_TOKEN}" \
+  "${API_URL}/rentals/${RENTAL_ID}/events"
+
+curl -i -N -H "Authorization: Bearer ${CLIENT_TOKEN}" \
+  -H "Last-Event-ID: ${LAST_EVENT_ID}" \
+  "${API_URL}/rentals/${RENTAL_ID}/events"
+```
+
+The response has `Content-Type: text/event-stream`, private/no-store
+cache headers and `X-Accel-Buffering: no`. Each domain message has UUID `id`,
+`event: rental.status`, and JSON `data` containing the immutable public contract;
+a blank line terminates the frame. Embedded newlines in string values are JSON
+escaped. Private email delivery context and internal bigint positions are omitted.
+Each domain message includes `retry: 1000`. Initial `connected` and heartbeat
+comments every 15 seconds have **no ID or data** and do not move the cursor.
+
+Without `Last-Event-ID`, all retained events for that rental are replayed before
+waiting for live changes. With a known UUID from that rental, only subsequent
+events are returned. Committed events do not need to have been published or
+acknowledged by the outbox relay to appear in history. Later publication of a
+replayed event does not repeat it within that subscription. A cursor at the latest
+event opens an idle stream with comment frames and waits for new data.
+History persists across API restart, including events whose realtime deliveries
+were already processed. No events are invented for pre-outbox rentals.
+
+Authentication, rental-ID validation, cursor header shape and asynchronous
+access/cursor resolution finish **before** SSE headers are sent. Header shape
+checks reject empty/duplicate `Last-Event-ID`; the replay service checks ownership
+before validating UUID format and resolving cursor scope. Invalid/unknown/foreign
+UUID cursors return HTTP 400. Errors before opening use the existing HTTP
+problem+json responses; errors after opening close the connection with sanitized
+logging, without serializing private diagnostics or generating a replacement ID.
+Reconnect resumes using the client's last completely received UUID. End-to-end
+exactly-once application is not guaranteed; clients apply events idempotently.
+
+Nest `@Sse()` serializes `MessageEvent` values and owns HTTP writes, drain handling
+and disconnect cancellation. The controller awaits access/cursor preparation,
+then maps replay events to explicit UUID IDs and public data. A small generic
+`withSseHeartbeats` RxJS helper adds comments without knowing about rentals;
+it stops its timer when the source completes, fails or is unsubscribed.
+Replay-service shutdown completes active streams, including their heartbeats.
+Disconnect during setup does not subscribe to the prepared stream; an in-flight
+DB query may finish, but its result is discarded after cancellation.
+
+There is no custom writer, byte queue or per-connection 64 KiB cap. Nest queues
+Observable emissions for writing, so slow-client buffering is not explicitly
+bounded by this application. A byte limit would need a separate transport policy.
+Every data frame has an explicit UUID; comment-only frames have no ID. This avoids
+Nest's automatic numeric IDs for messages missing an ID. The controller catches
+stream errors and closes safely before Nest can serialize raw error details.
+The lecturer's `code/18_Realtime/stages/03-sse.mjs` illustrates SSE framing and
+reconnect; this endpoint uses durable history and checks access before opening.
+
+The native browser `EventSource` cannot set the required Authorization header;
+use an authenticated fetch-stream client, curl, or the headless HTTP client for
+now. Cookie-based browser login remains separate coursework. Socket.IO reconnect
+still requires a new authorized join and does not itself replay this history.
+The application remains a single API instance with its local relay; no Redis or
+multi-instance broadcast is added. The numeric `Last-Event-ID: 3` and literal four
+status transitions in the original homework are not claimed as fulfilled: this
+API uses UUID cursors and the agreed rental lifecycle.
+
+`test/e2e/rental-sse.e2e-spec.ts` covers real HTTP errors, wire frames, unpublished
+history, live HTTP → outbox delivery, reconnect/dedup, disconnect cleanup,
+post-header DB failure, OpenAPI and application restart. Controller and generic heartbeat unit tests cover public mapping, safe errors,
+synchronous/asynchronous completion and timer/subscription cleanup.
+Official references: [SSE protocol](https://html.spec.whatwg.org/multipage/server-sent-events.html),
+[Nest SSE](https://docs.nestjs.com/techniques/server-sent-events), and
+[Node HTTP write/drain](https://nodejs.org/api/http.html#responsewritechunk-encoding-callback).
 
 ### Source layout and module ownership
 

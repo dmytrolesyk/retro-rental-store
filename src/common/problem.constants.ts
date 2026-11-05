@@ -13,4 +13,5 @@ export const PROBLEM_DESCRIPTIONS = {
   [HttpStatus.CONFLICT]: 'Business state conflict',
   [HttpStatus.UNPROCESSABLE_ENTITY]: 'Idempotency key used with a different request',
   [HttpStatus.INTERNAL_SERVER_ERROR]: 'Unexpected server error',
+  [HttpStatus.SERVICE_UNAVAILABLE]: 'Service temporarily unavailable',
 } as const;

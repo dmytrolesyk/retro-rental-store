@@ -447,6 +447,75 @@ paths:
       security: *a2
       summary: Get a rental and its items
       tags: *a3
+  /rentals/{id}/events:
+    get:
+      operationId: streamRentalEvents
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            format: uuid
+            type: string
+        - name: Last-Event-ID
+          in: header
+          description: Last received event UUID for this rental; omitted replays all
+            retained history.
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Open SSE stream. Event name rental.status; id is the event UUID;
+            data is public RentalStatusChanged JSON. Control frames do not carry
+            IDs.
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "400":
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "401":
+          description: Authentication required
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "403":
+          description: Access forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Resource not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Unexpected server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "503":
+          description: Service temporarily unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+      security:
+        - bearer: []
+      summary: Stream retained and live rental status events; reconnect after a UUID
+        event cursor
+      tags:
+        - rentals
 info:
   title: Retro Games Rental API
   description: Catalog and single-copy booking/rental API. Monetary amounts are
