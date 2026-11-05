@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { setImmediate as tick } from 'node:timers/promises';
@@ -25,6 +26,8 @@ import type { PostgresTestkit } from './testkit/postgres';
 const staff = { id: 'staff', role: 'staff' as const };
 const collect = (stream: Observable<RentalStatusChanged>, count: number) =>
   firstValueFrom(stream.pipe(take(count), toArray(), timeout(5000)));
+
+const rentalStatusEventWriter = new RentalStatusEventWriter();
 
 describe('durable rental replay', () => {
   let kit: PostgresTestkit;
@@ -66,7 +69,7 @@ describe('durable rental replay', () => {
     await kit.dataSource.transaction(async manager => {
       await rentals.findForUpdate(manager, rentalId);
       await manager.update(Rental, rentalId, { status });
-      await rentals.recordStatusChange(manager, rentalId, previous, new Date());
+      await rentalStatusEventWriter.recordStatusChange(manager, rentalId, previous, new Date());
     });
     return kit.dataSource.getRepository(RentalOutboxEvent).findOneByOrFail({ rentalId, status });
   }
@@ -197,7 +200,12 @@ describe('durable rental replay', () => {
     await writer.startTransaction();
     try {
       await rentals.findForUpdate(writer.manager, rental.rentalId);
-      await rentals.recordStatusChange(writer.manager, rental.rentalId, 'BOOKED', new Date());
+      await rentalStatusEventWriter.recordStatusChange(
+        writer.manager,
+        rental.rentalId,
+        'BOOKED',
+        new Date(),
+      );
       expect(await history.readAfter(rental.rentalId, null)).toEqual([]);
     } finally {
       await writer.rollbackTransaction();
@@ -219,7 +227,12 @@ describe('durable rental replay', () => {
     await writer.startTransaction();
     try {
       await rentals.findForUpdate(writer.manager, first.rental.rentalId);
-      await rentals.recordStatusChange(writer.manager, first.rental.rentalId, 'BOOKED', new Date());
+      await rentalStatusEventWriter.recordStatusChange(
+        writer.manager,
+        first.rental.rentalId,
+        'BOOKED',
+        new Date(),
+      );
       const lower = await writer.manager.findOneByOrFail(RentalOutboxEvent, {
         rentalId: first.rental.rentalId,
       });

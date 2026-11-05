@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { DataSource, IsNull } from 'typeorm';
 import type { EntityManager } from 'typeorm';
@@ -9,11 +8,6 @@ import type { BookingReceipt } from './rentals.types';
 import { Renter } from '../renters/entities/renter.entity';
 import { RentalItem } from './entities/rental-item.entity';
 import { RentalJob } from '../jobs/entities/rental-job.entity';
-import { rentalNotification } from '../jobs/rental-notification';
-import { RentalOutboxEvent } from '../outbox/entities/rental-outbox-event.entity';
-import { RentalOutboxDelivery } from '../outbox/entities/rental-outbox-delivery.entity';
-import { rentalStatusChanged } from './rental-status-event';
-import type { RentalStatus } from './rental-lifecycle';
 
 interface AvailableCopy {
   gameCopyId: string;
@@ -36,29 +30,6 @@ export interface RentalDeadlineCandidate {
 @Injectable()
 export class RentalsRepository {
   constructor(private readonly dataSource: DataSource) {}
-
-  async recordStatusChange(
-    manager: EntityManager,
-    rentalId: string,
-    previousStatus: RentalStatus | null,
-    occurredAt: Date,
-  ): Promise<void> {
-    const rental = await manager.findOneByOrFail(Rental, { rentalId });
-    const renter = await manager.findOneByOrFail(Renter, { renterId: rental.renterId });
-    const eventId = randomUUID();
-    await manager.insert(RentalOutboxEvent, {
-      eventId,
-      rentalId,
-      status: rental.status,
-      payload: rentalStatusChanged(eventId, rental, previousStatus, occurredAt),
-      emailTo: renter.email,
-      emailNotification: rentalNotification(rental, occurredAt),
-    });
-    await manager.insert(RentalOutboxDelivery, [
-      { eventId, consumer: 'email' },
-      { eventId, consumer: 'realtime' },
-    ]);
-  }
 
   findRenterForCheckout(manager: EntityManager, renterId: string): Promise<Renter | null> {
     // KEY SHARE prevents deletion until commit, but permits concurrent balance updates.

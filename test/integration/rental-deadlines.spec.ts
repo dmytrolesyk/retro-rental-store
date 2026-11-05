@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { Logger } from '@nestjs/common';
@@ -38,8 +39,16 @@ describe('Rental deadline processing (PostgreSQL)', () => {
     kit = await startPostgres();
     stopPostgres = () => kit.stop();
     rentalsRepository = new RentalsRepository(kit.dataSource);
-    expireBookingUseCase = new ExpireBooking(kit.dataSource, rentalsRepository);
-    markRentalOverdueUseCase = new MarkRentalOverdue(kit.dataSource, rentalsRepository);
+    expireBookingUseCase = new ExpireBooking(
+      kit.dataSource,
+      rentalsRepository,
+      new RentalStatusEventWriter(),
+    );
+    markRentalOverdueUseCase = new MarkRentalOverdue(
+      kit.dataSource,
+      rentalsRepository,
+      new RentalStatusEventWriter(),
+    );
     processRentalDeadlinesUseCase = new ProcessRentalDeadlines(
       kit.dataSource,
       rentalsRepository,
@@ -160,10 +169,15 @@ describe('Rental deadline processing (PostgreSQL)', () => {
   it('allows only one real transition across simultaneous service instances', async () => {
     const booking = await fixture();
     const active = await fixture('ACTIVE');
-    const anotherExpiry = new ExpireBooking(kit.dataSource, new RentalsRepository(kit.dataSource));
+    const anotherExpiry = new ExpireBooking(
+      kit.dataSource,
+      new RentalsRepository(kit.dataSource),
+      new RentalStatusEventWriter(),
+    );
     const anotherOverdue = new MarkRentalOverdue(
       kit.dataSource,
       new RentalsRepository(kit.dataSource),
+      new RentalStatusEventWriter(),
     );
     expect(
       (
@@ -189,8 +203,16 @@ describe('Rental deadline processing (PostgreSQL)', () => {
     const anotherProcessor = new ProcessRentalDeadlines(
       kit.dataSource,
       new RentalsRepository(kit.dataSource),
-      new ExpireBooking(kit.dataSource, new RentalsRepository(kit.dataSource)),
-      new MarkRentalOverdue(kit.dataSource, new RentalsRepository(kit.dataSource)),
+      new ExpireBooking(
+        kit.dataSource,
+        new RentalsRepository(kit.dataSource),
+        new RentalStatusEventWriter(),
+      ),
+      new MarkRentalOverdue(
+        kit.dataSource,
+        new RentalsRepository(kit.dataSource),
+        new RentalStatusEventWriter(),
+      ),
     );
     const scanResults = await Promise.all([
       processRentalDeadlinesUseCase.execute(),
@@ -203,7 +225,11 @@ describe('Rental deadline processing (PostgreSQL)', () => {
 
   it('serializes expiry with manual cancellation and retains the winning actor/reason', async () => {
     const { rental } = await fixture();
-    const cancelRentalUseCase = new CancelRental(kit.dataSource, rentalsRepository);
+    const cancelRentalUseCase = new CancelRental(
+      kit.dataSource,
+      rentalsRepository,
+      new RentalStatusEventWriter(),
+    );
     const [expired] = await Promise.all([
       expireBookingUseCase.execute(rental.rentalId),
       cancelRentalUseCase.execute(rental.rentalId, staffPrincipal, 'Cancelled at desk'),
@@ -218,7 +244,11 @@ describe('Rental deadline processing (PostgreSQL)', () => {
 
   it('never charges an expired booking racing with physical issue', async () => {
     const { rental, renter } = await fixture();
-    const issueRentalUseCase = new IssueRental(kit.dataSource, rentalsRepository);
+    const issueRentalUseCase = new IssueRental(
+      kit.dataSource,
+      rentalsRepository,
+      new RentalStatusEventWriter(),
+    );
     const [issueOutcome, expiryOutcome] = await Promise.allSettled([
       issueRentalUseCase.execute(rental.rentalId, staffPrincipal),
       expireBookingUseCase.execute(rental.rentalId),
@@ -234,7 +264,11 @@ describe('Rental deadline processing (PostgreSQL)', () => {
 
   it('keeps RETURNED final when physical return races with overdue processing', async () => {
     const { rental } = await fixture('ACTIVE');
-    const returnRentalUseCase = new ReturnRental(kit.dataSource, rentalsRepository);
+    const returnRentalUseCase = new ReturnRental(
+      kit.dataSource,
+      rentalsRepository,
+      new RentalStatusEventWriter(),
+    );
     await Promise.all([
       markRentalOverdueUseCase.execute(rental.rentalId),
       returnRentalUseCase.execute(rental.rentalId, staffPrincipal),

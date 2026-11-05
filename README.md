@@ -2022,13 +2022,34 @@ lecturer's `22_DistributedPatterns/src/02-outbox.ts` and
 the demo's RabbitMQ broker.
 See [transactional outbox](https://microservices.io/patterns/data/transactional-outbox.html).
 
+The application-layer `RentalStatusEventWriter` freezes the public event, email
+snapshot and consumer delivery intents using the caller's EntityManager. Booking
+and status use cases call it inside their existing transaction after persistence;
+the writer starts no transaction and performs no publication. RentalsRepository
+owns rental persistence, while the writer owns the status-notification snapshot
+and consumer policy. The trusted legacy checkout path remains unchanged.
+
+Module ownership is explicit:
+
+| Module | Responsibility | Background relay on import/init |
+| --- | --- | --- |
+| RentalEventsModule | One API-local Subject shared by readers and publisher | No |
+| RentalReplayModule | History repository and replay service; imports the bus | No |
+| RentalOutboxModule | Processor, dispatcher and postcommit subscriber; imports the bus | Enabled by the API relay configuration |
+| RentalRealtimeModule | Socket.IO/SSE transport adapters; imports bus/replay and rental access services | No relay of its own |
+
+AppModule composes the relay and transports explicitly. Neither a standalone
+replay consumer nor RentalsModule needs to import the dispatcher module. Nest
+shares RentalEventsModule across both imports, retaining one singleton bus.
+
 ### Durable rental replay (homework 18, step 6b)
 
 `RentalReplayService.open(rentalId, principal, cursor?)` first checks rental
 existence and read access, then validates the optional cursor. It returns a cold
 Observable of public `RentalStatusChanged` events for that rental. Preparing the
 Observable sends nothing; each subscription has an independent position. The
-provider is exported by the API-only `RentalOutboxModule` and consumed by the SSE transport.
+provider is exported by `RentalReplayModule` and consumed by the SSE transport.
+Importing replay does not start the outbox relay.
 
 The external cursor is the UUID `eventId` of the last received event. It is
 resolved **within that rental** to an internal bigint `position` (kept as a string,

@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 // Isolate the config boundary here; full-AppModule E2E uses the real ConfigModule.
 jest.mock('@nestjs/config', () => ({ ConfigService: class {} }));
 
@@ -8,16 +9,16 @@ import { DataSource } from 'typeorm';
 import { Rental, RentalOutboxEvent, Renter } from '../../src/database/entities';
 import { OutboxCommitSubscriber } from '../../src/outbox/outbox-commit.subscriber';
 import { RentalOutboxDispatcher } from '../../src/outbox/rental-outbox.dispatcher';
-import { RentalsRepository } from '../../src/rentals/rentals.repository';
 import { aRental, aRenter } from './testkit/builders';
 import { startPostgres } from './testkit/postgres';
 import type { PostgresTestkit } from './testkit/postgres';
+
+const rentalStatusEventWriter = new RentalStatusEventWriter();
 
 describe('postcommit outbox notification (real TypeORM transactions)', () => {
   let kit: PostgresTestkit;
   let stopPostgres: (() => Promise<void>) | undefined;
   let module: TestingModule;
-  let rentalsRepository: RentalsRepository;
   const wake = jest.fn<Promise<void>, []>();
   beforeAll(async () => {
     kit = await startPostgres();
@@ -26,7 +27,6 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
   beforeEach(async () => {
     await kit.reset();
     wake.mockReset().mockResolvedValue(undefined);
-    rentalsRepository = new RentalsRepository(kit.dataSource);
     module = await Test.createTestingModule({
       providers: [
         OutboxCommitSubscriber,
@@ -57,7 +57,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
     await writer.connect();
     await writer.startTransaction();
     try {
-      await rentalsRepository.recordStatusChange(
+      await rentalStatusEventWriter.recordStatusChange(
         writer.manager,
         rental.rentalId,
         'BOOKED',
@@ -79,7 +79,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
     await expect(
       kit.dataSource.transaction(async manager => {
         await manager.transaction(async nestedManager => {
-          await rentalsRepository.recordStatusChange(
+          await rentalStatusEventWriter.recordStatusChange(
             nestedManager,
             rental.rentalId,
             'BOOKED',
@@ -94,7 +94,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
     expect(await kit.dataSource.getRepository(RentalOutboxEvent).count()).toBe(0);
     await kit.dataSource.transaction(manager =>
       manager.transaction(nestedManager =>
-        rentalsRepository.recordStatusChange(
+        rentalStatusEventWriter.recordStatusChange(
           nestedManager,
           rental.rentalId,
           'BOOKED',
@@ -110,7 +110,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
     await kit.dataSource.transaction(async manager => {
       await expect(
         manager.transaction(async nestedManager => {
-          await rentalsRepository.recordStatusChange(
+          await rentalStatusEventWriter.recordStatusChange(
             nestedManager,
             rental.rentalId,
             'BOOKED',
@@ -127,7 +127,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
   it('retains outer changes when an unrelated nested transaction rolls back', async () => {
     const rental = await fixture();
     await kit.dataSource.transaction(async manager => {
-      await rentalsRepository.recordStatusChange(
+      await rentalStatusEventWriter.recordStatusChange(
         manager,
         rental.rentalId,
         'BOOKED',
@@ -136,7 +136,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
       await expect(
         manager.transaction(async nestedManager => {
           await nestedManager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-          await rentalsRepository.recordStatusChange(
+          await rentalStatusEventWriter.recordStatusChange(
             nestedManager,
             rental.rentalId,
             'ACTIVE',
@@ -164,7 +164,7 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
     await writer.connect();
     try {
       await writer.startTransaction();
-      await rentalsRepository.recordStatusChange(
+      await rentalStatusEventWriter.recordStatusChange(
         writer.manager,
         rental.rentalId,
         'BOOKED',
@@ -189,14 +189,24 @@ describe('postcommit outbox notification (real TypeORM transactions)', () => {
     });
     await expect(
       kit.dataSource.transaction(manager =>
-        rentalsRepository.recordStatusChange(manager, rental.rentalId, 'BOOKED', rental.rentedAt),
+        rentalStatusEventWriter.recordStatusChange(
+          manager,
+          rental.rentalId,
+          'BOOKED',
+          rental.rentedAt,
+        ),
       ),
     ).resolves.toBeUndefined();
     const second = await fixture();
     wake.mockRejectedValueOnce(new Error('Async wake failed'));
     await expect(
       kit.dataSource.transaction(manager =>
-        rentalsRepository.recordStatusChange(manager, second.rentalId, 'BOOKED', second.rentedAt),
+        rentalStatusEventWriter.recordStatusChange(
+          manager,
+          second.rentalId,
+          'BOOKED',
+          second.rentedAt,
+        ),
       ),
     ).resolves.toBeUndefined();
     expect(await kit.dataSource.getRepository(RentalOutboxEvent).count()).toBe(2);

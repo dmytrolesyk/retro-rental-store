@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { setTimeout as delay } from 'node:timers/promises';
 import { randomUUID } from 'node:crypto';
 import { Test } from '@nestjs/testing';
@@ -73,6 +74,7 @@ describe('Rental booking and commands', () => {
         CancelRental,
         ReturnRental,
         RentalsRepository,
+        RentalStatusEventWriter,
         CreateRentalResponseInterceptor,
         { provide: DataSource, useValue: kit.dataSource },
       ],

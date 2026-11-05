@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../rental-status-event.writer';
 import {
   ConflictException,
   Injectable,
@@ -17,6 +18,7 @@ export class CancelRental {
   constructor(
     private readonly dataSource: DataSource,
     private readonly rentalsRepository: RentalsRepository,
+    private readonly rentalStatusEventWriter: RentalStatusEventWriter,
   ) {}
 
   execute(rentalId: string, principal: Principal, reason: string): Promise<RentalDetailDto> {
@@ -34,7 +36,7 @@ export class CancelRental {
           'Cancellation requires a nonblank reason of up to 500 characters',
         );
       await this.rentalsRepository.cancel(manager, rentalId, now, principal.id, reason.trim());
-      await this.rentalsRepository.recordStatusChange(manager, rentalId, rental.status, now);
+      await this.rentalStatusEventWriter.recordStatusChange(manager, rentalId, rental.status, now);
       const updatedRental = await this.rentalsRepository.findForUpdate(manager, rentalId);
       if (!updatedRental) throw new InternalServerErrorException('Rental disappeared while locked');
       return rentalDetail(

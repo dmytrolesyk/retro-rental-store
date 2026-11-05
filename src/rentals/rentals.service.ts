@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from './rental-status-event.writer';
 import { createHash } from 'node:crypto';
 import {
   ConflictException,
@@ -25,6 +26,7 @@ export class RentalsService {
   constructor(
     private readonly dataSource: DataSource,
     private readonly rentalsRepository: RentalsRepository,
+    private readonly rentalStatusEventWriter: RentalStatusEventWriter,
   ) {}
 
   /** Trusted legacy coursework entry point; HTTP creation now books instead. */
@@ -77,7 +79,7 @@ export class RentalsService {
         bookedAt,
         bookingExpiresAt,
       });
-      await this.rentalsRepository.recordStatusChange(manager, rentalId, null, bookedAt);
+      await this.rentalStatusEventWriter.recordStatusChange(manager, rentalId, null, bookedAt);
       const bookingReceipt = {
         rentalId,
         gameCopyId: availableCopy.gameCopyId,

@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../rental-status-event.writer';
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { nextDeadlineStatus } from '../rental-deadlines';
@@ -9,6 +10,7 @@ export class MarkRentalOverdue {
   constructor(
     private readonly dataSource: DataSource,
     private readonly rentalsRepository: RentalsRepository,
+    private readonly rentalStatusEventWriter: RentalStatusEventWriter,
   ) {}
 
   execute(rentalId: string): Promise<boolean> {
@@ -18,7 +20,7 @@ export class MarkRentalOverdue {
       const now = await this.rentalsRepository.currentTime(manager);
       if (nextDeadlineStatus(rental, now) !== 'OVERDUE') return false;
       await this.rentalsRepository.markOverdue(manager, rentalId);
-      await this.rentalsRepository.recordStatusChange(manager, rentalId, rental.status, now);
+      await this.rentalStatusEventWriter.recordStatusChange(manager, rentalId, rental.status, now);
       return true;
     });
   }

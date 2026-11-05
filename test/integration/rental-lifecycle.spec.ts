@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { staffPrincipal } from './testkit/auth';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -127,7 +128,11 @@ describe('Rental lifecycle schema (PostgreSQL)', () => {
   it('reads an unissued booking without inventing a rentedAt date', async () => {
     const { renter, catalog } = await fixture();
     const id = await book(renter.renterId, catalog.copy.gameCopyId);
-    const service = new RentalsService(kit.dataSource, new RentalsRepository(kit.dataSource));
+    const service = new RentalsService(
+      kit.dataSource,
+      new RentalsRepository(kit.dataSource),
+      new RentalStatusEventWriter(),
+    );
     await expect(service.get(id, staffPrincipal)).resolves.toMatchObject({
       rentalId: id,
       rentedAt: null,

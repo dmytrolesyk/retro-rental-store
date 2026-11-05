@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../rental-status-event.writer';
 import {
   ConflictException,
   Injectable,
@@ -17,6 +18,7 @@ export class ReturnRental {
   constructor(
     private readonly dataSource: DataSource,
     private readonly rentalsRepository: RentalsRepository,
+    private readonly rentalStatusEventWriter: RentalStatusEventWriter,
   ) {}
 
   execute(rentalId: string, principal: Principal): Promise<RentalDetailDto> {
@@ -32,7 +34,7 @@ export class ReturnRental {
       if (!rental.rentedAt || now < rental.rentedAt)
         throw new ConflictException('Rental has not been physically issued');
       await this.rentalsRepository.returnItems(manager, rentalId, now);
-      await this.rentalsRepository.recordStatusChange(manager, rentalId, rental.status, now);
+      await this.rentalStatusEventWriter.recordStatusChange(manager, rentalId, rental.status, now);
       const updatedRental = await this.rentalsRepository.findForUpdate(manager, rentalId);
       if (!updatedRental) throw new InternalServerErrorException('Rental disappeared while locked');
       return rentalDetail(

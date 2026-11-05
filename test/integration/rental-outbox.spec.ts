@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import {
   Rental,
   RentalJob,
@@ -14,6 +15,8 @@ import { aRental, aRenter } from './testkit/builders';
 import { startPostgres } from './testkit/postgres';
 import type { PostgresTestkit } from './testkit/postgres';
 import type { RentalStatusChanged } from '../../src/rentals/rental-status-event';
+
+const rentalStatusEventWriter = new RentalStatusEventWriter();
 
 describe('rental transactional outbox', () => {
   let kit: PostgresTestkit;
@@ -44,7 +47,12 @@ describe('rental transactional outbox', () => {
     const renter = await kit.dataSource.getRepository(Renter).save(aRenter());
     const rental = await kit.dataSource.getRepository(Rental).save(aRental(renter.renterId));
     await kit.dataSource.transaction(manager =>
-      rentalsRepository.recordStatusChange(manager, rental.rentalId, 'BOOKED', rental.rentedAt),
+      rentalStatusEventWriter.recordStatusChange(
+        manager,
+        rental.rentalId,
+        'BOOKED',
+        rental.rentedAt,
+      ),
     );
     const event = await kit.dataSource
       .getRepository(RentalOutboxEvent)
@@ -74,7 +82,12 @@ describe('rental transactional outbox', () => {
     await expect(
       kit.dataSource.transaction(async manager => {
         await manager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-        await rentalsRepository.recordStatusChange(manager, rental.rentalId, 'ACTIVE', new Date());
+        await rentalStatusEventWriter.recordStatusChange(
+          manager,
+          rental.rentalId,
+          'ACTIVE',
+          new Date(),
+        );
         throw new Error('Injected rollback');
       }),
     ).rejects.toThrow('Injected');
@@ -211,7 +224,12 @@ describe('rental transactional outbox', () => {
     await kit.dataSource.transaction(async manager => {
       await rentalsRepository.findForUpdate(manager, rental.rentalId);
       await manager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-      await rentalsRepository.recordStatusChange(manager, rental.rentalId, 'ACTIVE', new Date());
+      await rentalStatusEventWriter.recordStatusChange(
+        manager,
+        rental.rentalId,
+        'ACTIVE',
+        new Date(),
+      );
     });
     await kit.dataSource
       .getRepository(RentalOutboxDelivery)
@@ -241,7 +259,12 @@ describe('rental transactional outbox', () => {
     const { rental, event } = await record();
     await kit.dataSource.transaction(async manager => {
       await manager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-      await rentalsRepository.recordStatusChange(manager, rental.rentalId, 'ACTIVE', new Date());
+      await rentalStatusEventWriter.recordStatusChange(
+        manager,
+        rental.rentalId,
+        'ACTIVE',
+        new Date(),
+      );
     });
     const writer = kit.dataSource.createQueryRunner();
     await writer.connect();
@@ -351,7 +374,12 @@ describe('rental transactional outbox', () => {
     );
     await kit.dataSource.transaction(async manager => {
       await manager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-      await rentalsRepository.recordStatusChange(manager, rental.rentalId, 'ACTIVE', new Date());
+      await rentalStatusEventWriter.recordStatusChange(
+        manager,
+        rental.rentalId,
+        'ACTIVE',
+        new Date(),
+      );
     });
     const delayMs = await outboxRepository.nextRetryDelayMs();
     expect(delayMs).toBeGreaterThan(15000);

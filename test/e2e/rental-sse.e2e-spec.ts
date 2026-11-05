@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { randomUUID } from 'node:crypto';
 import { request as httpRequest } from 'node:http';
 import type { Server } from 'node:http';
@@ -121,7 +122,9 @@ describe('Rental SSE API (full AppModule)', () => {
     await kit.dataSource.transaction(async manager => {
       await repository.findForUpdate(manager, rentalId);
       await manager.update(Rental, rentalId, { status });
-      await repository.recordStatusChange(manager, rentalId, previousStatus, new Date());
+      await app
+        .get(RentalStatusEventWriter)
+        .recordStatusChange(manager, rentalId, previousStatus, new Date());
     });
     return kit.dataSource.getRepository(RentalOutboxEvent).findOneByOrFail({ rentalId, status });
   }

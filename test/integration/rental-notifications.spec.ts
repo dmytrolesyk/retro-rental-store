@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { Resend } from 'resend';
 import { Rental, RentalJob, Renter } from '../../src/database/entities';
@@ -5,16 +6,16 @@ import { EmailService } from '../../src/email/email.service';
 import { JobsService } from '../../src/jobs/jobs.service';
 import { RentalNotificationWorker } from '../../src/jobs/rental-notification.worker';
 import { rentalNotification } from '../../src/jobs/rental-notification';
-import { RentalsRepository } from '../../src/rentals/rentals.repository';
 import { aRental, aRenter } from './testkit/builders';
 import { startPostgres } from './testkit/postgres';
 import type { PostgresTestkit } from './testkit/postgres';
+
+const rentalStatusEventWriter = new RentalStatusEventWriter();
 
 describe('transactional rental email queue', () => {
   let kit: PostgresTestkit;
   let stopPostgres: (() => Promise<void>) | undefined;
   let jobsService: JobsService;
-  let rentalsRepository: RentalsRepository;
   const send = jest.fn<
     ReturnType<Resend['emails']['send']>,
     Parameters<Resend['emails']['send']>
@@ -29,7 +30,6 @@ describe('transactional rental email queue', () => {
   beforeEach(async () => {
     await kit.reset();
     jobsService = new JobsService(kit.dataSource);
-    rentalsRepository = new RentalsRepository(kit.dataSource);
     send.mockReset().mockResolvedValue({ data: { id: 'accepted' }, error: null, headers: null });
   });
   afterAll(async () => {
@@ -81,7 +81,12 @@ describe('transactional rental email queue', () => {
     await expect(
       kit.dataSource.transaction(async manager => {
         await manager.update(Rental, rental.rentalId, { status: 'OVERDUE' });
-        await rentalsRepository.recordStatusChange(manager, rental.rentalId, 'ACTIVE', new Date());
+        await rentalStatusEventWriter.recordStatusChange(
+          manager,
+          rental.rentalId,
+          'ACTIVE',
+          new Date(),
+        );
         throw new Error('Injected transaction failure');
       }),
     ).rejects.toThrow('Injected');

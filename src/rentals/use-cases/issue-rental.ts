@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../rental-status-event.writer';
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { assertRentalAccess } from '../../auth/rental-access';
@@ -14,6 +15,7 @@ export class IssueRental {
   constructor(
     private readonly dataSource: DataSource,
     private readonly rentalsRepository: RentalsRepository,
+    private readonly rentalStatusEventWriter: RentalStatusEventWriter,
   ) {}
 
   execute(rentalId: string, principal: Principal): Promise<RentalDetailDto> {
@@ -36,7 +38,7 @@ export class IssueRental {
       if (remainingBalance === null)
         throw new CheckoutError('INSUFFICIENT_BALANCE', 'Renter has insufficient balance');
       await this.rentalsRepository.issue(manager, rentalId, terms.rentedAt, terms.dueAt);
-      await this.rentalsRepository.recordStatusChange(manager, rentalId, rental.status, now);
+      await this.rentalStatusEventWriter.recordStatusChange(manager, rentalId, rental.status, now);
       const updatedRental = await this.rentalsRepository.findForUpdate(manager, rentalId);
       if (!updatedRental) throw new InternalServerErrorException('Rental disappeared while locked');
       return rentalDetail(

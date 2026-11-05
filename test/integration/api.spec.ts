@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from '../../src/rentals/rental-status-event.writer';
 import { AuthModule } from '../../src/auth/auth.module';
 import { AUTH_IDENTITIES } from '../../src/auth/auth.config';
 import {
@@ -74,6 +75,7 @@ describe('API contracts with real PostgreSQL', () => {
         CancelRental,
         ReturnRental,
         RentalsRepository,
+        RentalStatusEventWriter,
         CreateRentalResponseInterceptor,
         { provide: DataSource, useValue: kit.dataSource },
       ],
@@ -280,6 +282,7 @@ describe('API contracts with real PostgreSQL', () => {
     const replay = await new RentalsService(
       kit.dataSource,
       new RentalsRepository(kit.dataSource),
+      new RentalStatusEventWriter(),
     ).create(input, 'parallel-0001', clientPrincipal);
     expect(replay).toEqual({ response: responses[0].body as CreatedRental, replayed: true });
     expect(await kit.dataSource.getRepository(RentalJob).count()).toBe(0);

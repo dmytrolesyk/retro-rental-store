@@ -4,22 +4,17 @@ import { QueueRentalStatusEmail } from './queue-rental-status-email';
 import { ProcessRentalOutbox } from './process-rental-outbox';
 import { RentalOutboxDispatcher } from './rental-outbox.dispatcher';
 import { OutboxCommitSubscriber } from './outbox-commit.subscriber';
-import { RentalEventsService } from '../realtime/rental-events.service';
-import { RentalEventHistoryRepository } from '../realtime/rental-event-history.repository';
-import { RentalReplayService } from '../realtime/rental-replay.service';
+import { RentalEventsModule } from '../realtime/rental-events.module';
 
 /** API only: email worker and offline demos do not run an outbox relay. */
 @Module({
+  imports: [RentalEventsModule],
   providers: [
     OutboxRepository,
     QueueRentalStatusEmail,
     ProcessRentalOutbox,
     RentalOutboxDispatcher,
     OutboxCommitSubscriber,
-    RentalEventsService,
-    RentalEventHistoryRepository,
-    RentalReplayService,
   ],
-  exports: [RentalEventsService, RentalReplayService],
 })
 export class RentalOutboxModule {}

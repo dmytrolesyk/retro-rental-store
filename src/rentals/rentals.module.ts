@@ -1,3 +1,4 @@
+import { RentalStatusEventWriter } from './rental-status-event.writer';
 import { ExpireBooking } from './use-cases/expire-booking';
 import { MarkRentalOverdue } from './use-cases/mark-rental-overdue';
 import { ProcessRentalDeadlines } from './use-cases/process-rental-deadlines';
@@ -17,6 +18,7 @@ import { RentalsRepository } from './rentals.repository';
   providers: [
     RentalsService,
     RentalsRepository,
+    RentalStatusEventWriter,
     CreateRentalResponseInterceptor,
     IssueRental,
     CancelRental,
