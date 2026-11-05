@@ -135,7 +135,7 @@ the new schema once bookings or new overdue states exist, rather than dropping
 history or inventing issue dates. Run migration checks only on a disposable DB.
 
 ```bash
-pnpm test -- --runInBand
+pnpm exec jest --runInBand
 pnpm test:integration
 ```
 
@@ -2036,8 +2036,8 @@ never converted to a JavaScript number). No cursor replays all retained history;
 a cursor at the latest event waits for new events. Empty/malformed UUIDs and
 unknown, foreign or not-yet-committed event IDs all raise the same bad-request
 error after authorization. This deliberately uses UUIDs rather than the original
-homework's numeric `Last-Event-ID: 3`; that literal grading example still needs
-reconciliation in the grading/demo documentation; the SSE endpoint accepts UUIDs. No historical events are
+homework's numeric `Last-Event-ID: 3`; see the explicit grading differences in
+[Homework 18 verification](#homework-18-verification). No historical events are
 synthesized for rentals created before the outbox migration.
 
 On subscription, the service subscribes to the rental's Subject signals **before**
@@ -2287,7 +2287,162 @@ the actual backend, migrations and transactional outbox. Source:
 `scripts/realtime-demo.mjs` (measurement) and
 `src/scripts/realtime-demo-fixture.ts` (isolated environment).
 
-### Source layout and module ownership
+## Trade-offs: WebSocket vs SSE
+
+This project uses Socket.IO on the WebSocket side, with HTTP polling fallback.
+The comparison includes Socket.IO's extra protocol features; a raw WebSocket
+connection does not supply rooms, acknowledgements or automatic reconnect.
+
+| Criterion | WebSocket / Socket.IO | SSE in this application |
+| --- | --- | --- |
+| Direction | Bidirectional: commands, acknowledgements and server events share the connection. | Server → client stream; booking/issue/return commands remain HTTP requests. |
+| Reconnect and replay | Socket.IO can reconnect, but this gateway requires another authorized join and does not replay missed events. | Reconnect with the last event UUID; the replay service reads subsequent durable DB history. A fetch-based client implements its own reconnect. |
+| Infrastructure | Supports upgrades; Socket.IO may fall back to polling. Multiple nodes need coordinated fanout and polling session affinity. | Ordinary streaming HTTP; proxies must avoid buffering and allow long-lived responses. Multiple nodes still need shared history and per-node wakeups. |
+| Cost per event | WebSocket frames have compact framing; Socket.IO adds its own envelope. Current gateway fans out local bus events without reading history per client. | Text framing adds id/event/data fields. This implementation reads DB history per subscription on hints, including catch-up pages. Actual cost needs measurement. |
+| Authentication | Current handshake uses auth.token, then join checks rental access. | Current endpoint requires an Authorization header. Native browser EventSource cannot set it; use an authenticated fetch stream or a future cookie-based design. |
+| Slow clients | Delivery/buffering policy must be considered; emitting an event is not proof of UI receipt. | Nest queues writes; there is no application byte cap. A slow client can grow buffering; durable history permits reconnect but does not bound that queue. |
+
+For one-way rental notifications I would keep SSE with the existing HTTP commands
+and durable UUID replay. In this project's current Bearer-auth setup that means
+an authenticated fetch-stream client with explicit reconnect and idempotent event
+application; a later cookie login could allow native EventSource. Socket.IO is
+useful when the UI also needs frequent bidirectional realtime interactions.
+
+### Memory, restart and two API instances
+
+The Subject and Socket.IO room membership are process-local. PostgreSQL keeps
+outbox history across API restarts, including committed events not yet published;
+SSE resumes after a UUID cursor, while Socket.IO reconnects and joins again without
+history. Replay reads pages of 100 but retains no separate RAM event history;
+retained DB rows have no pruning policy, and slow SSE clients have no byte cap.
+Client code must deduplicate by eventId across reconnects and avoid treating a
+server-side publication acknowledgement as application-level receipt.
+
+With two API instances, clients on the other process can miss local publications.
+A Socket.IO adapter such as Redis forwards room emits between nodes; polling also
+needs sticky sessions, while WebSocket-only transport avoids that polling need.
+The adapter alone does not wake our SSE replay subscriptions: each replica needs
+its own cross-process invalidation subscription (or a separately designed polling
+strategy) to reread the shared DB. Competing outbox consumers that acknowledge one
+realtime delivery globally do not automatically notify every process. These are
+required design changes for scaling; they are not implemented in this homework.
+
+Sources: [Socket.IO multiple nodes](https://socket.io/docs/v4/using-multiple-nodes/),
+[Redis adapter fanout](https://socket.io/docs/v4/redis-adapter/),
+[Nest SSE lifecycle](https://docs.nestjs.com/techniques/server-sent-events).
+
+## Homework 18 verification
+
+Start from a fresh checkout of hw-18 with Node 24.9+, pnpm 10.24.0 and Docker:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+node scripts/realtime-demo.mjs
+node scripts/realtime-demo.mjs --same-room
+```
+
+The demo owns isolated fixtures, ephemeral credentials, migrations and cleanup;
+no .env file, real email provider, Redis or running development API is required.
+Use the Rancher Docker settings in the demo section if needed. The source is
+compiled with TypeScript decorator metadata; runtime imports use dist, not tsx.
+
+### Isolated curl SSE/replay smoke
+
+The following command uses the same disposable fixture and real HTTP actions.
+Credentials stay in memory and enter curl through stdin, not command arguments.
+It reads BOOKED/ACTIVE history, remembers ACTIVE's UUID, returns the rental, then
+asserts that reconnect delivers only RETURNED. Curl exit 28 is expected because
+--max-time deliberately ends each otherwise open stream; other exits fail.
+The fixture always closes in finally. This is a replay smoke; the SSE E2E suite
+below additionally tests status changes while a connection is already open.
+
+```sh
+node --input-type=module <<'JS'
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { createRealtimeDemoFixture } from './dist/scripts/realtime-demo-fixture.js';
+const fixture = await createRealtimeDemoFixture();
+try {
+  const { url, rentalA, clientToken, staffToken } = fixture;
+  async function command(action) {
+    const response = await fetch(`${url}/rentals/${rentalA}/${action}`, {
+      method: 'POST', headers: { Authorization: `Bearer ${staffToken}` },
+      signal: AbortSignal.timeout(5000),
+    });
+    assert.equal(response.status, 200);
+    await response.arrayBuffer();
+  }
+  async function stream(cursor) {
+    return new Promise((resolve, reject) => {
+      const child = spawn('curl', ['--silent', '--no-buffer', '--max-time', '2',
+        '--dump-header', '-', '--header', '@-', `${url}/rentals/${rentalA}/events`]);
+      let output = '';
+      child.stdout.on('data', chunk => { output += chunk; });
+      child.on('error', reject);
+      child.stdin.on('error', reject);
+      child.on('close', code => {
+        if (code !== 0 && code !== 28) return reject(new Error('curl failed'));
+        resolve(output);
+      });
+      child.stdin.end(`Authorization: Bearer ${clientToken}\n` +
+        (cursor ? `Last-Event-ID: ${cursor}\n` : ''));
+    });
+  }
+  await command('issue');
+  const history = await stream();
+  assert.match(history, /content-type: text\/event-stream/i);
+  const ids = [...history.matchAll(/^id: (.+)$/gm)].map(match => match[1].trim());
+  assert.equal(ids.length, 2);
+  assert.match(history, /event: rental.status/);
+  assert.match(history, /"status":"ACTIVE"/);
+  await command('return');
+  const replay = await stream(ids[1]);
+  assert.equal([...replay.matchAll(/^id: (.+)$/gm)].length, 1);
+  assert.match(replay, /"status":"RETURNED"/);
+  assert.ok(!replay.includes(`id: ${ids[1]}\n`));
+  console.log(history, replay, 'SSE_REPLAY_OK');
+} finally {
+  await fixture.close();
+}
+JS
+```
+
+### Automated checks and exact grading differences
+
+```sh
+pnpm exec jest --runInBand
+pnpm test:realtime-demo
+pnpm test:integration
+pnpm test:e2e
+pnpm test:consumer
+pnpm verify:provider
+pnpm openapi:generate
+pnpm openapi:lint
+```
+
+Run test commands sequentially: integration/E2E/consumer/provider commands share
+and rebuild dist-test. Leave PACT_BROKER_URL unset for local-file contract checks;
+consumer verification generates the Pact file needed by provider verification.
+No Broker publication is required for this local verification. OpenAPI generation
+is metadata-only and should leave openapi/openapi.yaml unchanged.
+
+| Original requirement | This repository / reproduction |
+| --- | --- |
+| orders routes, orders rooms and order.status | Agreed domain adaptation: /rentals/:id/events, rentals:<id>, rental.status. HTTP/SSE Bearer and socket auth.token are required. Anonymous literal curl commands return 401. |
+| SSE Content-Type and id/event/data | Isolated curl smoke above; full SSE E2E also checks live outbox delivery, private-field exclusion and HTTP errors before stream headers. |
+| Numeric Last-Event-ID: 3 after at least four status changes | Literal criterion is not met. The external cursor is a UUID, mapped to internal per-rental position; numeric 3 returns 400. The smoke uses legal BOOKED → ACTIVE → RETURNED history. E2E checks ordered UUID replay/restart and pending publications; it is not evidence of four literal numeric transitions. |
+| Shared Subject/history for both transports | One local bus; Socket.IO sends live publications, SSE reads durable outbox history on bus hints. Committed unpublished events are replayable, and history survives restart. |
+| Two room-isolation demo runs | Both commands above must exit 0 with A=1/B=0, then A=1/B=1. Same runner, measured event IDs. |
+| Trade-offs table and two-instance explanation | Table above and explicit adapter/sticky-session/SSE-wakeup limitations. |
+
+These domain/cursor choices were agreed during implementation; acceptance by the
+course reviewer is still external. No numeric facade, synthetic status changes
+or orders aliases are added solely to make literal commands appear compatible.
+Submit the hw-18 PR link to the LMS after reviewing and committing the final docs.
+Commit, push, PR creation and LMS submission are separate student actions.
+
+## Source layout and module ownership
 
 Entities live with their functionality:
 
